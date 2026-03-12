@@ -14,6 +14,7 @@ class AssetPathManager {
         // [구역 1] 이미지 에셋 (Images)
         this.images = {
             // 예: bg_territory: `${this.basePath}images/bg/territory.png`
+            battle_forest_bg: `${this.basePath}background/battle_stage/battle-stage-cursed-forest.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)
@@ -26,7 +27,37 @@ class AssetPathManager {
             // 예: merc_atlas: `${this.basePath}data/mercenaries.json`
         };
 
-        Logger.system("AssetPathManager: Initialized (Waiting for path definitions).");
+        Logger.system("AssetPathManager: Initialized with Mercenary Asset Rules.");
+    }
+
+    /**
+     * 용병 관련 에셋 경로 생성 (Mercenary Asset Rules)
+     * @param {string} mercId 용병 식별자
+     * @param {string} type 'sprite' | 'cutscene'
+     */
+    getMercenaryPath(mercId, type) {
+        const partyPath = `${this.basePath}characters/party/`;
+        if (type === 'sprite') {
+            return `${partyPath}${mercId}_sprite.png`;
+        } else if (type === 'cutscene') {
+            return `${partyPath}${mercId}_cutscene.png`;
+        }
+        return null;
+    }
+
+    /**
+     * 몬스터/적 관련 에셋 경로 생성 (Enemy Asset Rules)
+     * @param {string} enemyId 적 식별자
+     * @param {string} type 'sprite' | 'cutscene'
+     */
+    getEnemyPath(enemyId, type) {
+        const enemyPath = `${this.basePath}characters/enemies/`;
+        if (type === 'sprite') {
+            return `${enemyPath}${enemyId}_sprite.png`;
+        } else if (type === 'cutscene') {
+            return `${enemyPath}${enemyId}_cutscene.png`;
+        }
+        return null;
     }
 
     /**

@@ -53,7 +53,7 @@ class TerritoryDOMManager {
         });
 
         // UI 레이어에 추가
-        domManager.addToLayer('ui', this.ui_container);
+        domManager.addToLayer('hud', this.ui_container);
 
         // 언어 변경 리스너
         EventBus.on(EVENTS.LANGUAGE_CHANGED, () => this.updateTexts());

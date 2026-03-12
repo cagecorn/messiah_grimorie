@@ -47,8 +47,7 @@ class GachaSceneDOMManager {
         this.container.appendChild(controls);
         this.container.appendChild(this.collectionPanel);
 
-        // UI 레이어에 추가
-        domManager.addToLayer('ui', this.container);
+        domManager.addToLayer('hud', this.container);
 
         // 언어 변경 리스너
         EventBus.on(EVENTS.LANGUAGE_CHANGED, () => this.updateTexts());

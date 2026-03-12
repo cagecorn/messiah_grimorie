@@ -1,4 +1,5 @@
 import Logger from '../utils/Logger.js';
+import layerManager from './LayerManager.js';
 
 /**
  * DOM 매니저 (DOM Manager)
@@ -33,9 +34,8 @@ class DOMManager {
             layer.style.height = '100%';
             layer.style.pointerEvents = 'none'; // 기본적으로는 클릭 통과 (자식 요소에서 반전 가능)
             
-            // 레이어별 z-index 설정 (하드코딩 방지 위해 간단한 규칙 적용)
-            const zIndexes = { 'ui': 1000, 'popup': 2000, 'toast': 3000 };
-            layer.style.zIndex = zIndexes[layerId] || 500;
+            // 레이어별 z-index 설정 (LayerManager에서 정의된 표준 사용)
+            layer.style.zIndex = layerManager.getDepth(layerId);
             
             document.body.appendChild(layer);
             this.layers.set(layerId, layer);

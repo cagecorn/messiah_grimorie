@@ -9,19 +9,35 @@ import Logger from '../utils/Logger.js';
  */
 class LayerManager {
     constructor() {
-        // [구역 1] 레이어 정의 (z-index 표준)
+        /**
+         * [표준 z-index 계층 (Standard Z-Index Hierarchy)]
+         * 
+         * 20001: 내비게이션 바 (NAV - #mobile-hud) - 최상위 메뉴.
+         * 18000: 상세 툴팁 (TOOLTIP - .status-popup-tab) - 버프/디버프 정보.
+         * 15000: 팝업 레이어 (POPUP - #popup-overlay) - 용병 상세창, 설정 등.
+         * 1000:  일반 HUD (HUD - #hud-round-display, #hud-bottom)
+         * 500:   전투 HUD (WORLD_UI - #npc-hud, #messiah-hud) - 월드 내 유닛 정보.
+         * 100:   엔티티 (ENTITIES) - 캐릭터, 오브젝트.
+         * 0:     배경 (BACKGROUND) - 맵, 타일.
+         * 
+         * [구조적 제약 (Structural Constraints)]:
+         * - #npc-hud 및 #messiah-hud는 반드시 #mobile-hud 외부(app-container의 직계 자식)에
+         *   위치해야 독립적인 레이어 순서가 보장됩니다.
+         */
         this.layers = {
             background: 0,
             world: 100,
-            entities: 500,
+            entities: 100,
+            world_ui: 500, // #npc-hud, #messiah-hud
             fx: 800,
             hud: 1000,
             popup: 15000,
             tooltip: 18000,
-            nav: 20001
+            nav: 20001,
+            toast: 25000 // 최상단 (전환 효과 등)
         };
         
-        Logger.system("LayerManager Router: Initialized.");
+        Logger.system("LayerManager Router: Z-Index hierarchy standardized.");
     }
 
     /**
