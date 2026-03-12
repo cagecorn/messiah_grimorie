@@ -3,6 +3,7 @@ import displayManager from './core/DisplayManager.js';
 import measurementManager from './core/MeasurementManager.js';
 import BootScene from './scenes/BootScene.js';
 import MainScene from './scenes/MainScene.js';
+import TerritoryScene from './scenes/TerritoryScene.js';
 
 /**
  * ==========================================
@@ -53,7 +54,7 @@ const config = {
             });
         }
     },
-    scene: [BootScene, MainScene]
+    scene: [BootScene, TerritoryScene, MainScene]
 };
 
 const game = new Phaser.Game(config);
