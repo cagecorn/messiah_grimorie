@@ -10,7 +10,40 @@ import Logger from '../utils/Logger.js';
 class DOMManager {
     constructor() {
         this.domModules = new Map();
+        this.layers = new Map();
         Logger.system("DOMManager Router: Initialized (Dirty Flag monitoring active).");
+    }
+
+    /**
+     * 특정 레이어에 DOM 요소 추가
+     * @param {string} layerId 'ui', 'popup', 'toast' 등
+     * @param {HTMLElement} element 
+     */
+    addToLayer(layerId, element) {
+        let layer = this.layers.get(layerId);
+        
+        if (!layer) {
+            layer = document.createElement('div');
+            layer.id = `mg-layer-${layerId}`;
+            layer.className = 'mg-dom-layer';
+            layer.style.position = 'absolute';
+            layer.style.top = '0';
+            layer.style.left = '0';
+            layer.style.width = '100%';
+            layer.style.height = '100%';
+            layer.style.pointerEvents = 'none'; // 기본적으로는 클릭 통과 (자식 요소에서 반전 가능)
+            
+            // 레이어별 z-index 설정 (하드코딩 방지 위해 간단한 규칙 적용)
+            const zIndexes = { 'ui': 1000, 'popup': 2000, 'toast': 3000 };
+            layer.style.zIndex = zIndexes[layerId] || 500;
+            
+            document.body.appendChild(layer);
+            this.layers.set(layerId, layer);
+        }
+
+        // 요소 추가 (기본적으로 pointer-events: auto 로 설정하여 클릭 가능하게 함)
+        element.style.pointerEvents = 'auto';
+        layer.appendChild(element);
     }
 
     /**

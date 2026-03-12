@@ -72,6 +72,13 @@ export default class BootScene extends Phaser.Scene {
         // 메시아 그리모어 리부트 공식 선언
         Logger.system("Messiah Grimoire: System Link Established.");
         
+        // [GLOBAL UI] 최상단 HUD 초기화 (한 번만 실행)
+        const topHUDDOMManager = this.scene.systems.game.plugins.get('topHUDDOMManager'); // 만약 글로벌로 관리한다면... 
+        // 일단은 직접 임포트해서 초기화
+        import('../ui/TopHUDDOMManager.js').then(module => {
+            module.default.initialize();
+        });
+
         // 영지 씬으로 진입
         this.scene.start('TerritoryScene');
     }

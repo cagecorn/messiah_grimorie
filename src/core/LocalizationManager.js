@@ -34,9 +34,14 @@ class LocalizationManager {
                 // Resources
                 gold: "Gold",
                 gem: "Gem",
+                shop: "Shop",
+                gacha: "Summon",
+                formation: "Formation",
+                siege: "Siege",
                 
                 // Focus Mode
                 focus_mode: "Focus Mode",
+                focus: "Focus",
                 focus_playlist: "Playlist",
                 focus_time: "Focus Time"
             },
@@ -65,9 +70,14 @@ class LocalizationManager {
                 // Resources
                 gold: "골드",
                 gem: "다이아",
+                shop: "상점",
+                gacha: "소환",
+                formation: "편성",
+                siege: "공성전",
                 
                 // Focus Mode
                 focus_mode: "집중 모드",
+                focus: "집중",
                 focus_playlist: "플레이리스트",
                 focus_time: "집중 시간"
             }

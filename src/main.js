@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import './index.css';
 import displayManager from './core/DisplayManager.js';
 import measurementManager from './core/MeasurementManager.js';
 import BootScene from './scenes/BootScene.js';

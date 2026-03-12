@@ -1,0 +1,145 @@
+/* ==========================================
+   ⚔️ [Global] Design System & Retro Base
+   ========================================== */
+
+:root {
+    --mg-gold: #d4af37;
+    --mg-gold-bright: #ffd700;
+    --mg-dark: #0a0a0a;
+    --mg-panel: #1a0f0a;
+    --mg-border: #4a3721;
+    --mg-accent: #00fbff;
+    --mg-red: #800000;
+    --mg-shadow: rgba(0, 0, 0, 0.7);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    overflow: hidden;
+    user-select: none;
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+}
+
+/* ==========================================
+   🏛️ [UI] Top HUD Styles
+   ========================================== */
+
+.mg-top-hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, var(--mg-panel) 0%, rgba(26, 15, 10, 0.8) 100%);
+    border-bottom: 2px solid var(--mg-border);
+    box-shadow: 0 4px 10px var(--mg-shadow);
+    z-index: 1000;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+
+/* Left: Currencies */
+.mg-hud-left {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.mg-currency-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mg-gold-bright);
+    font-weight: bold;
+    font-size: 18px;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.8);
+}
+
+.mg-currency-item img {
+    height: 24px;
+    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+}
+
+/* Center: Navigation Buttons */
+.mg-hud-center {
+    display: flex;
+    gap: 10px;
+}
+
+.mg-nav-button {
+    background: linear-gradient(180deg, #4a0404 0%, #2a0202 100%);
+    border: 1px solid var(--mg-gold);
+    color: var(--mg-gold);
+    padding: 8px 18px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mg-nav-button:hover {
+    background: linear-gradient(180deg, #800000 0%, #4a0404 100%);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.mg-nav-button:active {
+    transform: translateY(0);
+}
+
+/* Right: System Buttons */
+.mg-hud-right {
+    display: flex;
+    gap: 12px;
+}
+
+.mg-sys-button {
+    width: 36px;
+    height: 36px;
+    background: #1a1a1a;
+    border: 1px solid var(--mg-border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mg-sys-button:hover {
+    border-color: var(--mg-gold);
+    background: #2a2a2a;
+    transform: scale(1.1);
+}
+
+.mg-sys-button img {
+    width: 24px;
+    height: 24px;
+    opacity: 0.8;
+}
+
+.mg-sys-button:hover img {
+    opacity: 1;
+}
+
+/* Focus Mode Icon (Square Brackets style) */
+.mg-icon-focus {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--mg-gold);
+    position: relative;
+}
+.mg-icon-focus::before, .mg-icon-focus::after {
+    content: '';
+    position: absolute;
+    background: var(--mg-dark);
+}
+/* This is a placeholder for the focus icon if image not available, but user didn't specify icon for focus, so I'll try to find one or keep it simple. */
