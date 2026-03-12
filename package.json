@@ -1,0 +1,29 @@
+{
+  "name": "messiah_grimorie",
+  "version": "1.0.0",
+  "description": "Black Behemoth: Messiah Grimoire - An idle RPG with focus mode and music.",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cagecorn/messiah_grimorie.git"
+  },
+  "keywords": [
+    "phaser3",
+    "idle-game",
+    "rpg"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "vite": "^8.0.0"
+  }
+}
