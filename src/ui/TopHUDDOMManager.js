@@ -105,16 +105,20 @@ class TopHUDDOMManager {
         ];
 
         navConfigs.forEach(conf => {
+            // [STABLE] 버튼을 감싸는 래퍼 생성 (드롭다운 앵커 역할)
+            const wrapper = document.createElement('div');
+            wrapper.className = 'mg-nav-item';
+            wrapper.style.position = 'relative';
+
             const btn = document.createElement('button');
             btn.className = 'mg-nav-button';
             btn.dataset.key = conf.key;
-            btn.style.position = 'relative'; // [STABLE] 자식 드롭다운의 기준점
             btn.innerText = state.t(conf.key);
             
-            // 던전 버튼인 경우 드롭다운을 여기에 직접 생성
+            // 던전 버튼인 경우 드롭다운을 래퍼에 추가
             if (conf.key === 'dungeon') {
                 this.elements.dungeonBtn = btn;
-                this.createDungeonDropdown(btn);
+                this.createDungeonDropdown(wrapper);
             }
 
             btn.onclick = (e) => {
@@ -125,31 +129,35 @@ class TopHUDDOMManager {
                     EventBus.emit(conf.event);
                 }
             };
-            section.appendChild(btn);
+
+            wrapper.appendChild(btn);
+            section.appendChild(wrapper);
         });
 
         return section;
     }
 
     /**
-     * 던전 리스트 드롭다운 UI 생성 (버튼의 자식으로)
+     * 던전 리스트 드롭다운 UI 생성 (래퍼의 자식으로)
      */
-    createDungeonDropdown(parentBtn) {
+    createDungeonDropdown(parentWrapper) {
         this.dungeonDropdown = document.createElement('div');
         this.dungeonDropdown.id = 'hud-dungeon-dropdown';
         this.dungeonDropdown.className = 'hud-dungeon-dropdown';
         
-        // 버튼 하단에 고정 (CSS로 미세조정)
+        // 래퍼 하단에 고정
         this.dungeonDropdown.style.display = 'none';
         this.dungeonDropdown.style.position = 'absolute';
-        this.dungeonDropdown.style.top = 'calc(100% + 10px)';
+        this.dungeonDropdown.style.top = '100%';
         this.dungeonDropdown.style.left = '0';
+        this.dungeonDropdown.style.marginTop = '10px';
+        this.dungeonDropdown.style.zIndex = '1000'; // 래퍼 내부에서 최상위
         
-        // 클릭 시 버튼 이벤트 전파 방지
+        // 클릭 시 이벤트 전파 방지
         this.dungeonDropdown.onclick = (e) => e.stopPropagation();
 
         this.refreshDungeonList();
-        parentBtn.appendChild(this.dungeonDropdown);
+        parentWrapper.appendChild(this.dungeonDropdown);
     }
 
     toggleDungeonDropdown(event) {

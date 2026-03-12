@@ -47,6 +47,12 @@
     display: flex;
     gap: 10px;
     justify-content: center;
+    overflow: visible; /* 자식 드롭다운이 밖으로 나갈 수 있게 허용 */
+}
+
+.mg-nav-item {
+    position: relative;
+    overflow: visible;
 }
 
 .mg-nav-button {

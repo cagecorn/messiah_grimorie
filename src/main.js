@@ -7,6 +7,7 @@ import './styles/hud.css';
 import './styles/territory.css';
 import './styles/gacha.css';
 import './styles/gacha_card.css';
+import './styles/formation.css';
 import './styles/scene_transition.css';
 
 import displayManager from './core/DisplayManager.js';
@@ -15,6 +16,8 @@ import BootScene from './scenes/BootScene.js';
 import MainScene from './scenes/MainScene.js';
 import TerritoryScene from './scenes/TerritoryScene.js';
 import GachaScene from './scenes/GachaScene.js';
+import FormationScene from './scenes/FormationScene.js';
+import BattleScene from './scenes/BattleScene.js';
 
 /**
  * ==========================================
@@ -65,7 +68,7 @@ const config = {
             });
         }
     },
-    scene: [BootScene, TerritoryScene, GachaScene, MainScene]
+    scene: [BootScene, TerritoryScene, GachaScene, FormationScene, BattleScene, MainScene]
 };
 
 const game = new Phaser.Game(config);

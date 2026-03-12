@@ -1,0 +1,195 @@
+/* ==========================================
+   ⚔️ [UI] Formation System Styles
+   ========================================== */
+
+.formation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at center, rgba(30, 15, 10, 0.95) 0%, rgba(5, 5, 5, 0.98) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px 20px;
+    box-sizing: border-box;
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+}
+
+/* --- Top Section: 6 Tactical Slots --- */
+.formation-slots-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--mg-border);
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.formation-slot {
+    width: 110px;
+    height: 140px;
+    background: rgba(40, 30, 20, 0.4);
+    border: 2px dashed var(--mg-border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.formation-slot.active {
+    border: 2px solid var(--mg-gold);
+    background: rgba(80, 50, 20, 0.2);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.formation-slot.drag-over {
+    border-color: var(--mg-accent);
+    background: rgba(0, 251, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.slot-index-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--mg-border);
+    color: var(--mg-gold);
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--mg-gold);
+}
+
+/* --- Bottom Section: Roster Grid --- */
+.formation-roster-container {
+    width: 100%;
+    max-width: 900px;
+    flex: 1;
+    background: rgba(20, 15, 10, 0.6);
+    border: 1px solid var(--mg-border);
+    border-top: 3px solid var(--mg-gold);
+    border-radius: 12px 12px 0 0;
+    padding: 20px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+    box-sizing: border-box;
+}
+
+/* --- Mercenary Card (Simplified for Formation) --- */
+.formation-card {
+    width: 100px;
+    height: 130px;
+    background: linear-gradient(135deg, #2a1a10 0%, #1a0f0a 100%);
+    border: 1px solid var(--mg-border);
+    border-radius: 6px;
+    position: relative;
+    cursor: grab;
+    transition: transform 0.2s, border-color 0.2s;
+    overflow: hidden;
+}
+
+.formation-card:hover {
+    border-color: var(--mg-gold);
+    transform: translateY(-5px);
+}
+
+.formation-card:active {
+    cursor: grabbing;
+}
+
+.formation-card.deployed {
+    opacity: 0.5;
+    filter: grayscale(0.8);
+    cursor: not-allowed;
+}
+
+.card-sprite {
+    width: 100%;
+    height: 70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-sprite img {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
+}
+
+.card-info {
+    height: 30%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-name {
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.card-stars {
+    color: var(--mg-gold-bright);
+    font-size: 10px;
+}
+
+/* --- Footer Actions --- */
+.formation-footer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(0,0,0,0.5);
+    border-top: 1px solid var(--mg-border);
+}
+
+.formation-btn {
+    padding: 12px 40px;
+    font-size: 18px;
+    font-weight: 800;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-confirm {
+    background: linear-gradient(180deg, #ffb300 0%, #d48806 100%);
+    color: #3e2723;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+}
+
+.btn-confirm:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+}
+
+.btn-cancel {
+    background: #4a4a4a;
+    color: #fff;
+    border: 1px solid #666;
+}
+
+.btn-cancel:hover {
+    background: #666;
+}

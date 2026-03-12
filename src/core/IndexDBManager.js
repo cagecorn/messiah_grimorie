@@ -28,6 +28,8 @@ class IndexDBManager {
                 // 하위 스토어(Sub-stores) 라우팅을 위한 공간 생성
                 if (!db.objectStoreNames.contains('userData')) db.createObjectStore('userData', { keyPath: 'id' });
                 if (!db.objectStoreNames.contains('gameStats')) db.createObjectStore('gameStats', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('mercenaries')) db.createObjectStore('mercenaries', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('formations')) db.createObjectStore('formations', { keyPath: 'id' });
             };
 
             request.onsuccess = (event) => {
@@ -64,6 +66,19 @@ class IndexDBManager {
             const transaction = this.db.transaction([storeName], 'readonly');
             const store = transaction.objectStore(storeName);
             const request = store.get(key);
+            request.onsuccess = () => resolve(request.result);
+        });
+    }
+
+    /**
+     * 특정 스토어의 모든 데이터 로드 (Collection 용)
+     */
+    async getAll(storeName) {
+        if (!this.db) await this.init();
+        return new Promise((resolve) => {
+            const transaction = this.db.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.getAll();
             request.onsuccess = () => resolve(request.result);
         });
     }

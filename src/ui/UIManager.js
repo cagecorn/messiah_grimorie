@@ -1,5 +1,7 @@
 import EventBus, { EVENTS } from '../core/EventBus.js';
 import Logger from '../utils/Logger.js';
+import formationDOMManager from './formation/FormationDOMManager.js';
+import sceneTransitionDOMManager from './SceneTransitionDOMManager.js';
 
 /**
  * UI 매니저 (UI Manager)
@@ -16,6 +18,12 @@ class UIManager {
 
     initialize() {
         Logger.system("UIManager Router: Initialized.");
+        
+        // 시각적 전환 매니저 초기화
+        sceneTransitionDOMManager.initialize();
+        
+        // 하위 모듈 등록
+        this.registerSubModule('formation', formationDOMManager);
         
         // 공통 UI 이벤트 리스너 등록
         EventBus.on(EVENTS.SCENE_CHANGED, (scene) => this.routeSceneUI(scene));

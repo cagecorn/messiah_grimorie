@@ -1,32 +1,56 @@
+import Phaser from 'phaser';
+import Logger from '../../../utils/Logger.js';
+
 /**
- * 근접 AI (Melee AI)
- * 전략: 가장 가까운 적을 추적하고 사거리 내에서 공격
+ * 근접 AI 노드 (Melee AI Node)
+ * 역할: [전사 계열의 전진 및 근거리 전투 사고]
+ * 
+ * 설명: 타겟을 추적하여 공격 범위 내로 접근합니다.
+ * 공격 범위(atkRange) 내에 도달하면 정지하고 공격 상태로 전환 준비를 합니다.
  */
-export default class MeleeAI {
-    execute(self, aiBb, combatBb, deltaTime) {
-        // 1. 타겟 검색 (가장 가까운 적)
-        // [TODO] WorldContext/EntityManager 연동 필요
+class MeleeAI {
+    /**
+     * AI 로직 실행
+     * @param {CombatEntity} entity 
+     * @param {AIBlackboard} bb 
+     * @param {number} delta 
+     */
+    static execute(entity, bb, delta) {
+        const target = bb.get('target');
         
-        // 2. 사거리 체크
-        const target = aiBb.get('target');
-        if (!target) return;
+        // 1. 타겟이 없으면 대기
+        if (!target || !target.logic.isAlive) {
+            entity.moveDirection = { x: 0, y: 0 };
+            bb.set('state', 'idle');
+            return;
+        }
 
-        const dist = this.getDistance(self, target);
-        const range = self.getTotalAtkRange();
+        // 2. 타겟과의 거리 계산
+        const dist = Phaser.Math.Distance.Between(entity.x, entity.y, target.x, target.y);
+        const atkRange = entity.logic.getTotalAtkRange();
 
-        if (dist > range) {
-            // 추격 상태
-            aiBb.set('state', 'move');
-            aiBb.set('moveTarget', { x: target.x, y: target.y });
+        // 3. 행동 결정
+        if (dist > atkRange) {
+            // 공격 범위 밖: 추격
+            const dx = target.x - entity.x;
+            const dy = target.y - entity.y;
+            
+            // 정규화 (이동 방향 설정)
+            const angle = Math.atan2(dy, dx);
+            entity.moveDirection = {
+                x: Math.cos(angle),
+                y: Math.sin(angle)
+            };
+            
+            bb.set('state', 'move');
         } else {
-            // 공격 상태
-            aiBb.set('state', 'attack');
-            // 공격 로직 실행 (behaviors/warrior.js 등)
+            // 공격 범위 안: 정지 및 공격 준비
+            entity.moveDirection = { x: 0, y: 0 };
+            bb.set('state', 'attack');
+            
+            // [TODO] 공격 애니메이션 및 데미지 로직 연결 예정
         }
     }
-
-    getDistance(a, b) {
-        // 임시 거리 계산 (좌표 시스템 연동 전)
-        return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2)) || 999;
-    }
 }
+
+export default MeleeAI;

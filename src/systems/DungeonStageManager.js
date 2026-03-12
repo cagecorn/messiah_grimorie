@@ -28,9 +28,8 @@ class DungeonStageManager {
         this.currentStageId = stageId;
         Logger.info("DUNGEON", `Entering Stage: ${stageId}`);
         
-        // 씬 전환 이벤트 발생
-        EventBus.emit('change-scene', { 
-            scene: 'BattleScene', 
+        // 씬 전환 이벤트 발생 (SceneManager가 수신)
+        EventBus.emit('UI_ENTER_BATTLE', { 
             stageId: stageId 
         });
     }

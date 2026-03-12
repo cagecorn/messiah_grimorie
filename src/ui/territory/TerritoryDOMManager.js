@@ -60,6 +60,14 @@ class TerritoryDOMManager {
 
         // 씬 전환 시 UI 숨기기 리스너
         EventBus.on(EVENTS.TRANSITION_START, () => this.ui_hide());
+
+        EventBus.on(EVENTS.SCENE_CHANGED, (scene) => {
+            if (scene === 'TerritoryScene') {
+                this.ui_init(); // 보여주기 (이미 생성되었다면 display만 처리)
+            } else {
+                this.ui_hide();
+            }
+        });
     }
 
     createCard(conf) {

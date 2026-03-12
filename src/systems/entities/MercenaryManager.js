@@ -11,18 +11,20 @@ import silvi from '../../data/mercenaries/silvi.js';
 
 /**
  * 용병 매니저 (Mercenary Manager)
- * 역할: [플레이어 소속 용병들의 생성 및 생명주기 관리]
+ * 역할: [용병 데이터 레지스트리 및 팩토리]
+ * 
+ * 설명: 모든 용병의 기본 데이터(Registry)를 보유하고 있으며, 
+ * 이를 기반으로 실제 게임 객체(Entity)를 생성하는 팩토리 역할을 수행합니다.
+ * 더 이상 특정 용병을 하드코딩으로 지급하지 않습니다.
  */
 class MercenaryManager {
     constructor() {
-        this.mercenaries = new Map();
-        
-        // [ID 관리] 데이터 불일치 방지를 위한 고정 ID 레지스트리
+        // [ID 레지스트리] 핵심 데이터 정의 (하드코딩 지급 아님)
         this.registry = {
             aren, ella, sera, merlin, lute, silvi
         };
 
-        Logger.system("MercenaryManager: Registry initialized with core lineup.");
+        Logger.system("MercenaryManager: Registry ready (Factory mode).");
     }
 
     /**
@@ -35,27 +37,11 @@ class MercenaryManager {
             return null;
         }
 
-        return this.createMercenary({ ...baseData, ...customConfig });
-    }
-
-    /**
-     * 새로운 용병 생성
-     */
-    createMercenary(config) {
-        const merc = new BaseEntity({
-            ...config,
+        return new BaseEntity({
+            ...baseData,
+            ...customConfig,
             type: 'mercenary'
         });
-        this.mercenaries.set(merc.id, merc);
-        return merc;
-    }
-
-    getMercenary(id) {
-        return this.mercenaries.get(id);
-    }
-
-    getAll() {
-        return Array.from(this.mercenaries.values());
     }
 }
 

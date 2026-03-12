@@ -34,6 +34,16 @@ class SceneManager {
             Logger.info("SCENE_ROUTER", "Received event: UI_OPEN_TERRITORY");
             this.transitionTo('TerritoryScene');
         });
+
+        EventBus.on('UI_OPEN_FORMATION', () => {
+            Logger.info("SCENE_ROUTER", "Received event: UI_OPEN_FORMATION");
+            this.transitionTo('FormationScene');
+        });
+
+        EventBus.on('UI_ENTER_BATTLE', (data) => {
+            Logger.info("SCENE_ROUTER", "Received event: UI_ENTER_BATTLE");
+            this.transitionTo('BattleScene', data);
+        });
     }
 
     /**

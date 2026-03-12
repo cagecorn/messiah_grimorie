@@ -1,57 +1,85 @@
 import Logger from '../utils/Logger.js';
+import EventBus from '../core/EventBus.js';
 import indexDBManager from '../core/IndexDBManager.js';
-import EventBus, { EVENTS } from '../core/EventBus.js';
 
 /**
- * 용병 보유 현황 매니저 (Mercenary Collection Manager)
- * 역할: [보유 용병 데이터 관리 및 영구 저장]
+ * 용병 수집 매니저 (Mercenary Collection Manager)
+ * 역할: [소유권 및 컬렉션 데이터 관리]
  * 
- * 설명: 인덱스DB와 연동하여 뽑은 용병의 개수를 저장하고 관리합니다.
+ * 설명: 유저가 어떤 용병을 몇 장 가지고 있는지, 레벨/성은 얼마인지 기록합니다.
+ * DB와 실시간 동기화되며, 하드코딩 없이 시스템적으로 용병을 추가/조회합니다.
  */
 class MercenaryCollectionManager {
     constructor() {
-        this.collection = new Map(); // id -> count
-        this.tableName = 'mercenary_collection';
-        Logger.system("MercenaryCollectionManager: Initialized.");
+        this.ownedMercenaries = new Map(); // key: id, value: { id, level, stars, count, ... }
+        this.isInitialized = false;
     }
 
-    async load() {
+    /**
+     * 초기화 (DB에서 데이터 로드)
+     */
+    async initialize() {
+        if (this.isInitialized) return;
+
         try {
-            const data = await indexDBManager.get(this.tableName, 'all');
-            if (data) {
-                data.forEach(item => {
-                    this.collection.set(item.id, item.count);
-                });
-            }
-            Logger.info("COLLECTION", "Mercenary collection loaded from IndexDB.");
-            EventBus.emit('COLLECTION_LOADED');
+            const data = await indexDBManager.getAll('mercenaries');
+            data.forEach(merc => {
+                this.ownedMercenaries.set(merc.id.toLowerCase(), merc);
+            });
+            this.isInitialized = true;
+            Logger.system(`MercenaryCollectionManager: Initialized (${this.ownedMercenaries.size} owned).`);
+            EventBus.emit('COLLECTION_LOADED', { count: this.ownedMercenaries.size });
         } catch (err) {
-            Logger.error("COLLECTION", `Failed to load collection: ${err.message}`);
+            Logger.error("COLLECTION_MANAGER", `Initialization failed: ${err.message}`);
         }
     }
 
     /**
-     * 용병 획득 처리
-     * @param {string} unitId 
+     * 용병 획득 (가챠나 스타터팩)
      */
-    async addMercenary(unitId) {
-        const currentCount = this.collection.get(unitId) || 0;
-        const newCount = currentCount + 1;
-        this.collection.set(unitId, newCount);
+    async addMercenary(mercId, amount = 1) {
+        const id = mercId.toLowerCase();
+        let merc = this.ownedMercenaries.get(id);
 
-        // DB 저장
-        await indexDBManager.put(this.tableName, { id: unitId, count: newCount });
+        if (merc) {
+            merc.count += amount;
+        } else {
+            // 신규 획득
+            merc = {
+                id: id,
+                level: 1,
+                stars: 1,
+                count: amount,
+                acquiredAt: Date.now()
+            };
+        }
+
+        this.ownedMercenaries.set(id, merc);
+        await indexDBManager.save('mercenaries', merc);
         
-        Logger.info("COLLECTION", `Mercenary added: ${unitId} (Total: ${newCount})`);
-        EventBus.emit('COLLECTION_UPDATED', { id: unitId, count: newCount });
+        Logger.info("COLLECTION", `Acquired/Updated mercenary: ${id} (Total: ${merc.count})`);
+        EventBus.emit('COLLECTION_UPDATED', { mercId: id, data: merc });
     }
 
-    getCount(unitId) {
-        return this.collection.get(unitId) || 0;
+    /**
+     * 소유 여부 확인
+     */
+    isOwned(mercId) {
+        return this.ownedMercenaries.has(mercId.toLowerCase());
     }
 
-    getAll() {
-        return Array.from(this.collection.entries()).map(([id, count]) => ({ id, count }));
+    /**
+     * 보유 리스트 반환
+     */
+    getOwnedList() {
+        return Array.from(this.ownedMercenaries.values());
+    }
+
+    /**
+     * 특정 용병 데이터 반환
+     */
+    getMercenaryData(mercId) {
+        return this.ownedMercenaries.get(mercId.toLowerCase());
     }
 }
 

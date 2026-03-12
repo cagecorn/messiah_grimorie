@@ -3,6 +3,8 @@ import domManager from '../DOMManager.js';
 import localizationManager from '../../core/LocalizationManager.js';
 import EventBus, { EVENTS } from '../../core/EventBus.js';
 import gachaManager from '../../systems/GachaManager.js';
+import mercenaryCollectionManager from '../../systems/MercenaryCollectionManager.js';
+import mercenaryManager from '../../systems/entities/MercenaryManager.js';
 
 /**
  * 가챠 씬 DOM 매니저 (Gacha Scene DOM Manager)
@@ -54,6 +56,12 @@ class GachaSceneDOMManager {
 
         // 씬 전환 시 UI 숨기기 리스너
         EventBus.on(EVENTS.TRANSITION_START, () => this.ui_hide());
+
+        EventBus.on('COLLECTION_UPDATED', () => {
+            if (this.container && this.container.style.display === 'flex') {
+                this.updateCollection();
+            }
+        });
     }
 
     createSummonBtn(type, key, costText, extraClass = '') {
@@ -88,7 +96,22 @@ class GachaSceneDOMManager {
 
         const list = document.createElement('div');
         list.className = 'mg-collection-list';
-        // [TODO] MercenaryCollectionManager 연동 시 동적 렌더링 예정
+        
+        // [Hardcode-Free] 수집 데이터를 연동하여 소유 중인 용병만 표시
+        const ownedList = mercenaryCollectionManager.getOwnedList();
+        
+        ownedList.forEach(merc => {
+            const registryData = mercenaryManager.registry[merc.id];
+            if (!registryData) return;
+
+            const item = document.createElement('div');
+            item.className = 'mg-collection-item';
+            item.innerHTML = `
+                <span class="name">${registryData.name}</span>
+                <span class="count">x${merc.count}</span>
+            `;
+            list.appendChild(item);
+        });
         
         this.collectionPanel.appendChild(list);
     }
