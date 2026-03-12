@@ -1,0 +1,23 @@
+/* ==========================================
+   🧱 [Layout] Layer & System Styles
+   ========================================== */
+
+.mg-dom-layer {
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Ensure children within layers that need interaction have pointer-events: auto */
+.mg-dom-layer > * {
+    pointer-events: auto;
+}
+
+.mg-hidden {
+    display: none !important;
+}
+
+.mg-flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

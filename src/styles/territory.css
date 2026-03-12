@@ -1,0 +1,112 @@
+/* ==========================================
+   🖼️ [UI] Territory Quick Menu (Quick Cards)
+   ========================================== */
+
+.mg-territory-menu {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 80px auto; /* HUD 아래공간 충분히 확보 */
+    perspective: 1000px;
+}
+
+.mg-menu-card {
+    display: flex;
+    background: linear-gradient(135deg, rgba(30, 10, 60, 0.7) 0%, rgba(10, 5, 30, 0.85) 100%);
+    border: 2px solid var(--mg-border);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    height: 110px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+}
+
+.mg-menu-card:hover {
+    transform: translateY(-8px) rotateX(5deg);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 175, 55, 0.3);
+    filter: brightness(1.2);
+    z-index: 10;
+}
+
+.mg-menu-card::after {
+    content: '▶';
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    color: var(--mg-gold);
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+.mg-menu-card:hover::after {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Border variants */
+.mg-card-yellow  { border-color: #ffd700; box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.15); }
+.mg-card-blue    { border-color: #00fbff; box-shadow: inset 0 0 10px rgba(0, 251, 255, 0.15); }
+.mg-card-green   { border-color: #00ff00; box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.15); }
+.mg-card-red     { border-color: #ff3c3c; box-shadow: inset 0 0 10px rgba(255, 60, 60, 0.15); }
+.mg-card-purple  { border-color: #bc42ff; box-shadow: inset 0 0 10px rgba(188, 66, 255, 0.15); }
+.mg-card-white   { border-color: #ffffff; box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.15); }
+
+.mg-card-left {
+    width: 38%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mg-card-left img {
+    max-height: 85%;
+    max-width: 85%;
+    filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.7));
+}
+
+.mg-card-right {
+    width: 62%;
+    padding: 12px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.mg-card-title {
+    font-size: 14px;
+    color: var(--mg-gold);
+    font-weight: 800;
+    margin-bottom: 6px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.mg-card-desc {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+/* Misc UI Icons */
+.mg-icon-focus {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--mg-gold);
+    position: relative;
+    display: inline-block;
+}
+.mg-icon-focus::before, .mg-icon-focus::after {
+    content: '';
+    position: absolute;
+    background: var(--mg-dark);
+}

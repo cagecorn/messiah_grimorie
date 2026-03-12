@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import Logger from '../utils/Logger.js';
 import displayManager from '../core/DisplayManager.js';
 import territoryManager from '../systems/TerritoryManager.js';
+import territoryDOMManager from '../ui/territory/TerritoryDOMManager.js';
 
 /**
  * 영지 씬 (Territory Scene)
@@ -10,6 +11,14 @@ import territoryManager from '../systems/TerritoryManager.js';
 export default class TerritoryScene extends Phaser.Scene {
     constructor() {
         super('TerritoryScene');
+    }
+
+    update() {
+        // [HEARTBEAT] 렌더링 확인용 로그 (프레임 드랍 여부 체크)
+        // 60프레임 중 1프레임 정도만 찍힘
+        if (Phaser.Math.Between(1, 60) === 1) {
+            // Logger.debug("SCENE", "TerritoryScene Alive & Rendering.");
+        }
     }
 
     preload() {
@@ -24,22 +33,14 @@ export default class TerritoryScene extends Phaser.Scene {
     create() {
         Logger.info("SCENE", "TerritoryScene: Hub initialized.");
         
-        // 영지 배경 깔기
-        const center = displayManager.getCenter();
-        const background = this.add.image(center.x, center.y, 'territory_bg');
-        
-        // 화면 크기에 맞춰 배경 스케일 조정 (Cover 방식)
-        this.alignBackground(background);
+        // [CORE] 배경 설정 (BackgroundManager 사용)
+        import('../systems/BackgroundManager.js').then(module => {
+            module.default.setBackground(this, 'territory_bg');
+        });
 
         // 영지 시스템 초기화 (라우터 호출)
         territoryManager.initialize();
-
-        // 리사이즈 대응
-        this.scale.on('resize', () => {
-            const newCenter = displayManager.getCenter();
-            background.setPosition(newCenter.x, newCenter.y);
-            this.alignBackground(background);
-        });
+        territoryDOMManager.ui_init();
     }
 
     alignBackground(bg) {

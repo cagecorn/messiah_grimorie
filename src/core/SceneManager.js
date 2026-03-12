@@ -23,36 +23,61 @@ class SceneManager {
      */
     initialize(game) {
         this.game = game;
+
+        // UI 이벤트 리스너 등록
+        EventBus.on('UI_OPEN_GACHA', () => {
+            Logger.info("SCENE_ROUTER", "Received event: UI_OPEN_GACHA");
+            this.transitionTo('GachaScene');
+        });
+
+        EventBus.on('UI_OPEN_TERRITORY', () => {
+            Logger.info("SCENE_ROUTER", "Received event: UI_OPEN_TERRITORY");
+            this.transitionTo('TerritoryScene');
+        });
     }
 
     /**
-     * 특정 씬으로 전환 요청 라우팅
+     * 특정 씬으로 전환 요청 라우팅 (전환 매니저를 통한 시퀀스 실행)
      * @param {string} sceneKey 전환할 씬의 키값
      * @param {object} data 전달할 데이터
      */
     transitionTo(sceneKey, data = {}) {
+        Logger.info("SCENE_ROUTER", `[transitionTo] Requesting transition to: ${sceneKey}`);
+        import('./SceneTransitionManager.js').then(module => {
+            if (!module.default) {
+                Logger.error("SCENE_ROUTER", "SceneTransitionManager module not found or no default export.");
+                return;
+            }
+            module.default.startTransition(sceneKey, data);
+        }).catch(err => {
+            Logger.error("SCENE_ROUTER", `Failed to load SceneTransitionManager: ${err.message}`);
+        });
+    }
+
+    /**
+     * 실제 물리적 씬 전환 (TransitionManager가 호출함)
+     */
+    _executePhaserTransition(sceneKey, data = {}) {
         if (!this.game) {
-            Logger.error("SCENE_ROUTER", "Game instance not initialized in SceneManager.");
+            Logger.error("SCENE_ROUTER", "Cannot execute transition: game instance is NULL.");
             return;
         }
 
         const scene = this.game.scene;
         const currentActive = this.getActiveScene();
 
-        Logger.info("SCENE_ROUTER", `Routing transition: ${currentActive ? currentActive.scene.key : 'None'} -> ${sceneKey}`);
+        Logger.info("SCENE_ROUTER", `[Phaser] Executing transition: ${sceneKey}`);
 
-        // 1. 이전 씬 정보 기록
         if (currentActive) {
             this.previousScene = currentActive.scene.key;
-            // 씬 종료 전 공통 처리 (데이터 저장 신호 등) 라우팅
-            EventBus.emit(EVENTS.SAVE_DATA);
+            Logger.info("SCENE_ROUTER", `Stopping current scene: ${this.previousScene}`);
+            this.game.scene.stop(this.previousScene);
         }
 
-        // 2. 씬 전환 실행 및 데이터 전달
         scene.start(sceneKey, data);
         this.currentScene = sceneKey;
 
-        // 3. 전역 이벤트 발행 (다른 매니저들이 씬 변화에 대응하도록)
+        // 전역 이벤트 발행
         EventBus.emit(EVENTS.SCENE_CHANGED, sceneKey);
     }
 

@@ -1,0 +1,71 @@
+/* ==========================================
+   🃏 [Component] Gacha Card
+   ========================================== */
+
+.mg-gacha-card {
+    width: 140px;
+    height: 190px;
+    background: rgba(20, 10, 40, 0.9);
+    border: 3px solid #ccc;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    cursor: default;
+}
+
+.mg-gacha-card.rarity-n  { border-color: #aaa; color: #eee; }
+.mg-gacha-card.rarity-r  { border-color: #00fbff; color: #fff; box-shadow: 0 0 15px rgba(0, 251, 255, 0.4); }
+.mg-gacha-card.rarity-sr { border-color: #bc42ff; color: #fff; box-shadow: 0 0 20px rgba(188, 66, 255, 0.5); }
+.mg-gacha-card.rarity-ssr { border-color: #ffd700; color: #fff; box-shadow: 0 0 25px rgba(255, 215, 0, 0.6); }
+
+.mg-card-image {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.mg-card-image img {
+    max-width: 90%;
+    max-height: 90%;
+    image-rendering: pixelated;
+}
+
+.mg-card-info {
+    text-align: center;
+    width: 100%;
+}
+
+.mg-card-name {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.mg-card-rarity {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    opacity: 0.8;
+}
+
+/* Card Entry Animation */
+@keyframes card-flip-in {
+    from { transform: scale(0) rotateY(180deg); opacity: 0; }
+    to { transform: scale(1) rotateY(0); opacity: 1; }
+}
+
+.mg-gacha-card.animate-in {
+    animation: card-flip-in 0.5s forwards;
+}

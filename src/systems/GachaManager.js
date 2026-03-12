@@ -1,36 +1,35 @@
 import Logger from '../utils/Logger.js';
-import EventBus from '../core/EventBus.js';
+import EventBus, { EVENTS } from '../core/EventBus.js';
 
 /**
  * 가챠 매니저 (Gacha Manager)
- * 역할: [라우터 (Router) & 소환 로직 제어기]
+ * 역할: [소환 시스템 로직 라우터]
  * 
- * 설명: 용병 및 아이템 소환(가챠) 기능을 총괄하는 라우터입니다.
- * 확률 테이블 기반의 결과 생성 및 연출 신호를 라우팅합니다.
+ * 설명: 소환 비용 계산, 결과 생성 요청, 씬 전환 등을 관장합니다.
+ * 하드코딩된 데이터 없이 확률 매니저와 연동합니다.
  */
 class GachaManager {
     constructor() {
-        Logger.system("GachaManager Router: Initialized (Summoning system ready).");
+        this.isInitialized = false;
+        Logger.system("GachaManager Logic Hub: Initialized.");
+    }
+
+    initialize() {
+        if (this.isInitialized) return;
+        this.isInitialized = true;
+        Logger.info("GACHA", "Gacha logic system activated.");
+        
+        // 여기에 초기 데이터 로드 등을 수행
     }
 
     /**
-     * 소환 실행 요청 라우팅
-     * @param {string} bannerId 소환 배너 ID
-     * @param {number} count 소환 횟수 (1회, 10회 등)
+     * 특정 타입의 소환 시도
+     * @param {string} type 'mercenary_single', 'mercenary_multi', 'pet'
      */
-    requestSummon(bannerId, count) {
-        Logger.info("GACHA_ROUTER", `Routing summon request: Banner[${bannerId}] x${count}`);
-        // 1. 재화 확인 라우팅
-        // 2. 확률 테이블 기반 결과 생성 라우팅
-        // 3. 연출(Cutscene) 시작 이벤트 발행
-    }
-
-    /**
-     * 획득 결과 정산 및 저장 라우팅
-     */
-    processResults(results) {
-        Logger.info("GACHA_ROUTER", "Processing and saving summon results.");
-        EventBus.emit('GACHA_RESULTS_PROCESSED', results);
+    attemptSummon(type) {
+        Logger.info("GACHA", `Attempting summon: ${type}`);
+        // [TODO] 재화 체크 및 확률 매니저 호출 로직 구현 예정
+        EventBus.emit('GACHA_SUMMON_STARTED', type);
     }
 }
 

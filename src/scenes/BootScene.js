@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import Logger from '../utils/Logger.js';
 import loadingManager from '../core/LoadingManager.js';
 import displayManager from '../core/DisplayManager.js';
+import sceneManager from '../core/SceneManager.js';
+import uiManager from '../ui/UIManager.js';
 
 export default class BootScene extends Phaser.Scene {
     constructor() {
@@ -72,9 +74,14 @@ export default class BootScene extends Phaser.Scene {
         // 메시아 그리모어 리부트 공식 선언
         Logger.system("Messiah Grimoire: System Link Established.");
         
-        // [GLOBAL UI] 최상단 HUD 초기화 (한 번만 실행)
-        const topHUDDOMManager = this.scene.systems.game.plugins.get('topHUDDOMManager'); // 만약 글로벌로 관리한다면... 
-        // 일단은 직접 임포트해서 초기화
+        // [CORE] 매니저 초기화
+        sceneManager.initialize(this.game);
+
+        // [GLOBAL UI] 최상단 HUD 및 씬 전환 효과 초기화
+        import('../ui/SceneTransitionDOMManager.js').then(module => {
+            module.default.initialize();
+        });
+
         import('../ui/TopHUDDOMManager.js').then(module => {
             module.default.initialize();
         });

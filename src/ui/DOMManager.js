@@ -41,8 +41,7 @@ class DOMManager {
             this.layers.set(layerId, layer);
         }
 
-        // 요소 추가 (기본적으로 pointer-events: auto 로 설정하여 클릭 가능하게 함)
-        element.style.pointerEvents = 'auto';
+        // 요소 추가 (필요한 경우 호출하는 쪽에서 pointer-events 조절)
         layer.appendChild(element);
     }
 

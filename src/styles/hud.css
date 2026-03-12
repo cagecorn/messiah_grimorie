@@ -1,28 +1,4 @@
 /* ==========================================
-   ⚔️ [Global] Design System & Retro Base
-   ========================================== */
-
-:root {
-    --mg-gold: #d4af37;
-    --mg-gold-bright: #ffd700;
-    --mg-dark: #0a0a0a;
-    --mg-panel: #1a0f0a;
-    --mg-border: #4a3721;
-    --mg-accent: #00fbff;
-    --mg-red: #800000;
-    --mg-shadow: rgba(0, 0, 0, 0.7);
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    background-color: #000;
-    overflow: hidden;
-    user-select: none;
-    font-family: 'Inter', 'Noto Sans KR', sans-serif;
-}
-
-/* ==========================================
    🏛️ [UI] Top HUD Styles
    ========================================== */
 
@@ -48,6 +24,7 @@ body {
     display: flex;
     gap: 20px;
     align-items: center;
+    flex: 1;
 }
 
 .mg-currency-item {
@@ -69,6 +46,7 @@ body {
 .mg-hud-center {
     display: flex;
     gap: 10px;
+    justify-content: center;
 }
 
 .mg-nav-button {
@@ -100,6 +78,8 @@ body {
 .mg-hud-right {
     display: flex;
     gap: 12px;
+    flex: 1;
+    justify-content: flex-end;
 }
 
 .mg-sys-button {
@@ -129,17 +109,3 @@ body {
 .mg-sys-button:hover img {
     opacity: 1;
 }
-
-/* Focus Mode Icon (Square Brackets style) */
-.mg-icon-focus {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--mg-gold);
-    position: relative;
-}
-.mg-icon-focus::before, .mg-icon-focus::after {
-    content: '';
-    position: absolute;
-    background: var(--mg-dark);
-}
-/* This is a placeholder for the focus icon if image not available, but user didn't specify icon for focus, so I'll try to find one or keep it simple. */

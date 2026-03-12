@@ -27,6 +27,7 @@ class TopHUDDOMManager {
         this.container = document.createElement('div');
         this.container.id = 'mg-top-hud';
         this.container.className = 'mg-top-hud';
+        this.container.style.pointerEvents = 'auto'; // 마우스 이벤트 활성화
 
         // 1. 왼쪽 구역 (Currency)
         this.elements.left = this.createLeftSection();
@@ -102,7 +103,10 @@ class TopHUDDOMManager {
             btn.className = 'mg-nav-button';
             btn.dataset.key = conf.key;
             btn.innerText = state.t(conf.key);
-            btn.onclick = () => EventBus.emit(conf.event);
+            btn.onclick = () => {
+                Logger.info("UI_HUD", `Nav button clicked: ${conf.key} -> ${conf.event}`);
+                EventBus.emit(conf.event);
+            };
             section.appendChild(btn);
         });
 

@@ -1,10 +1,20 @@
 import Phaser from 'phaser';
-import './index.css';
+
+// Styles Modularization
+import './styles/base.css';
+import './styles/layout.css';
+import './styles/hud.css';
+import './styles/territory.css';
+import './styles/gacha.css';
+import './styles/gacha_card.css';
+import './styles/scene_transition.css';
+
 import displayManager from './core/DisplayManager.js';
 import measurementManager from './core/MeasurementManager.js';
 import BootScene from './scenes/BootScene.js';
 import MainScene from './scenes/MainScene.js';
 import TerritoryScene from './scenes/TerritoryScene.js';
+import GachaScene from './scenes/GachaScene.js';
 
 /**
  * ==========================================
@@ -55,7 +65,7 @@ const config = {
             });
         }
     },
-    scene: [BootScene, TerritoryScene, MainScene]
+    scene: [BootScene, TerritoryScene, GachaScene, MainScene]
 };
 
 const game = new Phaser.Game(config);
