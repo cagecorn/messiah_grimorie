@@ -53,9 +53,6 @@ class TopHUDDOMManager {
         // DOM 매니저를 통해 UI 레이어에 추가
         domManager.addToLayer('nav', this.container);
 
-        // [NEW] 던전 드롭다운 생성
-        this.createDungeonDropdown();
-
         // 이벤트 리스너 등록
         this.setupListeners();
         
@@ -111,7 +108,15 @@ class TopHUDDOMManager {
             const btn = document.createElement('button');
             btn.className = 'mg-nav-button';
             btn.dataset.key = conf.key;
+            btn.style.position = 'relative'; // [STABLE] 자식 드롭다운의 기준점
             btn.innerText = state.t(conf.key);
+            
+            // 던전 버튼인 경우 드롭다운을 여기에 직접 생성
+            if (conf.key === 'dungeon') {
+                this.elements.dungeonBtn = btn;
+                this.createDungeonDropdown(btn);
+            }
+
             btn.onclick = (e) => {
                 if (conf.key === 'dungeon') {
                     this.toggleDungeonDropdown(e);
@@ -127,41 +132,33 @@ class TopHUDDOMManager {
     }
 
     /**
-     * 던전 리스트 드롭다운 UI 생성
+     * 던전 리스트 드롭다운 UI 생성 (버튼의 자식으로)
      */
-    createDungeonDropdown() {
+    createDungeonDropdown(parentBtn) {
         this.dungeonDropdown = document.createElement('div');
         this.dungeonDropdown.id = 'hud-dungeon-dropdown';
         this.dungeonDropdown.className = 'hud-dungeon-dropdown';
+        
+        // 버튼 하단에 고정 (CSS로 미세조정)
         this.dungeonDropdown.style.display = 'none';
+        this.dungeonDropdown.style.position = 'absolute';
+        this.dungeonDropdown.style.top = 'calc(100% + 10px)';
+        this.dungeonDropdown.style.left = '0';
         
-        // 초기 리스트 생성
+        // 클릭 시 버튼 이벤트 전파 방지
+        this.dungeonDropdown.onclick = (e) => e.stopPropagation();
+
         this.refreshDungeonList();
-        
-        this.container.appendChild(this.dungeonDropdown);
+        parentBtn.appendChild(this.dungeonDropdown);
     }
 
     toggleDungeonDropdown(event) {
-        // [IMPORTANT] event.target 대신 currentTarget을 사용해야 버튼의 정확한 위치를 잡음
-        const btn = event.currentTarget;
         const isVisible = this.dungeonDropdown.style.display === 'block';
-        
         if (isVisible) {
             this.dungeonDropdown.style.display = 'none';
         } else {
-            // 열기 전에 기록 최신화
             this.refreshDungeonList();
-            
             this.dungeonDropdown.style.display = 'block';
-            
-            // 안정적인 좌표 계산: 버튼의 위치를 HUD 컨테이너 기준으로 변환
-            const btnRect = btn.getBoundingClientRect();
-            const hudRect = this.container.getBoundingClientRect();
-            
-            this.dungeonDropdown.style.position = 'absolute';
-            // 버튼 정중앙 하단 배치를 위해 (left = 버튼중앙 - 드롭다운절반) 도 가능하지만 일단 단순하게
-            this.dungeonDropdown.style.top = `${btnRect.bottom - hudRect.top + 10}px`;
-            this.dungeonDropdown.style.left = `${btnRect.left - hudRect.left}px`;
         }
     }
 
