@@ -3,6 +3,7 @@ import Logger from '../../../utils/Logger.js';
 import aoeManager from '../AOEManager.js';
 import Airborne from '../effects/Airborne.js';
 import animationManager from '../../graphics/AnimationManager.js';
+import phaserParticleManager from '../../graphics/PhaserParticleManager.js';
 
 /**
  * 차지 어택 스킬 (Charge Attack Skill)
@@ -48,7 +49,11 @@ class ChargeAttack {
             }
         );
 
-        // 시각적 피드백 (화면 흔들림 등 필요 시 추가)
+        // 시각적 피드백 (화면 흔들림 + 먼지 효과)
+        if (phaserParticleManager.spawnWhiteDust) {
+            phaserParticleManager.spawnWhiteDust(pos.x, pos.y);
+        }
+
         if (owner.scene && owner.scene.cameras.main) {
             owner.scene.cameras.main.shake(150, 0.005);
         }

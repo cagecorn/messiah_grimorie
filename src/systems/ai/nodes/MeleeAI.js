@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import movementManager from '../../combat/MovementManager.js';
 import ChargeAttackAI from './ChargeAttackAI.js';
+import ForMessiahAI from './ForMessiahAI.js';
 import Logger from '../../../utils/Logger.js';
 
 /**
@@ -17,11 +18,23 @@ class MeleeAI {
     static execute(entity, bb, delta) {
         if (!entity.logic.isAlive) return;
 
+        // [Robust Fix] 행동 불가 상태(stunned, airborne 등)일 경우 AI 사고 중단
+        if (entity.status && entity.status.isUnableToAct()) {
+            entity.moveDirection = { x: 0, y: 0 };
+            return;
+        }
+
         // [신규] 스켈 사용 체크 우선
         // AIManager에서 주입된 타겟 주변이나 전체 적 리스트가 필요할 수 있음
         // entity.scene.spawnManager 등을 통해 현재 적 리스트 확보 가능
         const opponents = (entity.team === 'mercenary') ? 
             entity.scene.enemies : entity.scene.allies;
+
+        // [신규] 궁극기 사용 체크 (가장 높은 우선순위)
+        if (ForMessiahAI.update(entity, opponents)) {
+            bb.set('state', 'ultimate');
+            return;
+        }
 
         if (ChargeAttackAI.update(entity, opponents)) {
             bb.set('state', 'skill');

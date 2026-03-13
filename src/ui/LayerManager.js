@@ -34,6 +34,7 @@ class LayerManager {
             fx: 800,
             hud: 1000,
             popup: 15000,
+            graphics_fx: 19000, // [신규] 화면 전체 그래픽 효과 레이어
             tooltip: 18000,
             nav: 20001,
             toast: 25000 // 최상단 (전환 효과 등)

@@ -59,6 +59,7 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('impact_phys_1', 'assets/effect/phisycal_impact_effect_1.png');
         this.load.image('impact_phys_2', 'assets/effect/phisycal_impact_effect_2.png');
         this.load.image('charge_attack', 'assets/effect/charge_attack.png');
+        this.load.image('for_messiah', 'assets/effect/for_messiah.png');
         Logger.info("BATTLE_LOADER", "Preloading physical impact effects and skill assets.");
 
         // 4. [신규] 타격 효과음 프리로드

@@ -1,4 +1,5 @@
 import Logger from '../../utils/Logger.js';
+import EventBus, { EVENTS } from '../../core/EventBus.js';
 
 /**
  * 그래픽 매니저 (Graphic Manager)
@@ -8,6 +9,11 @@ class GraphicManager {
     constructor() {
         this.subManagers = {};
         this.isInitialized = false;
+        
+        // 씬 전환 시 자동 청소/적용 연동
+        EventBus.on(EVENTS.SCENE_CHANGED, (sceneKey) => {
+            this.handleSceneChange(sceneKey);
+        });
     }
 
     async initialize() {
@@ -15,16 +21,14 @@ class GraphicManager {
 
         try {
             // [Phaser FX]
-            const [bloom, motes, trails] = await Promise.all([
+            const [bloom, trails] = await Promise.all([
                 import('./BloomManager.js'),
-                import('./MotesManager.js'),
                 import('./TrailManager.js')
             ]);
 
             // [DOM FX]
-            const [vignette, tilt, grading, filter, texture, blur, chromatic] = await Promise.all([
+            const [vignette, grading, filter, texture, blur, chromatic] = await Promise.all([
                 import('./VignetteManager.js'),
-                import('./TiltShiftManager.js'),
                 import('./ColorGradingManager.js'),
                 import('./GraphicFilterManager.js'),
                 import('./GraphicTextureManager.js'),
@@ -34,10 +38,8 @@ class GraphicManager {
 
             this.subManagers = {
                 bloom: bloom.default,
-                motes: motes.default,
                 trails: trails.default,
                 vignette: vignette.default,
-                tilt: tilt.default,
                 grading: grading.default,
                 filter: filter.default,
                 texture: texture.default,
@@ -46,24 +48,74 @@ class GraphicManager {
             };
 
             this.isInitialized = true;
-            Logger.system("GraphicManager: All 8 FX modules loaded.");
+            Logger.system("GraphicManager: Visual FX modules loaded.");
         } catch (error) {
             Logger.error("GRAPHICS", `Initialization failed: ${error.message}`);
         }
     }
 
     /**
-     * 특정 씬 진입 시 효과 적용
+     * 씬 전환 시 효과 자동 처리
      */
-    applySceneFX(scene) {
+    handleSceneChange(sceneKey) {
         if (!this.isInitialized) return;
         
-        // Phaser 기반 효과 초기화 (씬 객체 필요)
-        if (this.subManagers.bloom) this.subManagers.bloom.init(scene);
-        if (this.subManagers.motes) this.subManagers.motes.init(scene);
-        if (this.subManagers.trails) this.subManagers.trails.init(scene);
+        // 1. 기존 모든 효과 레이어 초기화 (CLEAN SLATE)
+        this.clearDOMFX();
+
+        // 2. 특정 씬에만 필요한 효과 활성화 (PRESETS)
+        if (sceneKey === 'BattleScene') {
+            this.applyBattleFX();
+        } else {
+            this.applyUIFX();
+        }
+    }
+
+    /**
+     * 모든 DOM 기반 효과 숨김 (display: none)
+     */
+    clearDOMFX() {
+        const domFX = ['vignette', 'grading', 'filter', 'texture', 'blur', 'chromatic'];
+        domFX.forEach(type => {
+            if (this.subManagers[type] && this.subManagers[type].setEnabled) {
+                this.subManagers[type].setEnabled(false);
+            }
+        });
+        Logger.info("GRAPHICS", "Clear all atmosphere layers.");
+    }
+
+    /**
+     * 전투 씬용 강렬한 효과 프리셋
+     */
+    applyBattleFX() {
+        // 전투 시에는 모든 효과를 사용하여 몰입감 극대화
+        const domFX = ['vignette', 'grading', 'filter', 'texture', 'blur', 'chromatic'];
+        domFX.forEach(type => {
+            if (this.subManagers[type] && this.subManagers[type].setEnabled) {
+                this.subManagers[type].setEnabled(true);
+            }
+        });
         
-        Logger.info("GRAPHICS", `Applied visual atmosphere to ${scene.scene.key}`);
+        Logger.info("GRAPHICS", "Battle FX Preset applied.");
+    }
+
+    /**
+     * 메뉴/UI 씬용 깔끔한 효과 프리셋
+     */
+    applyUIFX() {
+        // UI 씬(편성 등)에서는 가독성을 위해 비네팅 정도만 아주 은은하게 유지
+        if (this.subManagers.vignette && this.subManagers.vignette.setEnabled) {
+            this.subManagers.vignette.setEnabled(true);
+        }
+        
+        Logger.info("GRAPHICS", "UI FX Preset applied (Clean View).");
+    }
+
+    /**
+     * 수동 효과 적용 (기존 코드 호환용)
+     */
+    applySceneFX(scene) {
+        this.handleSceneChange(scene.scene.key);
     }
 
     /**

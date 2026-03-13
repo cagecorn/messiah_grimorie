@@ -20,7 +20,9 @@ class PhaserParticleManager {
         graphics.generateTexture('particle_blood', 8, 8);
         
         this.createBloodPool();
-        Logger.system("PhaserParticleManager: Blood particle system initialized.");
+        this.createDustPool();
+        this.createSoulPool();
+        Logger.system("PhaserParticleManager: Particle systems initialized.");
     }
 
     /**
@@ -45,6 +47,48 @@ class PhaserParticleManager {
     }
 
     /**
+     * 먼지 파티클 풀 생성
+     */
+    createDustPool() {
+        if (!this.scene) return;
+
+        const emitter = this.scene.add.particles(0, 0, 'particle_blood', {
+            color: [ 0xffffff, 0xeeeeee, 0xcccccc ], // 흰색 ~ 밝은 회색
+            speed: { min: 100, max: 400 },
+            scale: { start: 0.8, end: 0 },
+            alpha: { start: 0.6, end: 0 },
+            lifespan: 600,
+            blendMode: 'NORMAL',
+            gravityY: 200,
+            quantity: 20,
+            emitting: false
+        });
+
+        this.emitters.set('white_dust', emitter);
+    }
+
+    /**
+     * 영혼(Soul) 파티클 풀 생성: 사망 시 승천하는 효과
+     */
+    createSoulPool() {
+        if (!this.scene) return;
+
+        const emitter = this.scene.add.particles(0, 0, 'particle_blood', {
+            color: [ 0xffffff, 0x00ffff, 0xaaaaff ], // 흰색 ~ 하늘색
+            speedY: { min: -50, max: -150 }, // 위로 상승
+            speedX: { min: -20, max: 20 },
+            scale: { start: 0.4, end: 0 },
+            alpha: { start: 1.0, end: 0 },
+            lifespan: 1500,
+            blendMode: 'ADD',
+            quantity: 5,
+            emitting: false
+        });
+
+        this.emitters.set('soul', emitter);
+    }
+
+    /**
      * 특정 위치에서 핏방울 폭발 효과 발생
      */
     spawnBloodBurst(x, y) {
@@ -53,6 +97,26 @@ class PhaserParticleManager {
 
         // 특정 좌표에서 한 번(explode) 뿌림
         emitter.explode(10, x, y);
+    }
+
+    /**
+     * 특정 위치에서 먼지 폭발 효과 발생
+     */
+    spawnWhiteDust(x, y) {
+        const emitter = this.emitters.get('white_dust');
+        if (!emitter) return;
+
+        emitter.explode(20, x, y);
+    }
+
+    /**
+     * 사망 시 영혼 승천 효과 발생
+     */
+    spawnSoul(x, y) {
+        const emitter = this.emitters.get('soul');
+        if (!emitter) return;
+
+        emitter.explode(8, x, y);
     }
 }
 

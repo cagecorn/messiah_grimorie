@@ -7,6 +7,7 @@ import fxManager from '../systems/graphics/FXManager.js';
 import animationManager from '../systems/graphics/AnimationManager.js';
 import phaserParticleManager from '../systems/graphics/PhaserParticleManager.js';
 import skillManager from '../systems/combat/SkillManager.js';
+import ultimateManager from '../systems/combat/UltimateManager.js';
 import combatManager from '../systems/CombatManager.js';
 import StatusEffectManager from '../systems/combat/StatusEffectManager.js';
 
@@ -72,6 +73,10 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         this.hpBar = null;
         this.attackCooldown = 0; // [신규] 공격 쿨다운 타이머
 
+        // ==========================================
+        // 🧪 [구역 3] 스킬 및 궁극기 시스템 데이터
+        // ==========================================
+        //#region SKILL_ULT_SYSTEM
         // [신규] 스킬 시스템 데이터 초기화
         this.skillData = skillManager.getSkillData(logicEntity.id);
         this.hasSkill = this.skillData.hasSkill !== false;
@@ -80,6 +85,22 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
 
         // [신규] 아군은 전투 시작 시 스킬 게이지가 가득 찬 상태로 시작함
         this.skillProgress = (logicEntity.type === 'mercenary' && this.hasSkill) ? 1.0 : 0;
+
+        // [신규] 궁극기 시스템 데이터 초기화
+        this.ultData = ultimateManager.getUltimateData(logicEntity.id);
+        this.hasUltimate = this.ultData.hasUltimate !== false;
+        this.ultimateProgress = 0;
+
+        // ==========================================
+        // 🛠️ [TEST] 아렌 저주받은 숲 궁극기 즉시 충전 (테스트 전용)
+        // 저주받은 숲 입장 시 아렌의 궁극기를 즉시 사용할 수 있도록 100% 충전 상태로 시작합니다.
+        // 테스트 완료 후 아래 if 블록만 삭제하면 됩니다.
+        // ==========================================
+        if (logicEntity.id.startsWith('aren') && scene.stageId === 'cursed_forest') {
+            this.ultimateProgress = 1.0;
+            Logger.info("TEST", "Aren starts with full ultimate gauge in Cursed Forest.");
+        }
+        //#endregion
 
         // [신규] 상태이상 매니저 초기화
         this.status = new StatusEffectManager(this);
@@ -226,7 +247,8 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
 
         // 3. [신규] 시각적 피격 피드백 (틴트 + 파티클)
         fxManager.flashRed(this);
-        phaserParticleManager.spawnBloodBurst(this.x, this.y - 40);
+        // [FIX] 에어본 등으로 떠있는 상태라면 해당 높이를 반영하여 파티클 스폰
+        phaserParticleManager.spawnBloodBurst(this.x, this.y - this.zHeight - 40);
 
         // 4. 사망 판정
         if (currentHp <= 0) {
@@ -244,12 +266,8 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         this.logic.isDead = true;
         this.stop();
         
-        // 스태틱 처리 (회색조/쓰러짐 등 시각 효과 필요 시 추가)
-        this.sprite.setTint(0x666666);
-        this.sprite.setAlpha(0.6);
-        
-        // 일정 시간 후 월드에서 제거 (또는 풀로 반납)
-        this.scene.time.delayedCall(2000, () => {
+        // [FIX] 단순 반투명이 아닌 AnimationManager를 통한 프리미엄 사망 연출 실행
+        animationManager.playDeathAnimation(this, () => {
             this.destroy();
         });
 
@@ -269,29 +287,45 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     }
 
     /**
-     * [신규] 스킬 쿨다운 업데이트
+     * [신규] 스킬 및 궁극기 쿨다운 업데이트
      */
     updateSkillCooldown(delta) {
-        if (!this.hasSkill || !this.logic.isAlive) return;
+        if (!this.logic.isAlive) return;
 
-        // 시전 속도(castSpd) 반영
-        const castSpd = this.logic.stats.get('castSpd') || 1.0;
-        const progressGain = delta / Math.max(1, this.maxSkillCooldown); // 시간 대비 진행도 (기본)
-        
-        // 시전 속도 배율 적용 (castSpd 2.0 -> 2배속 충전)
-        const oldProgress = this.skillProgress;
-        this.skillProgress = Math.min(1.0, this.skillProgress + progressGain * castSpd);
+        //#region SKILL_CHARGE
+        if (this.hasSkill) {
+            // 시전 속도(castSpd) 반영
+            const castSpd = this.logic.stats.get('castSpd') || 1.0;
+            const progressGain = delta / Math.max(1, this.maxSkillCooldown); // 시간 대비 진행도 (기본)
+            
+            // 시전 속도 배율 적용 (castSpd 2.0 -> 2배속 충전)
+            const oldProgress = this.skillProgress;
+            this.skillProgress = Math.min(1.0, this.skillProgress + progressGain * castSpd);
 
-        // 진행도가 유의미하게 변했다면 HP바 Dirty 설정 (UI 갱신)
-        if (this.hpBar && Math.floor(oldProgress * 100) !== Math.floor(this.skillProgress * 100)) {
-            this.hpBar.isDirty = true;
+            // 진행도가 유의미하게 변했다면 HP바 Dirty 설정 (UI 갱신)
+            if (this.hpBar && Math.floor(oldProgress * 100) !== Math.floor(this.skillProgress * 100)) {
+                this.hpBar.isDirty = true;
+            }
         }
+        //#endregion
 
-        // 쿨 충전 완료 시 스킬 사용 로직 (작업 필요 시 확장)
-        if (this.skillProgress >= 1.0) {
-            // Logger.info("SKILL", `${this.logic.name} is ready to cast ${this.skillData.name}!`);
-            // 여기서 스킬 실행 루틴 호출 가능
+        //#region ULTIMATE_CHARGE
+        if (this.hasUltimate) {
+            // 궁극기 충전 속도(ultChargeSpeed) 반영
+            const ultChargeSpeed = this.logic.stats.get('ultChargeSpeed') || 1.0;
+            // 궁극기는 일반적으로 스킬보다 훨씬 느리게 차도록 설정 (예: 40초 기준 40000ms)
+            const ultBaseTime = 40000; 
+            const ultGain = delta / ultBaseTime;
+            
+            const oldUltProgress = this.ultimateProgress;
+            this.ultimateProgress = Math.min(1.0, this.ultimateProgress + ultGain * ultChargeSpeed);
+
+            // 궁극기 게이지 변화 시 UI 갱신 (HP바 재사용)
+            if (this.hpBar && Math.floor(oldUltProgress * 100) !== Math.floor(this.ultimateProgress * 100)) {
+                this.hpBar.isDirty = true;
+            }
         }
+        //#endregion
     }
 
     /**

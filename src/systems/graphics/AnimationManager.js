@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import Logger from '../../utils/Logger.js';
 import poolingManager from '../../core/PoolingManager.js';
+import phaserParticleManager from './PhaserParticleManager.js';
 
 // ==========================================
 // 💥 [구역 1] 피격 이펙트 풀링 (PooledHitEffect)
@@ -19,7 +20,9 @@ class PooledHitEffect {
 
         // 상태 초기화
         this.sprite.setTexture(key);
-        this.sprite.setPosition(target.x, target.y - 40);
+        // [FIX] 고도(zHeight) 반영하여 공중 피격 위치 보정
+        const hitY = target.zHeight ? (target.y - target.zHeight - 40) : (target.y - 40);
+        this.sprite.setPosition(target.x, hitY);
         this.sprite.setScale(0);
         this.sprite.setAlpha(0.8);
         this.sprite.setDepth(target.depth + 0.1);
@@ -89,14 +92,28 @@ class AnimationManager {
         }
 
         // 2. 풀에서 이펙트 객체 획득 및 실행
-        const effect = poolingManager.get('impact_effect');
-        if (effect) {
-            effect.show(target, key);
+        // [요청] 물리 속성일 경우 두 개의 임팩트를 겹쳐서(Overlap) 출력하여 강렬함 전달
+        if (type === 'physical') {
+            const effect1 = poolingManager.get('impact_effect');
+            if (effect1) {
+                effect1.show(target, 'impact_phys_1');
+                this.scene.time.delayedCall(300, () => poolingManager.release('impact_effect', effect1));
+            }
             
-            // 일정 시간 후 풀에 반환 (PooledHitEffect.onRelease가 이미 수행됨을 가정하거나 여기서 직접 호출)
-            this.scene.time.delayedCall(300, () => {
-                poolingManager.release('impact_effect', effect);
+            // 약간의 딜레이와 함께 두 번째 이펙트 오버랩
+            this.scene.time.delayedCall(50, () => {
+                const effect2 = poolingManager.get('impact_effect');
+                if (effect2) {
+                    effect2.show(target, 'impact_phys_2');
+                    this.scene.time.delayedCall(300, () => poolingManager.release('impact_effect', effect2));
+                }
             });
+        } else {
+            const effect = poolingManager.get('impact_effect');
+            if (effect) {
+                effect.show(target, key);
+                this.scene.time.delayedCall(300, () => poolingManager.release('impact_effect', effect));
+            }
         }
     }
 
@@ -121,19 +138,25 @@ class AnimationManager {
         const trajectory = this.scene.add.image(entity.x, entity.y, 'charge_attack');
         trajectory.setOrigin(0, 0.5); // 시작점 기준
         trajectory.setRotation(angle);
-        trajectory.setAlpha(0.9);
+        trajectory.setAlpha(1.0); // 초기 알파값 강화
+        trajectory.setBlendMode(Phaser.BlendModes.ADD); // [신규] 빛 효과 추가
         trajectory.setDepth(entity.depth - 1); // 유닛 밑에
         
         // [신규] 가로 길이만 압축 (Horizontal Distortion)
-        // 비례로 작아지면 너무 작아 보이므로, 세로 높이는 고정(320px)하고 가로만 거리에 맞춰 압축/왜곡함.
         trajectory.setDisplaySize(dist, 320); 
 
-        // 2. 잔상 생성 (Ghosting)
+        // [신규] 유닛 스트레칭 (속도감 강조)
+        const originalScaleX = entity.sprite.scaleX;
+        entity.sprite.scaleX = originalScaleX * 1.5; 
+
+        // 2. 잔상 생성 (Ghosting) + 먼지 트레일
         const ghostTimer = this.scene.time.addEvent({
-            delay: 20, // 더 촘촘하게
+            delay: 20,
             repeat: Math.floor(dist / 25),
             callback: () => {
                 if (!entity.active || !entity.sprite) return;
+                
+                // 잔상 생성
                 const ghost = this.scene.add.sprite(entity.x + entity.sprite.x, entity.y + entity.sprite.y, entity.sprite.texture.key);
                 ghost.setFlipX(entity.sprite.flipX);
                 ghost.setScale(entity.sprite.scaleX, entity.sprite.scaleY);
@@ -145,14 +168,16 @@ class AnimationManager {
                     duration: 300,
                     onComplete: () => ghost.destroy()
                 });
+
+                // 먼지 트레일 (바닥에 먼지가 일어나는 연출)
+                if (phaserParticleManager.spawnWhiteDust) {
+                    phaserParticleManager.spawnWhiteDust(entity.x, entity.y);
+                }
             }
         });
 
-        // [신규] 유닛 스트레칭 (속도감 강조)
-        const originalScaleX = entity.sprite.scaleX;
-        entity.sprite.scaleX = originalScaleX * 1.5; // 돌진 방향으로 늘리기
 
-        // 3. 실제 위치 이동 (Container 이동) - 속도 대폭 향상 (180ms)
+        // 4. 실제 위치 이동 (Container 이동)
         this.scene.tweens.add({
             targets: entity,
             x: targetPos.x,
@@ -162,12 +187,15 @@ class AnimationManager {
             onComplete: () => {
                 // 스케일 복구
                 entity.sprite.scaleX = originalScaleX;
+                if (ghostTimer) ghostTimer.remove();
 
-                // 궤적 제거 (빠르게 사라짐)
+                // 궤적 제거 (체감 시간 연장을 위해 400ms로 상향)
                 this.scene.tweens.add({
                     targets: trajectory,
                     alpha: 0,
-                    duration: 150,
+                    scaleY: 0.5,
+                    duration: 400,
+                    ease: 'Quad.out',
                     onComplete: () => trajectory.destroy()
                 });
 
@@ -239,6 +267,50 @@ class AnimationManager {
                     y: 0,
                     duration: 200,
                     ease: 'Back.out'
+                });
+            }
+        });
+    }
+
+    /**
+     * 유닛 사망 애니메이션 (Death Animation)
+     * [충격 -> 쓰러짐 -> 소멸] 과정을 단계별 트윈으로 연출
+     */
+    playDeathAnimation(entity, onComplete) {
+        if (!this.scene || !entity || !entity.sprite) return;
+
+        // 1. 충격 페이즈: 하얗게 번쩍임
+        entity.sprite.setTint(0xffffff);
+        this.scene.cameras.main.shake(150, 0.005);
+
+        // 2. 쓰러짐 & 가라앉음 페이즈
+        // 방향에 따라 쓰러지는 각도 조절
+        const fallAngle = entity.sprite.flipX ? -90 : 90;
+
+        this.scene.tweens.add({
+            targets: entity.sprite,
+            angle: fallAngle,
+            y: 40, // 바닥으로 가라앉는 느낌
+            duration: 600,
+            ease: 'Cubic.in',
+            delay: 100, // 충격 직후 잠시 멈춤
+            onStart: () => {
+                // 서서히 어둡게 (시체 느낌)
+                entity.sprite.setTint(0x444444);
+            },
+            onComplete: () => {
+                // 3. 소멸 & 영혼 승천 페이즈
+                if (phaserParticleManager.spawnSoul) {
+                    phaserParticleManager.spawnSoul(entity.x, entity.y - 20);
+                }
+
+                this.scene.tweens.add({
+                    targets: entity,
+                    alpha: 0,
+                    duration: 1000,
+                    onComplete: () => {
+                        if (onComplete) onComplete();
+                    }
                 });
             }
         });
