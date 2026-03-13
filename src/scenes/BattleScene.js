@@ -61,7 +61,8 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('impact_phys_2', 'assets/effect/phisycal_impact_effect_2.png');
         this.load.image('charge_attack', 'assets/effect/charge_attack.png');
         this.load.image('for_messiah', 'assets/effect/for_messiah.png');
-        Logger.info("BATTLE_LOADER", "Preloading physical impact effects and skill assets.");
+        this.load.image('arrow_projectile', assetPathManager.getPath('images', 'arrow_projectile'));
+        Logger.info("BATTLE_LOADER", "Preloading physical impact effects, skill assets, and projectiles.");
 
         // 4. [신규] 타격 효과음 프리로드
         this.load.audio('hit_phys_1', 'assets/sfx/hitting-1.mp3');
@@ -102,6 +103,17 @@ export default class BattleScene extends Phaser.Scene {
 
         // 전역 이벤트 알림
         EventBus.emit(EVENTS.SCENE_CHANGED, 'BattleScene');
+
+        // [신규] 씬 종료 시 정리
+        this.events.once('shutdown', () => {
+            if (this.projectileManager) this.projectileManager.clear();
+            if (this.aiManager) this.aiManager.clear();
+        });
+
+        // [USER 요청] 카메라 지터링 방지: 모든 물리 업데이트가 끝난 후 카메라 이동
+        this.events.on(Phaser.Scenes.Events.POST_UPDATE, () => {
+            cameraManager.updateFollowAllies(this, this.allies, 16.6); // 고정 60fps 기준 델타
+        });
     }
 
     async initializeManagers() {
@@ -128,7 +140,7 @@ export default class BattleScene extends Phaser.Scene {
         }
     }
 
-    spawnInitialUnits() {
+    async spawnInitialUnits() {
         if (!this.spawnManager) return;
 
         // [그래픽] 그래픽 시스템 초기화
@@ -137,6 +149,11 @@ export default class BattleScene extends Phaser.Scene {
         phaserParticleManager.init(this);
         soundManager.init(this);
         ultimateCutsceneManager.init();
+
+        // [신규] 투사체 매니저 초기화
+        const projectileModule = await import('../systems/combat/ProjectileManager.js');
+        this.projectileManager = projectileModule.default;
+        this.projectileManager.init(this);
 
         // [전투] 스폰 매니저를 통한 초기 배치
         this.spawnManager = spawnManager;
@@ -152,12 +169,15 @@ export default class BattleScene extends Phaser.Scene {
     update(time, delta) {
         if (this.isTransitioning) return;
 
-        // [카메라] 아군 추적
-        cameraManager.updateFollowAllies(this, this.allies, delta);
-
         // [그림자] 실시간 업데이트
         shadowManager.update([...this.allies, ...this.enemies]);
         fxManager.update(time, delta); // [신규] FX 시스템 업데이트 (HP바 등)
+        
+        // [신규] 투사체 매니저 업데이트
+        if (this.projectileManager) {
+            // 투사체 업데이트는 그룹 내 runChildUpdate가 true이면 자동 실행되지만, 
+            // 명시적으로 순서 관리가 필요할 수도 있음.
+        }
 
         // [레이어] Y-Sorting 및 상태 업데이트
         this.allies.forEach(a => {

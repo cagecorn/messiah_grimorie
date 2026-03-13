@@ -1,28 +1,54 @@
-/**
- * 원거리 AI (Ranged AI)
- * 전략: 카이팅 (적과 일정 거리 유지하며 원거리 공격)
- */
-export default class RangedAI {
-    execute(self, aiBb, combatBb, deltaTime) {
-        const target = aiBb.get('target');
-        if (!target) return;
+import Phaser from 'phaser';
 
-        const dist = this.getDistance(self, target);
-        const rangeMin = self.stats.get('rangeMin') || 150;
-        const rangeMax = self.getTotalAtkRange();
+/**
+ * 원거리 AI 노드 (Ranged AI Node)
+ * 역할: [적과 일정한 사거리를 유지하며 카이팅(Kiting) 수행]
+ * 
+ * 설명:
+ * 1. 거리가 너무 멀면 다가감.
+ * 2. 사거리 내에 있으면 멈추고 공격.
+ * 3. 적이 너무 가까워지면(최소 사거리 미만) 뒤로 물러남.
+ */
+class RangedAI {
+    /**
+     * @param {CombatEntity} entity AI 주체
+     * @param {Blackboard} bb 데이터 저장소
+     */
+    static execute(entity, bb) {
+        const target = bb.get('target');
+        if (!target) {
+            entity.moveDirection = { x: 0, y: 0 };
+            return;
+        }
+
+        const dist = Phaser.Math.Distance.Between(entity.x, entity.y, target.x, target.y);
+        const stats = entity.logic.stats;
+        
+        const rangeMin = stats.get('rangeMin') || 100;
+        const rangeMax = stats.get('rangeMax') || 350;
+
+        let dx = 0;
+        let dy = 0;
 
         if (dist < rangeMin) {
-            // 너무 가까움 -> 뒤로 후퇴 (Flee/Kiting)
-            aiBb.set('state', 'flee');
-            // 후퇴 좌표 계산 로직
+            // 1. 카이팅: 너무 가까우면 뒤로 물러남
+            const angle = Phaser.Math.Angle.Between(target.x, target.y, entity.x, entity.y);
+            dx = Math.cos(angle);
+            dy = Math.sin(angle);
         } else if (dist > rangeMax) {
-            // 너무 멈 -> 추격
-            aiBb.set('state', 'move');
+            // 2. 접근: 너무 멀면 다가감
+            const angle = Phaser.Math.Angle.Between(entity.x, entity.y, target.x, target.y);
+            dx = Math.cos(angle);
+            dy = Math.sin(angle);
         } else {
-            // 사거리 내 존재 -> 공격
-            aiBb.set('state', 'attack');
+            // 3. 사거리 내 적절한 위치: 정지 및 공격
+            dx = 0;
+            dy = 0;
+            entity.attack(target);
         }
-    }
 
-    getDistance(a, b) { return 999; } // Placeholder
+        entity.moveDirection = { x: dx, y: dy };
+    }
 }
+
+export default RangedAI;

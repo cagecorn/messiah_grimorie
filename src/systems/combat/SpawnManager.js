@@ -42,8 +42,8 @@ class SpawnManager {
             });
 
             // 3. 물리 위치 계산 (좌측 15% 구역)
-            const x = world.width * 0.15 + (index % 2) * 60;
-            const y = world.height * 0.3 + (index * 100);
+            const x = Math.round(world.width * 0.15 + (index % 2) * 60);
+            const y = Math.round(world.height * 0.3 + (index * 100));
 
             // 4. 물리 엔티티(CombatEntity) 생성
             const spriteKey = `merc_${mercId}_sprite`;
@@ -71,8 +71,8 @@ class SpawnManager {
             const logicEntity = monsterManager.spawn(id, { level: 1 });
 
             // 2. 물리 위치 계산 (우측 85% 구역)
-            const x = world.width * 0.85 - (index % 2) * 60;
-            const y = world.height * 0.35 + (index * 120);
+            const x = Math.round(world.width * 0.85 - (index % 2) * 60);
+            const y = Math.round(world.height * 0.35 + (index * 120));
 
             // 3. 물리 엔티티 생성
             const spriteKey = `enemy_${id}_sprite`;

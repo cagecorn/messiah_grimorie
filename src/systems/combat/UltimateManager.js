@@ -28,6 +28,16 @@ class UltimateManager {
             logic: forMessiah 
         });
 
+        // 엘라 (Ella)
+        this.ultimates.set('ella', {
+            id: 'ella_ult',
+            name: 'Spirit Arrow',
+            description: 'Fires a rain of spirit arrows.',
+            chargeMax: 100,
+            chargeSpeedBase: 1.0,
+            logic: null // 추후 구현
+        });
+
         // 고블린(몬스터)은 궁극기 없음
         this.ultimates.set('goblin', {
             hasUltimate: false

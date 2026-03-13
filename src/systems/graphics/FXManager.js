@@ -91,7 +91,7 @@ class FXManager {
         if (!this.isInitialized) return;
         
         // HP바 업데이트 (위치 + 렌더링)
-        healthBarManager.update();
+        healthBarManager.update(delta);
     }
 }
 

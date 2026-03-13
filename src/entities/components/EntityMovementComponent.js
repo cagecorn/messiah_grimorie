@@ -39,7 +39,9 @@ export default class EntityMovementComponent {
      * 정지
      */
     stop() {
-        if (this.body) this.body.setVelocity(0, 0);
+        if (this.body) {
+            this.body.setVelocity(0, 0);
+        }
     }
 
     /**

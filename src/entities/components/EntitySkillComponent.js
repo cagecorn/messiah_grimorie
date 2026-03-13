@@ -20,10 +20,6 @@ export default class EntitySkillComponent {
         this.hasUltimate = this.ultData.hasUltimate !== false;
         this.ultimateProgress = 0;
 
-        // [TEST] 특정 맵 아렌 특수 충전
-        if (this.logic.id.startsWith('aren') && entity.scene.stageId === 'cursed_forest') {
-            this.ultimateProgress = 1.0;
-        }
     }
 
     /**

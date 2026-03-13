@@ -67,7 +67,7 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         fxManager.attachHUD(this);
         shadowManager.createShadow(scene, this);
 
-        Logger.info("COMBAT_ENTITY", `Spawned ${this.logic.name} (Modular) at (${x}, ${y})`);
+        Logger.info("COMBAT_ENTITY", `Spawned ${this.logic.name} (Modular) at (${Math.round(x)}, ${Math.round(y)})`);
     }
 
     // ==========================================
@@ -141,14 +141,26 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     }
 
     playAttackAnimation(target, onHit) {
-        animationManager.playDashAttack(this, target, onHit);
+        const className = this.logic.class.getClassName();
+        const isMelee = className === 'warrior' || this.logic.type === 'monster';
+        
+        if (isMelee) {
+            animationManager.playDashAttack(this, target, onHit);
+        } else {
+            // 원거리 클래스는 대쉬 없이 제자리에서 공격 (타이밍 조절 가능)
+            // 추후 'Shoot' 전용 애니메이션 Tweens가 필요하다면 여기서 처리
+            this.scene.time.delayedCall(100, onHit);
+        }
     }
 
     takeDamage(amount, attacker) {
         if (!this.logic.isAlive) return;
 
         const currentHp = this.logic.stats.takeDamage(amount);
-        if (this.hpBar) this.hpBar.isDirty = true;
+        if (this.hpBar) {
+            this.hpBar.isDirty = true;
+            this.hpBar.shake(); // [신규] 피격 시 HP바 진동
+        }
 
         fxManager.flashRed(this);
         phaserParticleManager.spawnBloodBurst(this.x, this.y - this.zHeight - 40);

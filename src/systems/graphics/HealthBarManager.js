@@ -44,7 +44,20 @@ class HealthBar {
         this.lastMaxHp = -1;
         this.lastSkillProgress = -1; // [신규] 스킬 진행도 캐싱
         this.lastUltimateProgress = -1; // [신규] 궁극기 진행도 캐싱
+        
+        // [신규] 진동(Shake) 효과 상태
+        this.shakeTimer = 0;
+        this.shakeIntensity = 0;
+        
         this.isDirty = true;
+    }
+
+    /**
+     * HP바 진동 효과 시작
+     */
+    shake(intensity = 4, duration = 200) {
+        this.shakeIntensity = intensity;
+        this.shakeTimer = duration;
     }
 
     /**
@@ -60,15 +73,29 @@ class HealthBar {
     /**
      * 엔티티 위치 추적 (매 프레임 호출)
      */
-    updatePosition() {
+    updatePosition(delta = 0) {
         if (!this.targetEntity || !this.targetEntity.active) return;
         
+        // 진동 타이머 업데이트
+        if (this.shakeTimer > 0) {
+            this.shakeTimer -= delta;
+        }
+
         // 애니메이션 중인 경우 스프라이트의 시각적 오프셋을 반영합니다.
         const vx = this.targetEntity.sprite ? this.targetEntity.sprite.x : 0;
         const vy = this.targetEntity.sprite ? this.targetEntity.sprite.y : 0;
         
         // 유닛의 중심 기준에서 머리 위(-75px)로 배치
-        this.container.setPosition(this.targetEntity.x + vx, this.targetEntity.y + vy - 75);
+        let posX = this.targetEntity.x + vx;
+        let posY = this.targetEntity.y + vy - 75;
+
+        // [신규] 진동 효과 적용 (고성능 오프셋 방식)
+        if (this.shakeTimer > 0) {
+            posX += (Math.random() - 0.5) * this.shakeIntensity;
+            posY += (Math.random() - 0.5) * this.shakeIntensity;
+        }
+
+        this.container.setPosition(posX, posY);
     }
 
     /**
@@ -238,9 +265,9 @@ class HealthBarManager {
     /**
      * 업데이트 루프 (위치 추적 및 그리기)
      */
-    update() {
+    update(delta) {
         this.activeBars.forEach(bar => {
-            bar.updatePosition();
+            bar.updatePosition(delta);
             bar.draw();
         });
     }

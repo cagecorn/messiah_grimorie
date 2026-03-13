@@ -14,7 +14,8 @@ class AssetPathManager {
         // [구역 1] 이미지 에셋 (Images)
         this.images = {
             // 예: bg_territory: `${this.basePath}images/bg/territory.png`
-            battle_forest_bg: `${this.basePath}background/battle_stage/battle-stage-cursed-forest.png`
+            battle_forest_bg: `${this.basePath}background/battle_stage/battle-stage-cursed-forest.png`,
+            arrow_projectile: `${this.basePath}effect/arrow_projectile.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)

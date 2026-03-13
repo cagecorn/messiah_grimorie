@@ -26,6 +26,17 @@ class SkillManager {
             logic: chargeAttack
         });
 
+        // 엘라 (Ella) - 아처
+        this.skills.set('ella', {
+            id: 'knockbackshot',
+            name: 'Knockback Shot',
+            nameKey: 'skill_knockback_shot_name',
+            description: 'Fires a powerful arrow that knocks back enemies.',
+            descriptionKey: 'skill_knockback_shot_desc',
+            cooldown: 6000, // 6 seconds
+            logic: null // 추후 구현
+        });
+
         // 고블린 (Goblin) - 스킬 없음
         this.skills.set('goblin', {
             hasSkill: false

@@ -42,6 +42,7 @@ const config = {
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
+    pixelArt: false, // [유저 요청] 이미지가 너무 거칠게 보여서 다시 끔
     physics: {
         default: 'arcade',
         arcade: {

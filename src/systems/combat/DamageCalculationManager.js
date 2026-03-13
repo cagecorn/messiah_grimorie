@@ -36,30 +36,33 @@ class DamageCalculationManager {
 
     /**
      * 데미지 기록 (공격자와 피격자 모두 기록)
+     * @param {object} attacker 공격자 로직
+     * @param {object} target 피격자 로직
+     * @param {number} amount 데미지 양
+     * @param {string} type 속성
+     * @param {string} projectileId 투사체 고유 ID (선택 사항)
      */
-    recordDamage(attacker, target, amount, type = 'physical') {
+    recordDamage(attacker, target, amount, type = 'physical', projectileId = null) {
         if (!attacker || !target) return;
 
-        const attackerId = this.initEntity(attacker.id);
+        // [USER 요청] 투사체가 있으면 투사체 ID를 추적, 없으면 공격자 ID 사용
+        const trackerId = projectileId ? projectileId : attacker.id;
+        const attackerId = this.initEntity(trackerId);
         const targetId = this.initEntity(target.id);
 
-        const attackerStats = this.stats.get(attackerId);
+        const trackerStats = this.stats.get(attackerId);
         const targetStats = this.stats.get(targetId);
 
-        // 1. 누적 데이터 기록 (전체)
-        attackerStats.dealt += amount;
+        // 1. 누적 데이터 기록
+        trackerStats.dealt += amount;
         targetStats.received += amount;
 
-        // 2. [신규] 속성별 데이터 기록
-        if (attackerStats.dealtByElement[type] !== undefined) {
-            attackerStats.dealtByElement[type] += amount;
-        }
-        if (targetStats.receivedByElement[type] !== undefined) {
-            targetStats.receivedByElement[type] += amount;
-        }
+        // [신규] 투사체 추적 시, 원본 시전자(Owner) 정보도 내부적으로 매핑해두면 좋으나 
+        // 일단은 ID 기반으로 분리 기록함.
+        // 나중에 Weapon Leveling에서 "proj_arrow_ella_1" -> "ella"로 매핑하여 경험치 합산 필요.
 
         // 3. DPS 계산을 위한 공격자 히스토리 기록
-        attackerStats.history.push({
+        trackerStats.history.push({
             timestamp: Date.now(),
             amount: amount,
             type: type 
