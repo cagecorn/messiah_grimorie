@@ -110,7 +110,18 @@ export default class EntityCombatComponent {
      */
     heal(amount) {
         if (!this.logic.isAlive) return;
-        this.logic.stats.update('current', 'hp', Math.min(this.logic.getTotalMaxHp(), this.logic.hp + amount));
+        
+        // [수정] BaseEntity의 내장 heal 메서드를 호출하여 스탯 시스템 내부에서 안전하게 처리하도록 위임
+        if (typeof this.logic.stats.heal === 'function') {
+            this.logic.stats.heal(amount);
+        } else {
+            // Fallback (만약 stats.heal이 없다면 수동 계산)
+            const currentHp = this.logic.hp;
+            const maxHp = this.logic.getTotalMaxHp();
+            const newHp = Math.min(maxHp, currentHp + amount);
+            this.logic.stats.update('base', 'hp', newHp);
+        }
+
         if (this.entity.hpBar) this.entity.hpBar.isDirty = true;
     }
 

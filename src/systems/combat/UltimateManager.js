@@ -1,5 +1,6 @@
 import forMessiah from './skills/ForMessiah.js';
 import threadsOfFate from './skills/ThreadsOfFate.js';
+import summonGuardianAngel from './skills/SummonGuardianAngel.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -26,6 +27,16 @@ class UltimateManager {
             chargeMax: 100, 
             chargeSpeedBase: 1.0, // 기본 충전 배율
             logic: forMessiah 
+        });
+
+        // 🌿 [Healer Class] 세라 (Sera)
+        this.ultimates.set('sera', {
+            id: 'sera_ult',
+            name: 'Summon: Guardian Angel',
+            description: 'Summon and empower a Guardian Angel.',
+            chargeMax: 100,
+            chargeSpeedBase: 1.0,
+            logic: summonGuardianAngel
         });
 
         // 엘라 (Ella)

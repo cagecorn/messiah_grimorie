@@ -57,13 +57,22 @@ export default class BattleScene extends Phaser.Scene {
             Logger.info("BATTLE_LOADER", `Preloading unit asset: ${asset.key} from ${asset.path}`);
         });
 
-        // 3. [신규] 고해상도 피격 이펙트 프리로드
+        // 3. [신규] 고해상도 피격/회복 이펙트 프리로드
+        const healingPath = assetPathManager.getPath('images', 'healing_effect');
+        if (healingPath) {
+            this.load.image('healing_effect', healingPath);
+            Logger.info("BATTLE_LOADER", `Preloading explicit effect: healing_effect from ${healingPath}`);
+        }
         this.load.image('impact_phys_1', 'assets/effect/phisycal_impact_effect_1.png');
         this.load.image('impact_phys_2', 'assets/effect/phisycal_impact_effect_2.png');
         this.load.image('charge_attack', 'assets/effect/charge_attack.png');
         this.load.image('for_messiah', 'assets/effect/for_messiah.png');
         this.load.image('arrow_projectile', assetPathManager.getPath('images', 'arrow_projectile'));
         this.load.image('knockback_shot_projectile', 'assets/effect/knockback_shot_projectile.png');
+        this.load.image('healing_effect', assetPathManager.getPath('images', 'healing_effect'));
+        this.load.image('mass_heal_effect', assetPathManager.getPath('images', 'mass_heal_effect'));
+        this.load.image('guardian_angel_sprite', assetPathManager.getPath('images', 'guardian_angel_sprite'));
+        this.load.image('summon_guardian_angel_effect', assetPathManager.getPath('images', 'summon_guardian_angel_effect'));
 
         // [신규] 상태 이상 아이콘 프리로드
         this.load.image('/assets/icon/knockback_icon.png', '/assets/icon/knockback_icon.png');

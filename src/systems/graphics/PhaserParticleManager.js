@@ -40,7 +40,30 @@ class PhaserParticleManager {
         this.createBloodPool();
         this.createDustPool();
         this.createSoulPool();
-        Logger.system("PhaserParticleManager: Particle systems initialized with Glow texture.");
+        this.createHealPool();
+        Logger.system("PhaserParticleManager: Particle systems initialized with Glow, Thread, and Heal textures.");
+    }
+
+    /**
+     * 힐 파티클 풀 생성
+     */
+    createHealPool() {
+        if (!this.scene) return;
+
+        const emitter = this.scene.add.particles(0, 0, 'particle_glow', {
+            color: [ 0x00ff00, 0x55ff55, 0xaaffaa ], // 연두 ~ 밝은 초록
+            speed: { min: 40, max: 120 },
+            scale: { start: 0.5, end: 0 },
+            alpha: { start: 0.8, end: 0 },
+            lifespan: 800,
+            blendMode: 'ADD',
+            gravityY: -100, // 위로 살짝 떠오름
+            quantity: 10,
+            maxParticles: 500,
+            emitting: false
+        });
+
+        this.emitters.set('heal', emitter);
     }
 
     /**
@@ -138,6 +161,16 @@ class PhaserParticleManager {
         if (!emitter) return;
 
         emitter.explode(8, x, y);
+    }
+
+    /**
+     * 힐 효과 파티클 발생
+     */
+    spawnHealBurst(x, y) {
+        const emitter = this.emitters.get('heal');
+        if (!emitter) return;
+
+        emitter.explode(12, x, y);
     }
 }
 

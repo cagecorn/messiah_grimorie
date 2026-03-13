@@ -49,6 +49,22 @@ class FXManager {
     }
 
     /**
+     * 회복 이펙트 출력 요청 (신규)
+     */
+    showHealEffect(target) {
+        if (!this.isInitialized) return;
+        animationManager.playHealingEffect(target);
+    }
+
+    /**
+     * 광역 힐 시각 효과 출력 (세라 중심 써클)
+     */
+    showMassHealCircle(owner) {
+        if (!this.isInitialized) return;
+        animationManager.playMassHealEffect(owner);
+    }
+
+    /**
      * [신규] 유닛 피격 시 빨갛게 번쩍이는 효과
      * @param {CombatEntity} target 
      */

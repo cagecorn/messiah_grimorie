@@ -1,6 +1,7 @@
 import Logger from '../../utils/Logger.js';
 import chargeAttack from './skills/ChargeAttack.js';
 import knockbackShot from './skills/KnockbackShot.js';
+import massHeal from './skills/MassHeal.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -36,6 +37,17 @@ class SkillManager {
             descriptionKey: 'skill_knockback_shot_desc',
             cooldown: 8000, // 8 seconds
             logic: knockbackShot
+        });
+
+        // 세라 (Sera) - 힐러
+        this.skills.set('sera', {
+            id: 'massheal',
+            name: 'Mass Heal',
+            nameKey: 'skill_mass_heal_name',
+            description: 'Heals all allies by 1.5x MAtk.',
+            descriptionKey: 'skill_mass_heal_desc',
+            cooldown: 12000, // 12 seconds
+            logic: massHeal
         });
 
         // 고블린 (Goblin) - 스킬 없음

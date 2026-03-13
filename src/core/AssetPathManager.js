@@ -15,7 +15,11 @@ class AssetPathManager {
         this.images = {
             // 예: bg_territory: `${this.basePath}images/bg/territory.png`
             battle_forest_bg: `${this.basePath}background/battle_stage/battle-stage-cursed-forest.png`,
-            arrow_projectile: `${this.basePath}effect/arrow_projectile.png`
+            arrow_projectile: `${this.basePath}effect/arrow_projectile.png`,
+            healing_effect: `${this.basePath}effect/healing_effect.png`,
+            mass_heal_effect: `${this.basePath}effect/mass_heal_effect.png`,
+            guardian_angel_sprite: `${this.basePath}characters/summon/guadian_angel_sprite.png`,
+            summon_guardian_angel_effect: `${this.basePath}effect/summon_guardian_angel_effect.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)

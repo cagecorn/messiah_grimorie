@@ -45,7 +45,6 @@ class SpawnManager {
         const formation = formationManager.getFormation();
         const spawnedUnits = [];
         
-        // 유저 요청: "아렌만 들고 입장하도록 할게"
         // (실제로는 formationManager를 따르되, 아렌이 배치되어 있으면 아렌이 나옵니다)
         
         const world = measurementManager.world;
@@ -86,8 +85,8 @@ class SpawnManager {
         
         const world = measurementManager.world;
         
-        // 유저 요청: "고블린 세마리"
-        const enemyIds = ['goblin', 'goblin', 'goblin'];
+        // 유저 요청: 고블린 10마리 스폰
+        const enemyIds = Array(10).fill('goblin');
 
         enemyIds.forEach((id, index) => {
             // 1. 논리 엔티티 생성
@@ -116,9 +115,6 @@ class SpawnManager {
         return spawnedUnits;
     }
 
-    /**
-     * 전투에 필요한 에셋 프리로드 리스트 제공
-     */
     getRequiredAssets() {
         const assets = [];
         

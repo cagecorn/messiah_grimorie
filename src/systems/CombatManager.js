@@ -102,12 +102,15 @@ class CombatManager {
 
         if (isAlly && className === 'healer') {
             this.processHeal(attackerEntity, targetEntity, 1.0);
-        } else if (className === 'archer' && !isAlly) {
-            // 아쳐는 투사체 발사 (타겟이 존재하고 거리 안에 있을 때)
-            this.fireProjectile('arrow', attackerEntity, targetEntity, 1.0);
         } else if (!isAlly) {
-            // 근접 또는 일반 공격
-            this.processDamage(attackerEntity, targetEntity, 1.0, 'physical');
+            // [USER 요청] 힐러는 공격 시에도 mAtk 기반 마법 데미지 적용
+            if (className === 'healer') {
+                this.processDamage(attackerEntity, targetEntity, 1.0, 'magic');
+            } else if (className === 'archer') {
+                this.fireProjectile('arrow', attackerEntity, targetEntity, 1.0);
+            } else {
+                this.processDamage(attackerEntity, targetEntity, 1.0, 'physical');
+            }
         }
     }
 
@@ -125,7 +128,7 @@ class CombatManager {
             targetEntity.heal(healAmount);
             damageCalculationManager.recordHeal(healer, target, healAmount);
             fxManager.showDamageText(targetEntity.x, targetEntity.y, Math.floor(healAmount), 'heal');
-            fxManager.showImpactEffect(targetEntity, 'heal');
+            fxManager.showHealEffect(targetEntity);
         }
     }
 
