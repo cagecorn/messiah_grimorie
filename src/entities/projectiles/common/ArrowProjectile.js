@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
-import Logger from '../../utils/Logger.js';
-import projectileManager from '../../systems/combat/ProjectileManager.js';
-import combatManager from '../../systems/CombatManager.js';
-import instanceIDManager from '../../utils/InstanceIDManager.js';
+import Logger from '../../../utils/Logger.js';
+import projectileManager from '../../../systems/combat/ProjectileManager.js';
+import combatManager from '../../../systems/CombatManager.js';
+import instanceIDManager from '../../../utils/InstanceIDManager.js';
 
 /**
  * 화살 투사체 (Arrow Projectile)
@@ -57,7 +57,9 @@ export default class ArrowProjectile extends Phaser.GameObjects.Sprite {
         // 포물선 정점 조절 (거리에 비례)
         this.peakHeight = Math.min(150, dist * 0.3);
 
-        Logger.info("PROJECTILE", `Fired ${this.id} from ${owner.logic.name} to ${target.logic.name}`);
+        const ownerName = owner?.logic?.name || "Unknown";
+        const targetName = target?.logic?.name || "Unknown";
+        Logger.info("PROJECTILE", `Fired ${this.id} from ${ownerName} to ${targetName}`);
     }
 
     update(time, delta) {

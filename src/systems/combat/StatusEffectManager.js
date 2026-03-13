@@ -12,7 +12,8 @@ class StatusEffectManager {
             frozen: false,
             burned: false,
             silenced: false,
-            airborne: false
+            airborne: false,
+            knockback: false
         };
         this.timers = {};
     }
@@ -32,8 +33,21 @@ class StatusEffectManager {
         }
     }
 
+    /**
+     * 모든 상태이상 초기화 (풀링용)
+     */
+    clearAll() {
+        for (const type in this.states) {
+            this.states[type] = false;
+            if (this.timers[type]) {
+                clearTimeout(this.timers[type]);
+                this.timers[type] = null;
+            }
+        }
+    }
+
     isUnableToAct() {
-        return this.states.stunned || this.states.frozen || this.states.airborne;
+        return this.states.stunned || this.states.frozen || this.states.airborne || this.states.knockback;
     }
 }
 

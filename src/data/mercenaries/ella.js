@@ -10,7 +10,7 @@ export default {
     name: 'Ella',
     className: ENTITY_CLASSES.ARCHER,
     isSpecial: false,
-    skill: 'KnockbackShot', // 추후 구현 예정
+    skill: 'knockback_shot',
     description: '남자임에도 여자 이름을 지어주신 부모님을 원망하는 아처. 츤데레. 뜨개질 좋아함.',
     level: 1,
     exp: 0,

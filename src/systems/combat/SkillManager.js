@@ -1,5 +1,6 @@
 import Logger from '../../utils/Logger.js';
 import chargeAttack from './skills/ChargeAttack.js';
+import knockbackShot from './skills/KnockbackShot.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -28,13 +29,13 @@ class SkillManager {
 
         // 엘라 (Ella) - 아처
         this.skills.set('ella', {
-            id: 'knockbackshot',
+            id: 'knockback_shot',
             name: 'Knockback Shot',
             nameKey: 'skill_knockback_shot_name',
             description: 'Fires a powerful arrow that knocks back enemies.',
             descriptionKey: 'skill_knockback_shot_desc',
-            cooldown: 6000, // 6 seconds
-            logic: null // 추후 구현
+            cooldown: 8000, // 8 seconds
+            logic: knockbackShot
         });
 
         // 고블린 (Goblin) - 스킬 없음

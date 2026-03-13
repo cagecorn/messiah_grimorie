@@ -62,6 +62,7 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('charge_attack', 'assets/effect/charge_attack.png');
         this.load.image('for_messiah', 'assets/effect/for_messiah.png');
         this.load.image('arrow_projectile', assetPathManager.getPath('images', 'arrow_projectile'));
+        this.load.image('knockback_shot_projectile', 'assets/effect/knockback_shot_projectile.png');
         Logger.info("BATTLE_LOADER", "Preloading physical impact effects, skill assets, and projectiles.");
 
         // 4. [신규] 타격 효과음 프리로드
@@ -69,6 +70,7 @@ export default class BattleScene extends Phaser.Scene {
         this.load.audio('hit_phys_2', 'assets/sfx/hitting-2.mp3');
         this.load.audio('hit_phys_3', 'assets/sfx/hitting-3.mp3');
         this.load.audio('unit_fallen', 'assets/sfx/fallen-1.mp3');
+        this.load.audio('arrow_1', 'assets/sfx/arrow_1.mp3');
         Logger.info("BATTLE_LOADER", "Preloading hitting sound effects and death sfx.");
     }
 
@@ -92,10 +94,6 @@ export default class BattleScene extends Phaser.Scene {
 
         // [SYSTEM] 매니저 레이어 동적 로드 및 초기화
         await this.initializeManagers();
-
-        // [SHADOW] 그림자 시스템 시작
-        this.allies.forEach(a => shadowManager.createShadow(this, a));
-        this.enemies.forEach(e => shadowManager.createShadow(this, e));
 
         // [GRAPHICS] 시각 효과 적용
         await graphicManager.initialize();
@@ -150,13 +148,21 @@ export default class BattleScene extends Phaser.Scene {
         soundManager.init(this);
         ultimateCutsceneManager.init();
 
-        // [신규] 투사체 매니저 초기화
+        // [신규] 투사체 매니저 초기화 및 클래스 등록 (Router)
         const projectileModule = await import('../systems/combat/ProjectileManager.js');
+        const ArrowProjectile = (await import('../entities/projectiles/common/ArrowProjectile.js')).default;
+        const KnockbackShotProjectile = (await import('../entities/projectiles/skills/KnockbackShotProjectile.js')).default;
+        
         this.projectileManager = projectileModule.default;
         this.projectileManager.init(this);
+        
+        // 투사체 라우팅 등록
+        this.projectileManager.registerProjectile('arrow', ArrowProjectile);
+        this.projectileManager.registerProjectile('knockback_shot', KnockbackShotProjectile);
 
         // [전투] 스폰 매니저를 통한 초기 배치
         this.spawnManager = spawnManager;
+        this.spawnManager.init(this);
         this.allies = this.spawnManager.spawnAllies(this);
         this.enemies = this.spawnManager.spawnEnemies(this, this.stageId);
 

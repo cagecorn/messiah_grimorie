@@ -5,7 +5,7 @@ import measurementManager from '../core/MeasurementManager.js';
 import soundManager from './SoundManager.js';
 import damageCalculationManager from './combat/DamageCalculationManager.js';
 import projectileManager from './combat/ProjectileManager.js';
-import ArrowProjectile from '../entities/projectiles/ArrowProjectile.js';
+import ArrowProjectile from '../entities/projectiles/common/ArrowProjectile.js';
 import fxManager from './graphics/FXManager.js';
 
 /**

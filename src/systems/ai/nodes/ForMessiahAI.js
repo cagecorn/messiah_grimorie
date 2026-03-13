@@ -30,9 +30,8 @@ class ForMessiahAI {
         
         if (dist > 50) {
             // 5. 궁극기 실행
-            if (entity.ultData && entity.ultData.logic) {
+            if (entity.skills.useUltimate(targetPoint)) {
                 Logger.info("AI", `${entity.logic.name} decided to use ULTIMATE!`);
-                entity.ultData.logic.execute(entity, targetPoint);
                 return true; // 행동 선점
             }
         }

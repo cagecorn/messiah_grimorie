@@ -2,6 +2,7 @@ import Logger from '../../utils/Logger.js';
 import healthBarManager from './HealthBarManager.js';
 import damageTextManager from './DamageTextManager.js';
 import animationManager from './AnimationManager.js';
+import shadowManager from './ShadowManager.js';
 
 /**
  * FX 매니저 (FX Manager)
@@ -69,6 +70,11 @@ class FXManager {
      */
     attachHUD(entity) {
         if (!this.isInitialized) return;
+        
+        // [중요] 기존 HUD가 있다면 먼저 제거하여 중복 생성 방지
+        if (entity.hpBar) {
+            this.detachHUD(entity);
+        }
         
         // HP바 생성 및 부착
         const hpBar = healthBarManager.createBar(entity);

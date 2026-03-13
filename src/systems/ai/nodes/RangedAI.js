@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import KnockbackShotAI from './KnockbackShotAI.js';
 
 /**
  * 원거리 AI 노드 (Ranged AI Node)
@@ -15,6 +16,15 @@ class RangedAI {
      * @param {Blackboard} bb 데이터 저장소
      */
     static execute(entity, bb) {
+        // [신규] 스킬 사용 시도 (넉백 샷 - 적 클러스터 타겟팅)
+        const allies = entity.scene.allies;
+        const enemies = (entity.team === 'mercenary') ? entity.scene.enemies : entity.scene.allies;
+        
+        if (KnockbackShotAI.tick(entity, allies, enemies)) {
+            entity.moveDirection = { x: 0, y: 0 };
+            return;
+        }
+
         const target = bb.get('target');
         if (!target) {
             entity.moveDirection = { x: 0, y: 0 };

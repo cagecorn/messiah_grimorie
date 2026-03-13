@@ -47,6 +47,14 @@ class SoundManager {
             Logger.error("SOUND", `Failed to play death SFX: ${err.message}`);
         }
     }
+
+    /**
+     * 특정 키의 효과음 재생
+     */
+    playSound(key, volume = 1.0) {
+        if (!this.scene) return;
+        audioManager.playSFX(this.scene, key, volume);
+    }
 }
 
 const soundManager = new SoundManager();

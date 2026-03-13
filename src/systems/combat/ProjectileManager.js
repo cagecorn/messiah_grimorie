@@ -11,6 +11,7 @@ class ProjectileManager {
     constructor() {
         this.scene = null;
         this.pools = new Map(); // projectileKey -> Phaser.GameObjects.Group
+        this.registry = new Map(); // projectileKey -> ProjectileClass (Routing Registry)
         this.activeProjectiles = new Set();
     }
 
@@ -21,16 +22,31 @@ class ProjectileManager {
         this.scene = scene;
         this.pools.clear();
         this.activeProjectiles.clear();
+        
+        // [Routing] 초기 레지스트리는 지우지 않음 (정적 등록 가능)
         Logger.system("ProjectileManager: Initialized for scene.");
     }
 
     /**
-     * 특정 타입의 투사체 풀 가져오기 또는 생성
-     * @param {string} key 투사체 식별자 (예: 'arrow')
-     * @param {class} ProjectileClass 투사체 클래스
+     * 투사체 클래스 등록 (Router)
      */
-    getPool(key, ProjectileClass) {
+    registerProjectile(key, ProjectileClass) {
+        this.registry.set(key, ProjectileClass);
+        Logger.info("PROJECTILE", `Registered router for: ${key}`);
+    }
+
+    /**
+     * 특정 타입의 투사체 풀 가져오기 또는 생성
+     * @param {string} key 투사체 식별자
+     */
+    getPool(key) {
         if (!this.pools.has(key)) {
+            const ProjectileClass = this.registry.get(key);
+            if (!ProjectileClass) {
+                Logger.error("PROJECTILE", `No class registered for ${key}! Register it first.`);
+                return null;
+            }
+
             const pool = this.scene.add.group({
                 classType: ProjectileClass,
                 maxSize: 500, // 최대 수백 개까지 수용
@@ -43,15 +59,16 @@ class ProjectileManager {
     }
 
     /**
-     * 투사체 발사
+     * 투사체 발사 (Router 활용)
      * @param {string} key 투사체 식별자
-     * @param {class} ProjectileClass 투사체 클래스
      * @param {CombatEntity} owner 시전자
      * @param {CombatEntity} target 타겟
-     * @param {object} config 추가 설정 (damageMultiplier 등)
+     * @param {object} config 추가 설정
      */
-    fire(key, ProjectileClass, owner, target, config = {}) {
-        const pool = this.getPool(key, ProjectileClass);
+    fire(key, owner, target, config = {}) {
+        const pool = this.getPool(key);
+        if (!pool) return null;
+
         let projectile = pool.get();
 
         if (!projectile) {

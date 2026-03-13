@@ -29,6 +29,9 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         // [신규] 풀링 정보 (poolingManager 연동용)
         this.poolType = null;
         
+        // [중요] 씬의 출력 목록에 추가
+        scene.add.existing(this);
+        
         this.init(x, y, logicEntity, spriteKey);
     }
 
@@ -79,7 +82,7 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         if (!this.skills) {
             this.skills = new EntitySkillComponent(this, skillManager, ultimateManager);
         } else {
-            this.skills.reset(); // 게이지 등 초기화 필요
+            this.skills.reset(skillManager, ultimateManager); // 게이지 등 초기화 필요
         }
 
         this.baseDepth = layerManager.getDepth('entities');
@@ -235,6 +238,10 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         this.logic.isDead = true;
         this.stop();
         soundManager.playUnitFallen();
+
+        // [USER 요청] 사망 시 즉시 HP바 제거 (지연 방지)
+        fxManager.detachHUD(this);
+
         animationManager.playDeathAnimation(this, () => {
             if (this.poolType) {
                 poolingManager.release(this.poolType, this);

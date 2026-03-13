@@ -23,6 +23,23 @@ export default class EntitySkillComponent {
     }
 
     /**
+     * 컴포넌트 재사용을 위한 리셋 (풀링 연동)
+     */
+    reset(skillManager, ultimateManager) {
+        this.logic = this.entity.logic;
+        
+        // 데이터 다시 로드
+        this.skillData = skillManager.getSkillData(this.logic.id);
+        this.hasSkill = this.skillData.hasSkill !== false;
+        this.skillProgress = (this.logic.type === 'mercenary' && this.hasSkill) ? 1.0 : 0;
+        this.maxSkillCooldown = this.hasSkill ? this.skillData.cooldown : 0;
+
+        this.ultData = ultimateManager.getUltimateData(this.logic.id);
+        this.hasUltimate = this.ultData.hasUltimate !== false;
+        this.ultimateProgress = 0;
+    }
+
+    /**
      * 프레임 업데이트
      */
     update(delta) {
@@ -49,6 +66,64 @@ export default class EntitySkillComponent {
             
             this.gainUltimateCharge(ultGain * 100, false);
         }
+    }
+
+    /**
+     * 특정 스킬 정보 가져오기
+     */
+    getSkill(skillId) {
+        if (this.hasSkill && this.skillData.id === skillId) {
+            return this.skillData;
+        }
+        return null;
+    }
+
+    /**
+     * 스킬 사용 가능 여부 확인
+     */
+    isReady(skillId) {
+        return this.hasSkill && this.skillData.id === skillId && this.skillProgress >= 1.0;
+    }
+
+    /**
+     * 스킬 사용 실행
+     */
+    useSkill(skillId, target) {
+        const skill = this.getSkill(skillId);
+        if (skill && skill.logic && this.isReady(skillId)) {
+            skill.logic.execute(this.entity, target);
+            this.skillProgress = 0; // 게이지 리셋
+            if (this.entity.hpBar) this.entity.hpBar.isDirty = true;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 궁극기 정보 가져오기
+     */
+    getUltimate() {
+        return this.hasUltimate ? this.ultData : null;
+    }
+
+    /**
+     * 궁극기 사용 가능 여부 확인
+     */
+    isUltimateReady() {
+        return this.hasUltimate && this.ultimateProgress >= 1.0;
+    }
+
+    /**
+     * 궁극기 사용 실행
+     */
+    useUltimate(target) {
+        if (this.isUltimateReady() && this.ultData.logic) {
+            this.ultData.logic.execute(this.entity, target);
+            this.ultimateProgress = 0; // 게이지 리셋
+            if (this.entity.hpBar) this.entity.hpBar.isDirty = true;
+            return true;
+        }
+        return false;
     }
 
     /**

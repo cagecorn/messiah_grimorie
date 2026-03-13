@@ -27,8 +27,7 @@ class ChargeAttackAI {
         
         if (dist <= 600 && dist > 50) {
             // 3. 스킬 실행
-            if (entity.skillData && entity.skillData.logic) {
-                entity.skillData.logic.execute(entity, targetPoint);
+            if (entity.skills.useSkill('chargeattack', targetPoint)) {
                 return true; // 스킬 사용 성공 (행동 선점)
             }
         }
