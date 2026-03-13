@@ -24,6 +24,18 @@
 </head>
 <body>
     <div id="game-container"></div>
+    <!-- 🎬 그래픽 효과 오버레이 (Graphics FX Layers) -->
+    <div id="mg-fx-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; overflow: hidden;">
+        <div class="mg-fx-layer mg-fx-vignette" id="fx-vignette"></div>
+        <div class="mg-fx-layer mg-fx-tilt-shift" id="fx-tilt-shift"></div>
+        <div class="mg-fx-layer mg-fx-color-grading" id="fx-color-grading"></div>
+        <div class="mg-fx-layer mg-fx-scanlines" id="fx-scanlines"></div>
+        <div class="mg-fx-layer mg-fx-film-grain" id="fx-film-grain"></div>
+        <div class="mg-fx-layer mg-fx-soft-bloom" id="fx-soft-bloom"></div>
+        <div class="mg-fx-layer mg-fx-blur" id="fx-blur"></div>
+        <div class="mg-fx-layer mg-fx-chromatic" id="fx-chromatic"></div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
 </body>
 </html>

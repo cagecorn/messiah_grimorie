@@ -5,7 +5,9 @@ import spawnManager from '../systems/combat/SpawnManager.js';
 import backgroundManager from '../systems/BackgroundManager.js';
 import assetPathManager from '../core/AssetPathManager.js';
 import displayManager from '../core/DisplayManager.js';
+import measurementManager from '../core/MeasurementManager.js';
 import dungeonStageManager from '../systems/DungeonStageManager.js';
+import graphicManager from '../systems/graphics/GraphicManager.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -51,13 +53,24 @@ export default class BattleScene extends Phaser.Scene {
     async create() {
         Logger.system(`BattleScene: Started (${this.stageId})`);
 
+        // [측량 매니저] 월드 및 물리 경계 설정
+        const world = measurementManager.world;
+        this.physics.world.setBounds(0, 0, world.width, world.height);
+        this.cameras.main.setBounds(0, 0, world.width, world.height);
+
         // 배경 이미지 출력
         if (this.bgKey) {
-            backgroundManager.setBackground(this, this.bgKey);
+            backgroundManager.setBackground(this, this.bgKey, { 
+                fixedScale: world.bgScale 
+            });
         }
 
         // [SYSTEM] 매니저 레이어 동적 로드 및 초기화
         await this.initializeManagers();
+
+        // [GRAPHICS] 시각 효과 적용
+        await graphicManager.initialize();
+        graphicManager.applySceneFX(this);
 
         // 전역 이벤트 알림
         EventBus.emit(EVENTS.SCENE_CHANGED, 'BattleScene');

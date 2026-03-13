@@ -5,6 +5,7 @@ import monsterManager from '../entities/MonsterManager.js';
 import collectionManager from '../MercenaryCollectionManager.js';
 import assetPathManager from '../../core/AssetPathManager.js';
 import CombatEntity from '../../entities/CombatEntity.js';
+import measurementManager from '../../core/MeasurementManager.js';
 
 /**
  * 스폰 매니저 (Spawn Manager)
@@ -24,6 +25,8 @@ class SpawnManager {
         // 유저 요청: "아렌만 들고 입장하도록 할게"
         // (실제로는 formationManager를 따르되, 아렌이 배치되어 있으면 아렌이 나옵니다)
         
+        const world = measurementManager.world;
+        
         formation.forEach((mercId, index) => {
             if (!mercId) return;
 
@@ -38,10 +41,9 @@ class SpawnManager {
                 stars: stars
             });
 
-            // 3. 물리 위치 계산 (좌측 구역)
-            // 슬롯 인덱스에 따라 Y축 분산
-            const x = 150 + (index % 2) * 40;
-            const y = 300 + (index * 80);
+            // 3. 물리 위치 계산 (좌측 15% 구역)
+            const x = world.width * 0.15 + (index % 2) * 60;
+            const y = world.height * 0.3 + (index * 100);
 
             // 4. 물리 엔티티(CombatEntity) 생성
             const spriteKey = `merc_${mercId}_sprite`;
@@ -59,6 +61,8 @@ class SpawnManager {
     spawnEnemies(scene, stageId) {
         const spawnedUnits = [];
         
+        const world = measurementManager.world;
+        
         // 유저 요청: "고블린 세마리"
         const enemyIds = ['goblin', 'goblin', 'goblin'];
 
@@ -66,9 +70,9 @@ class SpawnManager {
             // 1. 논리 엔티티 생성
             const logicEntity = monsterManager.spawn(id, { level: 1 });
 
-            // 2. 물리 위치 계산 (우측 구역)
-            const x = 650 + (index % 2) * 50;
-            const y = 350 + (index * 100);
+            // 2. 물리 위치 계산 (우측 85% 구역)
+            const x = world.width * 0.85 - (index % 2) * 60;
+            const y = world.height * 0.35 + (index * 120);
 
             // 3. 물리 엔티티 생성
             const spriteKey = `enemy_${id}_sprite`;

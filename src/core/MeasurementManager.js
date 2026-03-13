@@ -5,29 +5,29 @@
  */
 class MeasurementManager {
     constructor() {
-        // [구역 1] 화면 및 캔버스 설정
-        this.screen = {
-            width: 1280,
-            height: 720,
-            zoom: 1.0
+        // [구역 1] 화면 및 월드 설정 (Dungeon Dimensions)
+        this.world = {
+            width: 2304,
+            height: 1536,
+            bgScale: 1.5 // 1536x1024 배경을 1.5배 스케일링
         };
 
-        // [구역 2] 엔티티 픽셀 사이즈 (용병 & 몬스터)
+        // [구역 2] 엔티티 픽셀 사이즈 (Unit Dimensions)
         this.entity = {
             mercenary: {
-                width: 64,
-                height: 64,
-                scale: 1.0
+                baseSize: 64,
+                scale: 1.0,
+                bodyRadius: 20 // 히트박스 반경
             },
             monster: {
-                width: 64,
-                height: 64,
-                scale: 1.2 // 몬스터는 용병보다 약간 큼
+                baseSize: 64,
+                scale: 1.0,
+                bossScale: 4.0
             },
-            boss: {
-                width: 128,
-                height: 128,
-                scale: 2.0
+            pet: {
+                dog: 0.45,
+                wolf: 0.5,
+                owl: 0.4
             }
         };
 

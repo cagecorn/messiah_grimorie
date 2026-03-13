@@ -8,6 +8,7 @@ import './styles/territory.css';
 import './styles/gacha.css';
 import './styles/gacha_card.css';
 import './styles/formation.css';
+import './styles/graphics.css';
 import './styles/scene_transition.css';
 
 import displayManager from './core/DisplayManager.js';
