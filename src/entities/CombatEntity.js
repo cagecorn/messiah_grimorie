@@ -5,6 +5,7 @@ import layerManager from '../ui/LayerManager.js';
 import shadowManager from '../systems/graphics/ShadowManager.js';
 import fxManager from '../systems/graphics/FXManager.js';
 import animationManager from '../systems/graphics/AnimationManager.js';
+import phaserParticleManager from '../systems/graphics/PhaserParticleManager.js';
 import combatManager from '../systems/CombatManager.js';
 
 /**
@@ -167,10 +168,14 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
 
         // 2. 애니메이션 실행 및 피격 로직 연결
         this.playAttackAnimation(target, () => {
+            // [신규] 속성 시스템 연동: 무기 속성 가져오기
+            const element = this.logic.elements.weaponElement || 'physical';
+            const damageType = element === 'none' ? 'physical' : element;
+
             // 임팩트 시점에 실제 데미지 연산 요청
-            combatManager.processDamage(this, target, 1.0, 'physical');
+            combatManager.processDamage(this, target, 1.0, damageType);
             
-            Logger.info("COMBAT", `${this.logic.name} attacks ${target.logic.name}`);
+            Logger.info("COMBAT", `${this.logic.name} attacks ${target.logic.name} with ${damageType}`);
         });
     }
 
@@ -195,7 +200,11 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         // 2. HP바 Dirty 설정 (강제 갱신 필요 시)
         if (this.hpBar) this.hpBar.isDirty = true;
 
-        // 3. 사망 판정
+        // 3. [신규] 시각적 피격 피드백 (틴트 + 파티클)
+        fxManager.flashRed(this);
+        phaserParticleManager.spawnBloodBurst(this.x, this.y - 40);
+
+        // 4. 사망 판정
         if (currentHp <= 0) {
             this.handleDeath();
         }
@@ -207,7 +216,8 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
      * 사망 처리
      */
     handleDeath() {
-        this.logic.isAlive = false;
+        // logic.isAlive는 getter이므로 isDead 플래그로 제어
+        this.logic.isDead = true;
         this.stop();
         
         // 스태틱 처리 (회색조/쓰러짐 등 시각 효과 필요 시 추가)

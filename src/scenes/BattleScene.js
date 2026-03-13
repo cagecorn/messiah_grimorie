@@ -12,6 +12,7 @@ import cameraManager from '../core/CameraManager.js';
 import shadowManager from '../systems/graphics/ShadowManager.js';
 import fxManager from '../systems/graphics/FXManager.js';
 import animationManager from '../systems/graphics/AnimationManager.js';
+import phaserParticleManager from '../systems/graphics/PhaserParticleManager.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -52,6 +53,11 @@ export default class BattleScene extends Phaser.Scene {
             this.load.image(asset.key, asset.path);
             Logger.info("BATTLE_LOADER", `Preloading unit asset: ${asset.key} from ${asset.path}`);
         });
+
+        // 3. [신규] 고해상도 피격 이펙트 프리로드
+        this.load.image('impact_phys_1', 'assets/effect/phisycal_impact_effect_1.png');
+        this.load.image('impact_phys_2', 'assets/effect/phisycal_impact_effect_2.png');
+        Logger.info("BATTLE_LOADER", "Preloading physical impact effects (1024x1024 assets).");
     }
 
     async create() {
@@ -117,6 +123,7 @@ export default class BattleScene extends Phaser.Scene {
         // [그래픽] 그래픽 시스템 초기화
         fxManager.init(this);
         animationManager.init(this);
+        phaserParticleManager.init(this);
 
         // [전투] 스폰 매니저를 통한 초기 배치
         this.spawnManager = spawnManager;

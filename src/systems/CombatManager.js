@@ -64,6 +64,9 @@ class CombatManager {
             
             // 3. 시각적 피드백 (데미지 텍스트) - 속성(type)에 따른 컬러 색상 자동 적용
             fxManager.showDamageText(targetEntity.x, targetEntity.y, damage, type);
+
+            // 4. [신규] 피격 이펙트 연출
+            fxManager.showImpactEffect(targetEntity, type);
         }
     }
 

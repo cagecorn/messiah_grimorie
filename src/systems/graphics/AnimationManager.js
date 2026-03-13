@@ -1,4 +1,53 @@
 import Logger from '../../utils/Logger.js';
+import poolingManager from '../../core/PoolingManager.js';
+
+// ==========================================
+// 💥 [구역 1] 피격 이펙트 풀링 (PooledHitEffect)
+// ==========================================
+class PooledHitEffect {
+    constructor(scene) {
+        this.scene = scene;
+        this.sprite = scene.add.image(0, 0, 'impact_phys_1');
+        this.sprite.setVisible(false);
+        this.sprite.setBlendMode(Phaser.BlendModes.ADD);
+        this.tween = null;
+    }
+
+    show(target, key) {
+        if (!this.scene || !target || !target.active) return;
+
+        // 상태 초기화
+        this.sprite.setTexture(key);
+        this.sprite.setPosition(target.x, target.y - 40);
+        this.sprite.setScale(0);
+        this.sprite.setAlpha(0.8);
+        this.sprite.setDepth(target.depth + 0.1);
+        this.sprite.setVisible(true);
+
+        const baseScale = target.sprite.scaleX * 0.35;
+
+        if (this.tween) this.tween.stop();
+        this.tween = this.scene.tweens.add({
+            targets: this.sprite,
+            scale: baseScale * 1.2,
+            alpha: 0,
+            duration: 250,
+            ease: 'Back.out',
+            onComplete: () => {
+                this.onRelease();
+            }
+        });
+    }
+
+    onAcquire() {
+        // 획득 시 특별한 처리 없음
+    }
+
+    onRelease() {
+        this.sprite.setVisible(false);
+        if (this.tween) this.tween.stop();
+    }
+}
 
 /**
  * 애니메이션 매니저 (Animation Manager)
@@ -15,7 +64,39 @@ class AnimationManager {
 
     init(scene) {
         this.scene = scene;
+        
+        // [신규] 피격 이펙트 풀 등록 (초기 20개 확보)
+        poolingManager.registerPool('impact_effect', () => new PooledHitEffect(this.scene), 20);
+        
         Logger.system("AnimationManager: Tactics-style animation system ready.");
+    }
+
+    /**
+     * 피격 이펙트 애니메이션 (Impact Effect)
+     * @param {CombatEntity} target 피격 유닛
+     * @param {string} type 데미지 타입
+     */
+    playHitEffect(target, type = 'physical') {
+        if (!this.scene || !target || !target.active) return;
+
+        // 1. 에셋 키 결정
+        let key = '';
+        if (type === 'physical') {
+            key = Math.random() < 0.5 ? 'impact_phys_1' : 'impact_phys_2';
+        } else {
+            return;
+        }
+
+        // 2. 풀에서 이펙트 객체 획득 및 실행
+        const effect = poolingManager.get('impact_effect');
+        if (effect) {
+            effect.show(target, key);
+            
+            // 일정 시간 후 풀에 반환 (PooledHitEffect.onRelease가 이미 수행됨을 가정하거나 여기서 직접 호출)
+            this.scene.time.delayedCall(300, () => {
+                poolingManager.release('impact_effect', effect);
+            });
+        }
     }
 
     /**

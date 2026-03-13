@@ -1,6 +1,7 @@
 import Logger from '../../utils/Logger.js';
 import healthBarManager from './HealthBarManager.js';
 import damageTextManager from './DamageTextManager.js';
+import animationManager from './AnimationManager.js';
 
 /**
  * FX 매니저 (FX Manager)
@@ -35,6 +36,31 @@ class FXManager {
     showDamageText(x, y, amount, type) {
         if (!this.isInitialized) return;
         damageTextManager.showDamage(x, y, amount, type);
+    }
+
+    /**
+     * 피격 이펙트 출력 요청
+     */
+    showImpactEffect(target, type) {
+        if (!this.isInitialized) return;
+        animationManager.playHitEffect(target, type);
+    }
+
+    /**
+     * [신규] 유닛 피격 시 빨갛게 번쩍이는 효과
+     * @param {CombatEntity} target 
+     */
+    flashRed(target) {
+        if (!this.isInitialized || !target || !target.sprite) return;
+
+        // 이미 틴트 중이라면 중복 방지 (선택 사항)
+        target.sprite.setTint(0xff0000); // 완전한 빨강
+        
+        this.scene.time.delayedCall(100, () => {
+            if (target && target.sprite) {
+                target.sprite.clearTint();
+            }
+        });
     }
 
     /**

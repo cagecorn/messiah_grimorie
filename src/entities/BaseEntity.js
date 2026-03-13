@@ -31,6 +31,7 @@ export default class BaseEntity {
         this.buffs = new BuffManager(this);
         this.status = new StatusEffectManager(this);
         this.elements = new ElementalManager(this);
+        this._isDead = false; // [신규] 상태 제어용 플래그
 
         // 초기화 시퀀스
         this.class.init(className, isSpecial);
@@ -93,7 +94,9 @@ export default class BaseEntity {
     // 단축 속성 (기존 코드 호환용 및 편의성)
     get hp() { return this.stats.get('hp'); }
     get atk() { return this.getTotalAtk(); }
-    get isAlive() { return this.hp > 0; }
+    get isAlive() { return this.hp > 0 && !this._isDead; }
+
+    set isDead(val) { this._isDead = val; }
 
     /**
      * 외부(전투 시스템 등)에서 호출하는 업데이트 루프
