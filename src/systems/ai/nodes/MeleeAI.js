@@ -44,11 +44,12 @@ class MeleeAI {
             
             bb.set('state', 'move');
         } else {
-            // 공격 범위 안: 정지 및 공격 준비
+            // 공격 범위 안: 정지 및 공격 수행
             entity.moveDirection = { x: 0, y: 0 };
             bb.set('state', 'attack');
             
-            // [TODO] 공격 애니메이션 및 데미지 로직 연결 예정
+            // [신규] 기본 공격 실행 (내부 쿨다운 체크 포함)
+            entity.attack(target);
         }
     }
 }

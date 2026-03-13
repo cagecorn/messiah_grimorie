@@ -49,10 +49,15 @@ class ShadowManager {
                 return;
             }
 
-            // 그림자는 항상 지면 좌표(entity.x, entity.y)를 따름
+            // 그림자는 항상 지면 좌표(entity.x, entity.y)를 따르되, 
+            // 애니메이션 중인 경우 스프라이트의 오프셋을 반영합니다.
             shadow.clear();
             this.updateShadowVisuals(shadow, entity, config);
-            shadow.setPosition(entity.x, entity.y);
+            
+            // 스프라이트가 로컬 (0, 0)에서 벗어난 만큼 그림자도 이동
+            const vx = entity.sprite ? entity.sprite.x : 0;
+            const vy = entity.sprite ? entity.sprite.y : 0;
+            shadow.setPosition(entity.x + vx, entity.y + vy);
 
             // 레이어 고정
             shadow.setDepth(layerManager.getDepth('shadow'));

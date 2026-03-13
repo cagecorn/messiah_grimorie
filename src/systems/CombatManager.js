@@ -1,6 +1,8 @@
 import Logger from '../utils/Logger.js';
 import { COMBAT } from '../core/TechnicalConstants.js';
 import TimeManager from '../core/TimeManager.js';
+import damageCalculationManager from './combat/DamageCalculationManager.js';
+import fxManager from './graphics/FXManager.js';
 
 /**
  * 전투 연산 매니저 (Combat Calculation Manager)
@@ -40,18 +42,28 @@ class CombatManager {
      * @param {number} multiplier 스킬 계수
      * @param {string} type 'physical' | 'magic'
      */
-    processDamage(attacker, target, multiplier, type = 'physical') {
-        let damage = 0;
+    processDamage(attackerEntity, targetEntity, multiplier, type = 'physical') {
+        const attacker = attackerEntity.logic;
+        const target = targetEntity.logic;
         
+        let damage = 0;
         if (type === 'physical') {
             damage = COMBAT.calcPhysicalDamage(attacker.getTotalAtk(), multiplier);
         } else {
+            // 마법 및 각종 속성(fire, ice, lightning)은 기본적으로 MAtk 기반 연산
             damage = COMBAT.calcMagicEffect(attacker.getTotalMAtk(), multiplier);
         }
 
-        // 최종 데미지 적용 요청을 대상 유닛으로 라우팅
-        if (target && target.takeDamage) {
-            target.takeDamage(damage, attacker);
+        // 1. 최종 데미지 적용 요청
+        if (targetEntity && targetEntity.takeDamage) {
+            Logger.info("COMBAT_MANAGER", `Processing ${type} damage: ${attacker.name} -> ${target.name} (${damage})`);
+            targetEntity.takeDamage(damage, attackerEntity);
+            
+            // 2. 데미지 기록 (DPS 및 경험치 추적용) - 속성(type) 명시
+            damageCalculationManager.recordDamage(attacker, target, damage, type);
+            
+            // 3. 시각적 피드백 (데미지 텍스트) - 속성(type)에 따른 컬러 색상 자동 적용
+            fxManager.showDamageText(targetEntity.x, targetEntity.y, damage, type);
         }
     }
 

@@ -10,6 +10,8 @@ import dungeonStageManager from '../systems/DungeonStageManager.js';
 import graphicManager from '../systems/graphics/GraphicManager.js';
 import cameraManager from '../core/CameraManager.js';
 import shadowManager from '../systems/graphics/ShadowManager.js';
+import fxManager from '../systems/graphics/FXManager.js';
+import animationManager from '../systems/graphics/AnimationManager.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -112,26 +114,41 @@ export default class BattleScene extends Phaser.Scene {
     spawnInitialUnits() {
         if (!this.spawnManager) return;
 
-        // 아군 및 적군 스폰 요청
+        // [그래픽] 그래픽 시스템 초기화
+        fxManager.init(this);
+        animationManager.init(this);
+
+        // [전투] 스폰 매니저를 통한 초기 배치
+        this.spawnManager = spawnManager;
         this.allies = this.spawnManager.spawnAllies(this);
         this.enemies = this.spawnManager.spawnEnemies(this, this.stageId);
 
         Logger.info("BATTLE", `Spawned ${this.allies.length} allies and ${this.enemies.length} enemies.`);
+
+        // [카메라] 중앙 정렬
+        cameraManager.centerCamera();
     }
 
     update(time, delta) {
-        // [카메라] 아군 추적 및 자동 줌
-        if (cameraManager && this.allies.length > 0) {
-            cameraManager.updateFollowAllies(this, this.allies, delta);
-        }
+        if (this.isTransitioning) return;
 
-        // [그림자] 실시간 위치 및 고도 반영
+        // [카메라] 아군 추적
+        cameraManager.updateFollowAllies(this, this.allies, delta);
+
+        // [그림자] 실시간 업데이트
         shadowManager.update([...this.allies, ...this.enemies]);
+        fxManager.update(time, delta); // [신규] FX 시스템 업데이트 (HP바 등)
 
-        // [정렬] Y축 기준 깊이 업데이트
-        this.allies.forEach(a => a.updateDepth());
-        this.enemies.forEach(e => e.updateDepth());
-
+        // [레이어] Y-Sorting 및 상태 업데이트
+        this.allies.forEach(a => {
+            a.updateDepth();
+            a.updateAttackCooldown(delta); // [신규] 쿨다운 업데이트
+        });
+        this.enemies.forEach(e => {
+            e.updateDepth();
+            e.updateAttackCooldown(delta); // [신규] 쿨다운 업데이트
+        });
+    
         // AI 업데이트
         if (this.aiManager) {
             this.aiManager.update(this.allies, this.enemies, delta);

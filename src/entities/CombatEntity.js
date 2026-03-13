@@ -2,6 +2,10 @@ import Phaser from 'phaser';
 import Logger from '../utils/Logger.js';
 import measurementManager from '../core/MeasurementManager.js';
 import layerManager from '../ui/LayerManager.js';
+import shadowManager from '../systems/graphics/ShadowManager.js';
+import fxManager from '../systems/graphics/FXManager.js';
+import animationManager from '../systems/graphics/AnimationManager.js';
+import combatManager from '../systems/CombatManager.js';
 
 /**
  * 전투 엔티티 (Combat Entity)
@@ -60,12 +64,20 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
             this.sprite.setFlipX(false);
         }
 
-        // 4. 메타데이터
         this.id = logicEntity.id;
         this.team = logicEntity.type; // 'mercenary' or 'monster'
+        this.hpBar = null;
+        this.attackCooldown = 0; // [신규] 공격 쿨다운 타이머
 
         scene.add.existing(this);
         this.setActive(true);
+
+        // [신규] FX 시스템 연동: HP바 부착
+        fxManager.attachHUD(this);
+        
+        // [신규] 그림자 생성 연동
+        shadowManager.createShadow(scene, this);
+
         Logger.info("COMBAT_ENTITY", `Spawned ${this.logic.name} at (${x}, ${y})`);
     }
 
@@ -140,5 +152,90 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         const worldHeight = measurementManager.world.height;
         const yBias = this.y / worldHeight;
         this.setDepth(this.baseDepth + yBias);
+    }
+
+    /**
+     * 기본 공격 실행
+     */
+    attack(target) {
+        if (!target || this.attackCooldown > 0) return;
+
+        // 1. 쿨다운 설정 (공격 속도 기반)
+        // 1000ms / atkSpd (예: atkSpd 1.0 -> 1초, 2.0 -> 0.5초)
+        const atkSpd = this.logic.getTotalAtkSpd();
+        this.attackCooldown = 1000 / Math.max(0.1, atkSpd);
+
+        // 2. 애니메이션 실행 및 피격 로직 연결
+        this.playAttackAnimation(target, () => {
+            // 임팩트 시점에 실제 데미지 연산 요청
+            combatManager.processDamage(this, target, 1.0, 'physical');
+            
+            Logger.info("COMBAT", `${this.logic.name} attacks ${target.logic.name}`);
+        });
+    }
+
+    /**
+     * 공격 애니메이션 실행 루틴
+     */
+    playAttackAnimation(target, onHit) {
+        animationManager.playDashAttack(this, target, onHit);
+    }
+
+    /**
+     * 데미지 피격 처리
+     * @param {number} amount 데미지 양
+     * @param {CombatEntity} attacker 공격자 (반격/이벤트용)
+     */
+    takeDamage(amount, attacker) {
+        if (!this.logic.isAlive) return;
+
+        // 1. 논리 스탯 업데이트
+        const currentHp = this.logic.stats.takeDamage(amount);
+        
+        // 2. HP바 Dirty 설정 (강제 갱신 필요 시)
+        if (this.hpBar) this.hpBar.isDirty = true;
+
+        // 3. 사망 판정
+        if (currentHp <= 0) {
+            this.handleDeath();
+        }
+
+        Logger.info("COMBAT", `${this.logic.name} took ${amount} damage. Current HP: ${currentHp}`);
+    }
+
+    /**
+     * 사망 처리
+     */
+    handleDeath() {
+        this.logic.isAlive = false;
+        this.stop();
+        
+        // 스태틱 처리 (회색조/쓰러짐 등 시각 효과 필요 시 추가)
+        this.sprite.setTint(0x666666);
+        this.sprite.setAlpha(0.6);
+        
+        // 일정 시간 후 월드에서 제거 (또는 풀로 반납)
+        this.scene.time.delayedCall(2000, () => {
+            this.destroy();
+        });
+
+        Logger.system(`${this.logic.name} has fallen.`);
+    }
+
+    /**
+     * 공격 쿨다운 업데이트
+     */
+    updateAttackCooldown(delta) {
+        if (this.attackCooldown > 0) {
+            this.attackCooldown -= delta;
+        }
+    }
+
+    /**
+     * 엔티티 파괴 시 자원 정리
+     */
+    preDestroy() {
+        fxManager.detachHUD(this);
+        super.preDestroy();
     }
 }

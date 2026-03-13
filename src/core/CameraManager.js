@@ -91,6 +91,22 @@ class CameraManager {
     }
 
     /**
+     * 전투 시작 시 카메라를 중앙 유폭 지역으로 즉시 이동
+     */
+    centerCamera() {
+        if (!this.mainCamera) return;
+        const config = measurementManager.camera;
+        const worldWidth = measurementManager.world.width;
+        const worldHeight = measurementManager.world.height;
+        
+        // 월드 중앙으로 즉시 배치
+        this.mainCamera.centerOn(worldWidth / 2, worldHeight / 2);
+        this.mainCamera.setZoom(config.maxZoom); // 초기엔 줌인 상태
+        
+        Logger.info("CAMERA", `Centered to: (${worldWidth / 2}, ${worldHeight / 2})`);
+    }
+
+    /**
      * 모든 카메라 줌 설정
      * @param {number} zoomVal 
      */
