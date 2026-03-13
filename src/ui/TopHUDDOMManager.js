@@ -178,7 +178,7 @@ class TopHUDDOMManager {
         
         this.dungeonDropdown.innerHTML = '';
         const dungeons = [
-            { id: 'cursed_forest', name: '저주받은 숲' }
+            { id: 'cursed_forest', nameKey: 'dungeon_cursed_forest_name' }
         ];
 
         dungeons.forEach(d => {
@@ -187,7 +187,7 @@ class TopHUDDOMManager {
             item.className = 'dungeon-item';
             item.innerHTML = `
                 <div class="dungeon-rank-badge">R${best}</div>
-                <span class="dungeon-name">${d.name}</span>
+                <span class="dungeon-name">${state.t(d.nameKey || d.id)}</span>
             `;
             item.onclick = (e) => {
                 e.stopPropagation(); // 드롭다운 닫힘 방지 대비 (필요시)

@@ -112,6 +112,14 @@ class SpawnManager {
 
         return assets;
     }
+
+    /**
+     * 현재 씬의 모든 활성 엔티티 반환
+     */
+    getActiveEntities(scene) {
+        if (!scene) return [];
+        return [...(scene.allies || []), ...(scene.enemies || [])];
+    }
 }
 
 const spawnManager = new SpawnManager();

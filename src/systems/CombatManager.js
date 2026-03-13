@@ -1,6 +1,8 @@
 import Logger from '../utils/Logger.js';
 import { COMBAT } from '../core/TechnicalConstants.js';
 import TimeManager from '../core/TimeManager.js';
+import measurementManager from '../core/MeasurementManager.js';
+import soundManager from './SoundManager.js';
 import damageCalculationManager from './combat/DamageCalculationManager.js';
 import fxManager from './graphics/FXManager.js';
 
@@ -67,6 +69,11 @@ class CombatManager {
 
             // 4. [신규] 피격 이펙트 연출
             fxManager.showImpactEffect(targetEntity, type);
+
+            // 5. [신규] 타격 효과음 재생 (물리일 때만)
+            if (type === 'physical') {
+                soundManager.playPhysicalHit();
+            }
         }
     }
 

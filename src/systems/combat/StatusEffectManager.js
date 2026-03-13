@@ -11,7 +11,8 @@ class StatusEffectManager {
             stunned: false,
             frozen: false,
             burned: false,
-            silenced: false
+            silenced: false,
+            airborne: false
         };
         this.timers = {};
     }
@@ -22,17 +23,17 @@ class StatusEffectManager {
             if (this.timers[type]) clearTimeout(this.timers[type]);
 
             this.states[type] = true;
-            Logger.info("COMBAT", `${this.owner.name} is now ${type}!`);
+            Logger.info("COMBAT", `${this.owner.logic.name} is now ${type}!`);
 
             this.timers[type] = setTimeout(() => {
                 this.states[type] = false;
-                Logger.info("COMBAT", `${this.owner.name} recovered from ${type}.`);
+                Logger.info("COMBAT", `${this.owner.logic.name} recovered from ${type}.`);
             }, duration);
         }
     }
 
     isUnableToAct() {
-        return this.states.stunned || this.states.frozen;
+        return this.states.stunned || this.states.frozen || this.states.airborne;
     }
 }
 

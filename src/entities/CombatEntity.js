@@ -6,7 +6,9 @@ import shadowManager from '../systems/graphics/ShadowManager.js';
 import fxManager from '../systems/graphics/FXManager.js';
 import animationManager from '../systems/graphics/AnimationManager.js';
 import phaserParticleManager from '../systems/graphics/PhaserParticleManager.js';
+import skillManager from '../systems/combat/SkillManager.js';
 import combatManager from '../systems/CombatManager.js';
+import StatusEffectManager from '../systems/combat/StatusEffectManager.js';
 
 /**
  * 전투 엔티티 (Combat Entity)
@@ -70,6 +72,18 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         this.hpBar = null;
         this.attackCooldown = 0; // [신규] 공격 쿨다운 타이머
 
+        // [신규] 스킬 시스템 데이터 초기화
+        this.skillData = skillManager.getSkillData(logicEntity.id);
+        this.hasSkill = this.skillData.hasSkill !== false;
+        this.skillCooldown = 0;
+        this.maxSkillCooldown = this.hasSkill ? this.skillData.cooldown : 0;
+
+        // [신규] 아군은 전투 시작 시 스킬 게이지가 가득 찬 상태로 시작함
+        this.skillProgress = (logicEntity.type === 'mercenary' && this.hasSkill) ? 1.0 : 0;
+
+        // [신규] 상태이상 매니저 초기화
+        this.status = new StatusEffectManager(this);
+
         scene.add.existing(this);
         this.setActive(true);
 
@@ -111,6 +125,13 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
      */
     setVelocity(vx, vy) {
         if (!this.body) return;
+
+        // [신규] 행동 불가 상태(에어본 등)일 때는 속도 고정/무시
+        if (this.status && this.status.isUnableToAct()) {
+            this.body.setVelocity(0, 0);
+            return;
+        }
+
         this.body.setVelocity(vx, vy);
 
         // [방향 제어] 기본이 왼쪽인 이미지 기준:
@@ -160,6 +181,9 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
      */
     attack(target) {
         if (!target || this.attackCooldown > 0) return;
+        
+        // [신규] 행동 불가 체크
+        if (this.status && this.status.isUnableToAct()) return;
 
         // 1. 쿨다운 설정 (공격 속도 기반)
         // 1000ms / atkSpd (예: atkSpd 1.0 -> 1초, 2.0 -> 0.5초)
@@ -238,6 +262,35 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     updateAttackCooldown(delta) {
         if (this.attackCooldown > 0) {
             this.attackCooldown -= delta;
+        }
+        
+        // [신규] 스킬 쿨다운 업데이트 동시 실행
+        this.updateSkillCooldown(delta);
+    }
+
+    /**
+     * [신규] 스킬 쿨다운 업데이트
+     */
+    updateSkillCooldown(delta) {
+        if (!this.hasSkill || !this.logic.isAlive) return;
+
+        // 시전 속도(castSpd) 반영
+        const castSpd = this.logic.stats.get('castSpd') || 1.0;
+        const progressGain = delta / Math.max(1, this.maxSkillCooldown); // 시간 대비 진행도 (기본)
+        
+        // 시전 속도 배율 적용 (castSpd 2.0 -> 2배속 충전)
+        const oldProgress = this.skillProgress;
+        this.skillProgress = Math.min(1.0, this.skillProgress + progressGain * castSpd);
+
+        // 진행도가 유의미하게 변했다면 HP바 Dirty 설정 (UI 갱신)
+        if (this.hpBar && Math.floor(oldProgress * 100) !== Math.floor(this.skillProgress * 100)) {
+            this.hpBar.isDirty = true;
+        }
+
+        // 쿨 충전 완료 시 스킬 사용 로직 (작업 필요 시 확장)
+        if (this.skillProgress >= 1.0) {
+            // Logger.info("SKILL", `${this.logic.name} is ready to cast ${this.skillData.name}!`);
+            // 여기서 스킬 실행 루틴 호출 가능
         }
     }
 

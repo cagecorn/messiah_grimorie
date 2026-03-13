@@ -1,12 +1,11 @@
 import Phaser from 'phaser';
+import movementManager from '../../combat/MovementManager.js';
+import ChargeAttackAI from './ChargeAttackAI.js';
 import Logger from '../../../utils/Logger.js';
 
 /**
  * 근접 AI 노드 (Melee AI Node)
  * 역할: [전사 계열의 전진 및 근거리 전투 사고]
- * 
- * 설명: 타겟을 추적하여 공격 범위 내로 접근합니다.
- * 공격 범위(atkRange) 내에 도달하면 정지하고 공격 상태로 전환 준비를 합니다.
  */
 class MeleeAI {
     /**
@@ -16,6 +15,19 @@ class MeleeAI {
      * @param {number} delta 
      */
     static execute(entity, bb, delta) {
+        if (!entity.logic.isAlive) return;
+
+        // [신규] 스켈 사용 체크 우선
+        // AIManager에서 주입된 타겟 주변이나 전체 적 리스트가 필요할 수 있음
+        // entity.scene.spawnManager 등을 통해 현재 적 리스트 확보 가능
+        const opponents = (entity.team === 'mercenary') ? 
+            entity.scene.enemies : entity.scene.allies;
+
+        if (ChargeAttackAI.update(entity, opponents)) {
+            bb.set('state', 'skill');
+            return;
+        }
+
         const target = bb.get('target');
         
         // 1. 타겟이 없으면 대기
@@ -35,7 +47,6 @@ class MeleeAI {
             const dx = target.x - entity.x;
             const dy = target.y - entity.y;
             
-            // 정규화 (이동 방향 설정)
             const angle = Math.atan2(dy, dx);
             entity.moveDirection = {
                 x: Math.cos(angle),
@@ -48,7 +59,6 @@ class MeleeAI {
             entity.moveDirection = { x: 0, y: 0 };
             bb.set('state', 'attack');
             
-            // [신규] 기본 공격 실행 (내부 쿨다운 체크 포함)
             entity.attack(target);
         }
     }

@@ -13,6 +13,7 @@ import shadowManager from '../systems/graphics/ShadowManager.js';
 import fxManager from '../systems/graphics/FXManager.js';
 import animationManager from '../systems/graphics/AnimationManager.js';
 import phaserParticleManager from '../systems/graphics/PhaserParticleManager.js';
+import soundManager from '../systems/SoundManager.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -57,7 +58,14 @@ export default class BattleScene extends Phaser.Scene {
         // 3. [신규] 고해상도 피격 이펙트 프리로드
         this.load.image('impact_phys_1', 'assets/effect/phisycal_impact_effect_1.png');
         this.load.image('impact_phys_2', 'assets/effect/phisycal_impact_effect_2.png');
-        Logger.info("BATTLE_LOADER", "Preloading physical impact effects (1024x1024 assets).");
+        this.load.image('charge_attack', 'assets/effect/charge_attack.png');
+        Logger.info("BATTLE_LOADER", "Preloading physical impact effects and skill assets.");
+
+        // 4. [신규] 타격 효과음 프리로드
+        this.load.audio('hit_phys_1', 'assets/sfx/hitting-1.mp3');
+        this.load.audio('hit_phys_2', 'assets/sfx/hitting-2.mp3');
+        this.load.audio('hit_phys_3', 'assets/sfx/hitting-3.mp3');
+        Logger.info("BATTLE_LOADER", "Preloading hitting sound effects.");
     }
 
     async create() {
@@ -124,6 +132,7 @@ export default class BattleScene extends Phaser.Scene {
         fxManager.init(this);
         animationManager.init(this);
         phaserParticleManager.init(this);
+        soundManager.init(this);
 
         // [전투] 스폰 매니저를 통한 초기 배치
         this.spawnManager = spawnManager;

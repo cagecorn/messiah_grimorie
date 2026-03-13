@@ -8,7 +8,8 @@ import assetPathManager from '../../core/AssetPathManager.js';
 class CursedForestManager {
     constructor() {
         this.id = 'cursed_forest';
-        this.name = '저주받은 숲';
+        this.name = 'Cursed Forest';
+        this.nameKey = 'dungeon_cursed_forest_name';
         
         // 맵 물리 크기 설정
         // 유저 요청: 100개 이상의 유닛 물리 충돌 여유 공간 확보

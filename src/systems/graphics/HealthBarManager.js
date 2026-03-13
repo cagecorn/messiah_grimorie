@@ -42,6 +42,7 @@ class HealthBar {
         this.targetEntity = null;
         this.lastHp = -1;
         this.lastMaxHp = -1;
+        this.lastSkillProgress = -1; // [신규] 스킬 진행도 캐싱
         this.isDirty = true;
     }
 
@@ -78,7 +79,12 @@ class HealthBar {
         const hp = this.targetEntity.logic.stats.get(STAT_KEYS.HP);
         const maxHp = this.targetEntity.logic.stats.get(STAT_KEYS.MAX_HP);
         
-        if (hp === this.lastHp && maxHp === this.lastMaxHp) {
+        // [신규] 스킬 진행도 확인
+        const skillProgress = this.targetEntity.skillProgress || 0;
+        const hasSkill = this.targetEntity.hasSkill;
+
+        // 최적화: 수치 변화가 없으면 렌더링 건너뜀
+        if (hp === this.lastHp && maxHp === this.lastMaxHp && skillProgress === this.lastSkillProgress) {
             this.isDirty = false;
             return;
         }
@@ -86,7 +92,7 @@ class HealthBar {
         const ctx = this.ctx;
         const w = this.canvas.width;
         const h = this.canvas.height;
-        const ratio = Math.max(0, Math.min(1, hp / maxHp));
+        const hpRatio = Math.max(0, Math.min(1, hp / maxHp));
 
         // 1. 클리어
         ctx.clearRect(0, 0, w, h);
@@ -95,32 +101,55 @@ class HealthBar {
         ctx.fillStyle = '#2c2c2c';
         ctx.fillRect(0, 0, w, h);
         
+        const innerGap = 2 * this.resolution;
+        const hpBarHeight = hasSkill ? (h * 0.7) : (h - innerGap * 2);
+
         // 3. 배경 (더 어두운 레드)
         ctx.fillStyle = '#4a0000';
-        const innerGap = 2 * this.resolution;
-        ctx.fillRect(innerGap, innerGap, w - innerGap * 2, h - innerGap * 2);
+        ctx.fillRect(innerGap, innerGap, w - innerGap * 2, hpBarHeight);
 
         // 4. 메인 게이지 (Ruby Gradient)
-        if (ratio > 0) {
-            const gaugeWidth = (w - innerGap * 2) * ratio;
-            const grad = ctx.createLinearGradient(0, 0, 0, h);
+        if (hpRatio > 0) {
+            const gaugeWidth = (w - innerGap * 2) * hpRatio;
+            const grad = ctx.createLinearGradient(0, innerGap, 0, hpBarHeight);
             grad.addColorStop(0, '#ff4d4d'); // 밝은 레드
             grad.addColorStop(0.5, '#b30000'); // 루비 레드
             grad.addColorStop(1, '#660000'); // 딥 레드
             
             ctx.fillStyle = grad;
-            ctx.fillRect(innerGap, innerGap, gaugeWidth, h - innerGap * 2);
+            ctx.fillRect(innerGap, innerGap, gaugeWidth, hpBarHeight);
 
             // 5. 글래스 효과 (상단 하이라이트)
             ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-            ctx.fillRect(innerGap, innerGap, gaugeWidth, (h - innerGap * 2) * 0.4);
+            ctx.fillRect(innerGap, innerGap, gaugeWidth, hpBarHeight * 0.4);
         }
 
-        // 6. 텍스처 슬롯 업데이트 (Phaser 전송)
+        // 6. [신규] 스킬 게이지 (시전 속도가 반영된 쿨타임 바)
+        if (hasSkill) {
+            const skillBarHeight = (h - hpBarHeight - innerGap * 2);
+            const skillY = innerGap + hpBarHeight + 1 * this.resolution;
+            
+            // 스킬 배경 (어두운 보라/남색)
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(innerGap, skillY, w - innerGap * 2, skillBarHeight);
+
+            if (skillProgress > 0) {
+                const skillWidth = (w - innerGap * 2) * Math.min(1, skillProgress);
+                const skillGrad = ctx.createLinearGradient(0, skillY, 0, skillY + skillBarHeight);
+                skillGrad.addColorStop(0, '#a78bfa'); // 연보라
+                skillGrad.addColorStop(1, '#6d28d9'); // 진보라
+                
+                ctx.fillStyle = skillGrad;
+                ctx.fillRect(innerGap, skillY, skillWidth, skillBarHeight);
+            }
+        }
+
+        // 7. 텍스처 슬롯 업데이트 (Phaser 전송)
         this.texture.refresh();
         
         this.lastHp = hp;
         this.lastMaxHp = maxHp;
+        this.lastSkillProgress = skillProgress;
         this.isDirty = false;
     }
 
@@ -133,6 +162,7 @@ class HealthBar {
         this.container.setVisible(false);
         this.targetEntity = null;
         this.lastHp = -1;
+        this.lastSkillProgress = -1;
     }
 
     destroy() {
