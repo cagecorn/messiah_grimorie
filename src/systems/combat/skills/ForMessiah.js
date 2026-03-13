@@ -205,10 +205,11 @@ class ForMessiah {
             (hitTarget) => {
                 // 에어본 적용
                 Airborne.apply(hitTarget, 1200, 250, owner);
-            }
+            },
+            true // isUltimate = true
         );
 
-        Logger.info("ULTIMATE", `[Aren] Messiah's Judgment applied to surroundings!`);
+        Logger.info("ULTIMATE", `[Aren] For Messiah! applied to surroundings!`);
     }
 
     /**

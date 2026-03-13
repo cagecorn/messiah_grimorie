@@ -18,10 +18,12 @@ class DamageCalculationManager {
      * 엔티티 통계 초기화
      */
     initEntity(entityId) {
-        if (!this.stats.has(entityId)) {
-            this.stats.set(entityId, {
+        const id = entityId.toLowerCase();
+        if (!this.stats.has(id)) {
+            this.stats.set(id, {
                 dealt: 0,
                 received: 0,
+                healed: 0, // [신규] 누적 힐량
                 dps: 0,
                 history: [], // { timestamp: number, amount: number }
                 // [신규] 속성별 세부 통계
@@ -29,6 +31,7 @@ class DamageCalculationManager {
                 receivedByElement: { physical: 0, magic: 0, fire: 0, ice: 0, lightning: 0 }
             });
         }
+        return id;
     }
 
     /**
@@ -37,11 +40,11 @@ class DamageCalculationManager {
     recordDamage(attacker, target, amount, type = 'physical') {
         if (!attacker || !target) return;
 
-        this.initEntity(attacker.id);
-        this.initEntity(target.id);
+        const attackerId = this.initEntity(attacker.id);
+        const targetId = this.initEntity(target.id);
 
-        const attackerStats = this.stats.get(attacker.id);
-        const targetStats = this.stats.get(target.id);
+        const attackerStats = this.stats.get(attackerId);
+        const targetStats = this.stats.get(targetId);
 
         // 1. 누적 데이터 기록 (전체)
         attackerStats.dealt += amount;
@@ -59,18 +62,41 @@ class DamageCalculationManager {
         attackerStats.history.push({
             timestamp: Date.now(),
             amount: amount,
-            type: type // 타입도 히스토리에 포함 (필요 시 확장용)
+            type: type 
         });
 
-        // [신규] 장비 경험치 동기화 (총합 데이터가 필요하므로 여기서 추적)
-        // Note: 실제 경험치 적용은 장비 매니저가 이 데이터를 읽어가거나 이벤트를 통해 처리
+        // [신규] 무기 경험치 동기화 시스템 (준 데미지에 비례)
+        // Note: EquipmentManager 혹은 별도 WeaponExpManager가 이 데이터를 구독
+    }
+
+    /**
+     * 힐량 기록 (치료자와 대상자 모두 기록)
+     */
+    recordHeal(healer, target, amount) {
+        if (!healer || !target) return;
+
+        const healerId = this.initEntity(healer.id);
+        const targetId = this.initEntity(target.id);
+
+        const healerStats = this.stats.get(healerId);
+        
+        // 힐러의 누적 힐량 증가
+        healerStats.healed += amount;
+
+        // 힐도 DPS(HPS) 추적에 포함 (옵션)
+        healerStats.history.push({
+            timestamp: Date.now(),
+            amount: amount,
+            type: 'heal'
+        });
     }
 
     /**
      * 특정 엔티티의 실시간 DPS 계산 (최근 5초 기준)
      */
     calculateDPS(entityId, windowMs = 5000) {
-        const stats = this.stats.get(entityId);
+        const id = entityId.toLowerCase();
+        const stats = this.stats.get(id);
         if (!stats) return 0;
 
         const now = Date.now();
@@ -89,7 +115,8 @@ class DamageCalculationManager {
      * 특정 엔티티의 누적 통계 가져오기
      */
     getStats(entityId) {
-        return this.stats.get(entityId) || { dealt: 0, received: 0, dps: 0 };
+        const id = entityId.toLowerCase();
+        return this.stats.get(id) || { dealt: 0, received: 0, healed: 0, dps: 0 };
     }
 
     /**

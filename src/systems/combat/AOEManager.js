@@ -16,8 +16,9 @@ class AOEManager {
      * @param {number} multiplier 계수
      * @param {string} type 데미지 속성
      * @param {function} onHit 각 타겟 피격 시 콜백
+     * @param {boolean} isUltimate 궁극기 여부
      */
-    applyAOEDamagingEffect(source, x, y, radius, multiplier, type, onHit) {
+    applyAOEDamagingEffect(source, x, y, radius, multiplier, type, onHit, isUltimate = false) {
         if (!source || !source.scene) return;
 
         const scene = source.scene;
@@ -36,7 +37,7 @@ class AOEManager {
 
         targets.forEach(target => {
             // 데미지 처리 (CombatManager에 의뢰)
-            combatManager.processDamage(source, target, multiplier, type);
+            combatManager.processDamage(source, target, multiplier, type, isUltimate);
             
             if (onHit) onHit(target);
         });

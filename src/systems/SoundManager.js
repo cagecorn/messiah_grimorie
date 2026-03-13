@@ -28,6 +28,25 @@ class SoundManager {
         // AudioManager를 통해 재생
         audioManager.playSFX(this.scene, key, 0.6); // 0.6 볼륨으로 너무 크지 않게
     }
+
+    /**
+     * 유닛 사망 효과음 재생
+     */
+    playUnitFallen() {
+        if (!this.scene) {
+            Logger.error("SOUND", "Cannot play death SFX: Scene not initialized in SoundManager!");
+            return;
+        }
+        
+        const sceneKey = this.scene.scene.key;
+        Logger.info("SOUND", `Triggering death SFX (unit_fallen) in scene: ${sceneKey}`);
+        
+        try {
+            audioManager.playSFX(this.scene, 'unit_fallen', 0.8);
+        } catch (err) {
+            Logger.error("SOUND", `Failed to play death SFX: ${err.message}`);
+        }
+    }
 }
 
 const soundManager = new SoundManager();

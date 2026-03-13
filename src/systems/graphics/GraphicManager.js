@@ -89,14 +89,17 @@ class GraphicManager {
      */
     applyBattleFX() {
         // 전투 시에는 모든 효과를 사용하여 몰입감 극대화
+        // [REFINE] 현재 유저가 수동으로 해제한 상태에서도 다시 켜지는 문제가 있어 주석 처리
+        /*
         const domFX = ['vignette', 'grading', 'filter', 'texture', 'blur', 'chromatic'];
         domFX.forEach(type => {
             if (this.subManagers[type] && this.subManagers[type].setEnabled) {
                 this.subManagers[type].setEnabled(true);
             }
         });
+        */
         
-        Logger.info("GRAPHICS", "Battle FX Preset applied.");
+        Logger.info("GRAPHICS", "Battle FX Preset initialized (Filters state maintained).");
     }
 
     /**

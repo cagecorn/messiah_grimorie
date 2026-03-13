@@ -9,59 +9,45 @@ import phaserParticleManager from '../systems/graphics/PhaserParticleManager.js'
 import skillManager from '../systems/combat/SkillManager.js';
 import ultimateManager from '../systems/combat/UltimateManager.js';
 import combatManager from '../systems/CombatManager.js';
+import soundManager from '../systems/SoundManager.js';
 import StatusEffectManager from '../systems/combat/StatusEffectManager.js';
+
+// [컴포넌트 임포트]
+import EntitySkillComponent from './components/EntitySkillComponent.js';
+import EntityMovementComponent from './components/EntityMovementComponent.js';
 
 /**
  * 전투 엔티티 (Combat Entity)
- * 역할: [Phaser 물리 객체 + 하위 BaseEntity 로직 통합]
- * 
- * 설명: 실제 월드에 렌더링되는 스프라이트 객체입니다.
- * 물리 엔진(Physics)을 포함하며, 핀치/플립 등 시각적 처리와
- * 내부 BaseEntity 스탯/로직을 연결합니다.
+ * 역할: [컴포넌트 조립 및 전투 라이프사이클 관리]
  */
 export default class CombatEntity extends Phaser.GameObjects.Container {
-    /**
-     * @param {Phaser.Scene} scene 
-     * @param {number} x 
-     * @param {number} y 
-     * @param {BaseEntity} logicEntity 
-     * @param {string} spriteKey 
-     */
     constructor(scene, x, y, logicEntity, spriteKey) {
         super(scene, x, y);
         
         this.logic = logicEntity;
         this.spriteKey = spriteKey;
         
-        // [측량 매니저] 수치 가져오기
         const config = this.getEntityConfig();
         
         // 1. 스프라이트 설정
         this.sprite = scene.add.sprite(0, 0, spriteKey);
-        this.sprite.setOrigin(0.5, 1.0); // 발밑(Bottom-Center)을 기준으로 정렬
+        this.sprite.setOrigin(0.5, 1.0);
         this.sprite.setScale(config.displayScale);
         this.add(this.sprite);
 
-        // [신규] 고도(Altitude) 로직: 컨테이너의 (0,0)은 항상 지면(Feet)
-        // 스프라이트의 Origin이 (0.5, 1.0)이므로 y=0일 때 발이 지면에 닿음
-        this.zHeight = 0; 
-
-        // 2. 물리 엔진 등록 (Arcade Physics)
+        // 2. 물리 엔진 등록
         scene.physics.add.existing(this);
         this.body.setCollideWorldBounds(true);
-        
-        // 히트박스 중심 조정 (반경 20 원형)
-        // 발밑(0,0)에서 위쪽 방향으로 오프셋을 주어 몸통 중앙에 위치시킴
         this.body.setCircle(20, -20, -45); 
 
-        // [신규] 레이어 관리 통합 및 Y-Sorting 준비
+        // 3. 컴포넌트 초기화
+        this.movement = new EntityMovementComponent(this, measurementManager);
+        this.skills = new EntitySkillComponent(this, skillManager, ultimateManager);
+
         this.baseDepth = layerManager.getDepth('entities');
-        this.updateDepth();
+        this.movement.updateDepth(this.baseDepth);
         
-        // 3. 초기 방향 설정 (팀에 따라 다름)
-        // 기본 스프라이트가 왼쪽을 보므로:
-        // 아군(왼쪽 배치)은 오른쪽을 봐야 함 -> setFlipX(true)
-        // 적군(오른쪽 배치)은 왼쪽을 봐야 함 -> setFlipX(false)
+        // 초기 방향
         if (this.logic.type === 'mercenary') {
             this.sprite.setFlipX(true);
         } else {
@@ -69,52 +55,43 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         }
 
         this.id = logicEntity.id;
-        this.team = logicEntity.type; // 'mercenary' or 'monster'
+        this.team = logicEntity.type;
         this.hpBar = null;
-        this.attackCooldown = 0; // [신규] 공격 쿨다운 타이머
+        this.attackCooldown = 0;
 
-        // ==========================================
-        // 🧪 [구역 3] 스킬 및 궁극기 시스템 데이터
-        // ==========================================
-        //#region SKILL_ULT_SYSTEM
-        // [신규] 스킬 시스템 데이터 초기화
-        this.skillData = skillManager.getSkillData(logicEntity.id);
-        this.hasSkill = this.skillData.hasSkill !== false;
-        this.skillCooldown = 0;
-        this.maxSkillCooldown = this.hasSkill ? this.skillData.cooldown : 0;
-
-        // [신규] 아군은 전투 시작 시 스킬 게이지가 가득 찬 상태로 시작함
-        this.skillProgress = (logicEntity.type === 'mercenary' && this.hasSkill) ? 1.0 : 0;
-
-        // [신규] 궁극기 시스템 데이터 초기화
-        this.ultData = ultimateManager.getUltimateData(logicEntity.id);
-        this.hasUltimate = this.ultData.hasUltimate !== false;
-        this.ultimateProgress = 0;
-
-        // ==========================================
-        // 🛠️ [TEST] 아렌 저주받은 숲 궁극기 즉시 충전 (테스트 전용)
-        // 저주받은 숲 입장 시 아렌의 궁극기를 즉시 사용할 수 있도록 100% 충전 상태로 시작합니다.
-        // 테스트 완료 후 아래 if 블록만 삭제하면 됩니다.
-        // ==========================================
-        if (logicEntity.id.startsWith('aren') && scene.stageId === 'cursed_forest') {
-            this.ultimateProgress = 1.0;
-            Logger.info("TEST", "Aren starts with full ultimate gauge in Cursed Forest.");
-        }
-        //#endregion
-
-        // [신규] 상태이상 매니저 초기화
         this.status = new StatusEffectManager(this);
 
         scene.add.existing(this);
         this.setActive(true);
 
-        // [신규] FX 시스템 연동: HP바 부착
         fxManager.attachHUD(this);
-        
-        // [신규] 그림자 생성 연동
         shadowManager.createShadow(scene, this);
 
-        Logger.info("COMBAT_ENTITY", `Spawned ${this.logic.name} at (${x}, ${y})`);
+        Logger.info("COMBAT_ENTITY", `Spawned ${this.logic.name} (Modular) at (${x}, ${y})`);
+    }
+
+    // ==========================================
+    // 🧩 [컴포넌트 브릿지 - Getters]
+    // ==========================================
+    get zHeight() { return this.movement.zHeight; }
+    get skillProgress() { return this.skills.skillProgress; }
+    get ultimateProgress() { return this.skills.ultimateProgress; }
+    get hasSkill() { return this.skills.hasSkill; }
+    get hasUltimate() { return this.skills.hasUltimate; }
+    get maxSkillCooldown() { return this.skills.maxSkillCooldown; }
+    
+    // [신규] 구조적 분리로 인한 데이터 접근 브릿지
+    get skillData() { return this.skills.skillData; }
+    get ultData() { return this.skills.ultData; }
+
+    // [신규] 스킬 로직에서 게이지를 리셋(set to 0)할 수 있도록 setter 추가
+    set skillProgress(v) { 
+        this.skills.skillProgress = v; 
+        if (this.hpBar) this.hpBar.isDirty = true;
+    }
+    set ultimateProgress(v) { 
+        this.skills.ultimateProgress = v; 
+        if (this.hpBar) this.hpBar.isDirty = true;
     }
 
     /**
@@ -130,7 +107,6 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
             bodyRadius = entityData.mercenary.bodyRadius;
         } else if (this.logic.type === 'monster') {
             displayScale = entityData.monster.scale;
-            // 보스 여부 판단
             if (this.logic.id.includes('boss')) {
                 displayScale = entityData.monster.bossScale;
             }
@@ -141,116 +117,42 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         return { displayScale, bodyRadius };
     }
 
-    /**
-     * 이동 처리 (MovementManager에서 호출)
-     */
-    setVelocity(vx, vy) {
-        if (!this.body) return;
+    // ==========================================
+    // 🏃 [이동 시스템 - 위임]
+    // ==========================================
+    setVelocity(vx, vy) { this.movement.setVelocity(vx, vy); }
+    stop() { this.movement.stop(); }
+    setHeight(h) { this.movement.setHeight(h); }
+    updateDepth() { this.movement.updateDepth(this.baseDepth); }
 
-        // [신규] 행동 불가 상태(에어본 등)일 때는 속도 고정/무시
-        if (this.status && this.status.isUnableToAct()) {
-            this.body.setVelocity(0, 0);
-            return;
-        }
-
-        this.body.setVelocity(vx, vy);
-
-        // [방향 제어] 기본이 왼쪽인 이미지 기준:
-        // 우측 이동(vx > 0) -> Flip(true) -> 오른쪽 바라봄
-        // 좌측 이동(vx < 0) -> No Flip(false) -> 왼쪽 바라봄
-        if (vx > 0) {
-            this.sprite.setFlipX(true);
-        } else if (vx < 0) {
-            this.sprite.setFlipX(false);
-        }
-    }
-
-    /**
-     * 정지 처리
-     */
-    stop() {
-        if (!this.body) return;
-        this.body.setVelocity(0, 0);
-    }
-
-    /**
-     * 고도(Z-Axis) 설정 및 시각적 오프셋 적용
-     * @param {number} h 높이 값 (px)
-     */
-    setHeight(h) {
-        this.zHeight = h;
-        // 스프라이트의 Origin이 (0.5, 1.0)이므로, y=0이 발밑입니다.
-        // 공중에 띄우려면 마이너스(-) 방향으로만 오프셋을 주면 됩니다.
-        this.sprite.setY(-h);
-        
-        // 비행 유닛인 경우 로컬 바 가독성을 위해 같이 올릴 수도 있음 (필요 시 확장)
-    }
-
-    /**
-     * Y축 기준 깊이 정렬 업데이트
-     * 위치가 아래일수록(y값이 클수록) 앞에 렌더링되도록 함
-     */
-    updateDepth() {
-        // baseDepth(100) + (y / worldHeight) 를 통해 100~101 사이의 값으로 정밀 정렬
-        const worldHeight = measurementManager.world.height;
-        const yBias = this.y / worldHeight;
-        this.setDepth(this.baseDepth + yBias);
-    }
-
-    /**
-     * 기본 공격 실행
-     */
+    // ==========================================
+    // ⚔️ [전투 시스템]
+    // ==========================================
     attack(target) {
         if (!target || this.attackCooldown > 0) return;
-        
-        // [신규] 행동 불가 체크
         if (this.status && this.status.isUnableToAct()) return;
 
-        // 1. 쿨다운 설정 (공격 속도 기반)
-        // 1000ms / atkSpd (예: atkSpd 1.0 -> 1초, 2.0 -> 0.5초)
         const atkSpd = this.logic.getTotalAtkSpd();
         this.attackCooldown = 1000 / Math.max(0.1, atkSpd);
 
-        // 2. 애니메이션 실행 및 피격 로직 연결
         this.playAttackAnimation(target, () => {
-            // [신규] 속성 시스템 연동: 무기 속성 가져오기
-            const element = this.logic.elements.weaponElement || 'physical';
-            const damageType = element === 'none' ? 'physical' : element;
-
-            // 임팩트 시점에 실제 데미지 연산 요청
-            combatManager.processDamage(this, target, 1.0, damageType);
-            
-            Logger.info("COMBAT", `${this.logic.name} attacks ${target.logic.name} with ${damageType}`);
+            combatManager.executeNormalAttack(this, target);
         });
     }
 
-    /**
-     * 공격 애니메이션 실행 루틴
-     */
     playAttackAnimation(target, onHit) {
         animationManager.playDashAttack(this, target, onHit);
     }
 
-    /**
-     * 데미지 피격 처리
-     * @param {number} amount 데미지 양
-     * @param {CombatEntity} attacker 공격자 (반격/이벤트용)
-     */
     takeDamage(amount, attacker) {
         if (!this.logic.isAlive) return;
 
-        // 1. 논리 스탯 업데이트
         const currentHp = this.logic.stats.takeDamage(amount);
-        
-        // 2. HP바 Dirty 설정 (강제 갱신 필요 시)
         if (this.hpBar) this.hpBar.isDirty = true;
 
-        // 3. [신규] 시각적 피격 피드백 (틴트 + 파티클)
         fxManager.flashRed(this);
-        // [FIX] 에어본 등으로 떠있는 상태라면 해당 높이를 반영하여 파티클 스폰
         phaserParticleManager.spawnBloodBurst(this.x, this.y - this.zHeight - 40);
 
-        // 4. 사망 판정
         if (currentHp <= 0) {
             this.handleDeath();
         }
@@ -258,79 +160,40 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         Logger.info("COMBAT", `${this.logic.name} took ${amount} damage. Current HP: ${currentHp}`);
     }
 
-    /**
-     * 사망 처리
-     */
+    heal(amount) {
+        if (!this.logic.isAlive) return;
+        this.logic.stats.update('current', 'hp', Math.min(this.logic.getTotalMaxHp(), this.logic.hp + amount));
+        if (this.hpBar) this.hpBar.isDirty = true;
+    }
+
     handleDeath() {
-        // logic.isAlive는 getter이므로 isDead 플래그로 제어
         this.logic.isDead = true;
         this.stop();
-        
-        // [FIX] 단순 반투명이 아닌 AnimationManager를 통한 프리미엄 사망 연출 실행
+        soundManager.playUnitFallen();
         animationManager.playDeathAnimation(this, () => {
             this.destroy();
         });
-
         Logger.system(`${this.logic.name} has fallen.`);
     }
 
-    /**
-     * 공격 쿨다운 업데이트
-     */
     updateAttackCooldown(delta) {
         if (this.attackCooldown > 0) {
             this.attackCooldown -= delta;
         }
-        
-        // [신규] 스킬 쿨다운 업데이트 동시 실행
         this.updateSkillCooldown(delta);
     }
 
-    /**
-     * [신규] 스킬 및 궁극기 쿨다운 업데이트
-     */
+    // ==========================================
+    // 🧠 [스킬/궁극기 시스템 - 위임]
+    // ==========================================
     updateSkillCooldown(delta) {
-        if (!this.logic.isAlive) return;
-
-        //#region SKILL_CHARGE
-        if (this.hasSkill) {
-            // 시전 속도(castSpd) 반영
-            const castSpd = this.logic.stats.get('castSpd') || 1.0;
-            const progressGain = delta / Math.max(1, this.maxSkillCooldown); // 시간 대비 진행도 (기본)
-            
-            // 시전 속도 배율 적용 (castSpd 2.0 -> 2배속 충전)
-            const oldProgress = this.skillProgress;
-            this.skillProgress = Math.min(1.0, this.skillProgress + progressGain * castSpd);
-
-            // 진행도가 유의미하게 변했다면 HP바 Dirty 설정 (UI 갱신)
-            if (this.hpBar && Math.floor(oldProgress * 100) !== Math.floor(this.skillProgress * 100)) {
-                this.hpBar.isDirty = true;
-            }
-        }
-        //#endregion
-
-        //#region ULTIMATE_CHARGE
-        if (this.hasUltimate) {
-            // 궁극기 충전 속도(ultChargeSpeed) 반영
-            const ultChargeSpeed = this.logic.stats.get('ultChargeSpeed') || 1.0;
-            // 궁극기는 일반적으로 스킬보다 훨씬 느리게 차도록 설정 (예: 40초 기준 40000ms)
-            const ultBaseTime = 40000; 
-            const ultGain = delta / ultBaseTime;
-            
-            const oldUltProgress = this.ultimateProgress;
-            this.ultimateProgress = Math.min(1.0, this.ultimateProgress + ultGain * ultChargeSpeed);
-
-            // 궁극기 게이지 변화 시 UI 갱신 (HP바 재사용)
-            if (this.hpBar && Math.floor(oldUltProgress * 100) !== Math.floor(this.ultimateProgress * 100)) {
-                this.hpBar.isDirty = true;
-            }
-        }
-        //#endregion
+        this.skills.update(delta);
     }
 
-    /**
-     * 엔티티 파괴 시 자원 정리
-     */
+    gainUltimateCharge(points, applyMultiplier = true) {
+        this.skills.gainUltimateCharge(points, applyMultiplier);
+    }
+
     preDestroy() {
         fxManager.detachHUD(this);
         super.preDestroy();

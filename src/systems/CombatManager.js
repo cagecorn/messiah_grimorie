@@ -44,7 +44,7 @@ class CombatManager {
      * @param {number} multiplier 스킬 계수
      * @param {string} type 'physical' | 'magic'
      */
-    processDamage(attackerEntity, targetEntity, multiplier, type = 'physical') {
+    processDamage(attackerEntity, targetEntity, multiplier, type = 'physical', isUltimate = false) {
         const attacker = attackerEntity.logic;
         const target = targetEntity.logic;
         
@@ -74,6 +74,17 @@ class CombatManager {
             if (type === 'physical') {
                 soundManager.playPhysicalHit();
             }
+
+            // 6. [신규] 궁극기 게이지 충전 (유저 요청: 객체당 +1)
+            // 공격자: 일반 공격/스킬일 때만 충전 (무한 연사 방지)
+            if (!isUltimate && attackerEntity.gainUltimateCharge) {
+                attackerEntity.gainUltimateCharge(1); // +1 점 (0.01 진행도)
+            }
+
+            // 피격자: 모든 피해(궁극기 포함)에 대해 충전
+            if (targetEntity.gainUltimateCharge) {
+                targetEntity.gainUltimateCharge(1); // +1 점
+            }
         }
     }
 
@@ -85,6 +96,53 @@ class CombatManager {
         // [TODO] Spatial Grid에서 주변 유닛만 필터링하여 검색
         // 현재는 예시 구조만 잡음
         return null;
+    }
+
+    /**
+     * 일반 공격 실행 (AI에서 호출)
+     */
+    executeNormalAttack(attackerEntity, targetEntity) {
+        if (!attackerEntity.logic.isAlive || !targetEntity.logic.isAlive) return;
+
+        // [신규] 공격/힐 분기 처리
+        const isAlly = attackerEntity.team === targetEntity.team;
+        const className = attackerEntity.logic.class.getClassName();
+
+        if (isAlly && className === 'healer') {
+            // 힐러가 아군을 타겟팅 시 힐 처리
+            this.processHeal(attackerEntity, targetEntity, 1.0);
+        } else {
+            // 그 외(적군 타겟팅) 상황은 데미지 처리
+            this.processDamage(attackerEntity, targetEntity, 1.0, 'physical');
+        }
+    }
+
+    /**
+     * 힐 발생 라우팅
+     * @param {object} healerEntity 치료자
+     * @param {object} targetEntity 대상
+     * @param {number} multiplier 힐 계수
+     */
+    processHeal(healerEntity, targetEntity, multiplier = 1.0) {
+        const healer = healerEntity.logic;
+        const target = targetEntity.logic;
+
+        // MATK 기반 힐량 계산
+        const healAmount = healer.getTotalMAtk() * multiplier;
+
+        if (targetEntity && targetEntity.heal) {
+            Logger.info("COMBAT_MANAGER", `Processing HEAL: ${healer.name} -> ${target.name} (${healAmount.toFixed(1)})`);
+            
+            // 1. 실제 체력 회복
+            targetEntity.heal(healAmount);
+
+            // 2. 힐량 기록
+            damageCalculationManager.recordHeal(healer, target, healAmount);
+
+            // 3. 시각적 피드백
+            fxManager.showDamageText(targetEntity.x, targetEntity.y, Math.floor(healAmount), 'heal');
+            fxManager.showImpactEffect(targetEntity, 'heal');
+        }
     }
 
     /**

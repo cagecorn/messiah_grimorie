@@ -67,7 +67,8 @@ export default class BattleScene extends Phaser.Scene {
         this.load.audio('hit_phys_1', 'assets/sfx/hitting-1.mp3');
         this.load.audio('hit_phys_2', 'assets/sfx/hitting-2.mp3');
         this.load.audio('hit_phys_3', 'assets/sfx/hitting-3.mp3');
-        Logger.info("BATTLE_LOADER", "Preloading hitting sound effects.");
+        this.load.audio('unit_fallen', 'assets/sfx/fallen-1.mp3');
+        Logger.info("BATTLE_LOADER", "Preloading hitting sound effects and death sfx.");
     }
 
     async create() {
