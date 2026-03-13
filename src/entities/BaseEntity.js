@@ -15,9 +15,10 @@ import ElementalManager from '../systems/combat/ElementalManager.js';
  */
 export default class BaseEntity {
     constructor(config) {
-        const { id, name, type, className, isSpecial, level, exp, stars, baseStats } = config;
+        const { id, baseId, name, type, className, isSpecial, level, exp, stars, baseStats } = config;
 
         this.id = id;
+        this.baseId = baseId || type; // 용병은 baseId, 몬스터 등은 type 활용 가능
         this.name = name;
         this.type = type; // 'mercenary', 'monster', etc.
 
@@ -96,6 +97,7 @@ export default class BaseEntity {
     get atk() { return this.getTotalAtk(); }
     get isAlive() { return this.hp > 0 && !this._isDead; }
 
+    get isDead() { return this._isDead; }
     set isDead(val) { this._isDead = val; }
 
     /**

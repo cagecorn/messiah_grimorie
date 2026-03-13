@@ -4,7 +4,9 @@ import Phaser from 'phaser';
 // Styles Modularization
 import './styles/base.css';
 import './styles/layout.css';
-import './styles/hud.css';
+import './styles/top_hud.css';
+import './styles/dungeon_dropdown.css';
+import './styles/portrait_hud.css';
 import './styles/territory.css';
 import './styles/gacha.css';
 import './styles/gacha_card.css';

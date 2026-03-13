@@ -1,0 +1,177 @@
+/* ==========================================
+   🖼️ [UI] Portrait HUD (Left)
+   ========================================== */
+
+.mg-portrait-hud {
+    position: absolute;
+    top: 60px; /* Top HUD 아래 */
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.mg-portrait-card {
+    width: 200px;
+    height: 70px;
+    background: rgba(15, 5, 5, 0.7);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(139, 69, 19, 0.4);
+    border-radius: 4px;
+    display: flex;
+    padding: 5px;
+    box-sizing: border-box;
+    pointer-events: auto;
+    transition: all 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.mg-portrait-card:hover {
+    border-color: var(--mg-gold);
+    background: rgba(30, 10, 5, 0.85);
+    transform: translateX(5px);
+}
+
+.mg-portrait-frame {
+    width: 60px;
+    height: 60px;
+    background: #000;
+    border: 1px solid #3a2a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    margin-right: 8px;
+}
+
+.mg-portrait-img {
+    height: 90%;
+    image-rendering: pixelated;
+}
+
+.mg-merc-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.mg-merc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mg-merc-name-group {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+}
+
+.mg-merc-name {
+    color: var(--mg-gold-bright);
+    font-size: 13px;
+    font-weight: 800;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.mg-merc-lvl {
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.mg-merc-stars {
+    color: #ffd700;
+    font-size: 10px;
+}
+
+.mg-bars-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.mg-bar-wrapper {
+    width: 100%;
+    height: 6px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    position: relative;
+    overflow: hidden;
+}
+
+.mg-bar-fill {
+    height: 100%;
+    transition: width 0.3s ease-out;
+}
+
+.mg-bar-fill.hp {
+    background: linear-gradient(90deg, #8b0000, #ff4d4d);
+}
+
+.mg-bar-fill.skill {
+    background: linear-gradient(90deg, #004d40, #00bfa5);
+}
+
+.mg-ult-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.mg-ult-bar-wrapper {
+    flex: 1;
+    height: 4px;
+    background: #101010;
+    border: 1px solid #444;
+}
+
+.mg-ult-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4b0082, #9400d3);
+    box-shadow: 0 0 5px #9400d3;
+}
+
+.mg-ult-text {
+    font-size: 9px;
+    color: #9400d3;
+    font-weight: bold;
+    min-width: 45px;
+}
+
+.mg-ult-text.ready {
+    color: #ff00ff;
+    text-shadow: 0 0 5px #ff00ff;
+    animation: mg-glow 1s infinite alternate;
+}
+
+@keyframes mg-glow {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+}
+
+.mg-buff-list {
+    display: flex;
+    gap: 3px;
+    height: 16px;
+    margin-top: 2px;
+}
+
+.mg-buff-icon {
+    width: 14px;
+    height: 14px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid #444;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mg-buff-icon img {
+    width: 100%;
+    height: 100%;
+}

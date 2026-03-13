@@ -9,7 +9,7 @@ import Logger from '../utils/Logger.js';
  */
 class AssetPathManager {
     constructor() {
-        this.basePath = 'assets/';
+        this.basePath = '/assets/';
         
         // [구역 1] 이미지 에셋 (Images)
         this.images = {

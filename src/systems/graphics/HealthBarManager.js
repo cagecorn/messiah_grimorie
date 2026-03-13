@@ -3,6 +3,7 @@ import canvasOffscreenManager from '../../ui/CanvasOffscreenManager.js';
 import poolingManager from '../../core/PoolingManager.js';
 import layerManager from '../../ui/LayerManager.js';
 import { STAT_KEYS } from '../../core/EntityConstants.js';
+import iconManager from '../IconManager.js';
 
 /**
  * HP바 매니저 (HealthBar Manager)
@@ -13,6 +14,7 @@ import { STAT_KEYS } from '../../core/EntityConstants.js';
  * 2. Dirty Flag: HP 수치 변화가 있을 때만 다시 그리기 (CPU 절약)
  * 3. Retro-Premium: 다크 실버 테두리 + 루비 레드 그라데이션 + 하이라이트 글래스 효과
  * 4. Pooling: 씬 이동이나 유닛 사망 시 객체 재사용
+ * 5. Status Icons: 버프/디버프 아이콘 자동 정렬 및 겹침 표시 [NEW]
  */
 class HealthBar {
     constructor(scene) {
@@ -35,6 +37,12 @@ class HealthBar {
         this.sprite = scene.add.image(0, 0, this.textureKey);
         this.sprite.setScale(this.buffer.displayScale); // 2배 크기를 다시 절반으로 축소
         this.container.add(this.sprite);
+        
+        // [신규] 상태 아이콘 컨테이너
+        this.iconContainer = scene.add.container(0, -18); // 바 위쪽에 배치
+        this.container.add(this.iconContainer);
+        this.activeIcons = [];
+
         this.container.setVisible(false);
         this.container.setDepth(layerManager.getDepth('world_ui')); // 레이어 매니저 표준 깊이 적용
 
@@ -42,8 +50,9 @@ class HealthBar {
         this.targetEntity = null;
         this.lastHp = -1;
         this.lastMaxHp = -1;
-        this.lastSkillProgress = -1; // [신규] 스킬 진행도 캐싱
-        this.lastUltimateProgress = -1; // [신규] 궁극기 진행도 캐싱
+        this.lastSkillProgress = -1;
+        this.lastUltimateProgress = -1;
+        this.lastStatusKey = ""; // [신규] 상태 이상 캐싱용
         
         // [신규] 진동(Shake) 효과 상태
         this.shakeTimer = 0;
@@ -104,10 +113,12 @@ class HealthBar {
     draw() {
         if (!this.isDirty || !this.targetEntity) return;
 
+        // [상태 아이콘 업데이트 체크]
+        this.updateStatusIcons();
+
         const hp = this.targetEntity.logic.stats.get(STAT_KEYS.HP);
         const maxHp = this.targetEntity.logic.stats.get(STAT_KEYS.MAX_HP);
         
-        // [신규] 스킬 및 궁극기 진행도 확인
         const skillProgress = this.targetEntity.skillProgress || 0;
         const ultimateProgress = this.targetEntity.ultimateProgress || 0;
         const hasSkill = this.targetEntity.hasSkill;
@@ -134,7 +145,6 @@ class HealthBar {
         ctx.fillRect(0, 0, w, h);
         
         const innerGap = 1.5 * this.resolution;
-        // 높이 배분: HP(55%), Skill(20%), Ult(20%) + 간격
         const hpBarHeight = (hasSkill || hasUltimate) ? (h * 0.55) : (h - innerGap * 2);
 
         // 3. HP 배경 및 게이지
@@ -174,24 +184,21 @@ class HealthBar {
             currentY += subBarHeight + 1 * this.resolution;
         }
 
-        // 6. [신규] 궁극기 게이지 (Indigo & Gold - Premium look)
+        // 6. 궁극기 게이지
         if (hasUltimate) {
-            ctx.fillStyle = '#1e1b4b'; // 어두운 남색
+            ctx.fillStyle = '#1e1b4b';
             ctx.fillRect(innerGap, currentY, w - innerGap * 2, subBarHeight);
 
             if (ultimateProgress > 0) {
                 const ultWidth = (w - innerGap * 2) * Math.min(1, ultimateProgress);
                 const ultGrad = ctx.createLinearGradient(0, currentY, 0, currentY + subBarHeight);
-                
-                // 골드-인디고 하이브리드 그라데이션 (번쩍이는 느낌)
-                ultGrad.addColorStop(0, '#fbbf24'); // Amber/Gold
-                ultGrad.addColorStop(0.5, '#4f46e5'); // Indigo
-                ultGrad.addColorStop(1, '#312e81'); // Dark Indigo
+                ultGrad.addColorStop(0, '#fbbf24');
+                ultGrad.addColorStop(0.5, '#4f46e5');
+                ultGrad.addColorStop(1, '#312e81');
                 
                 ctx.fillStyle = ultGrad;
                 ctx.fillRect(innerGap, currentY, ultWidth, subBarHeight);
                 
-                // 광택 효과
                 if (ultimateProgress >= 1.0) {
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
                     ctx.fillRect(innerGap, currentY, ultWidth, subBarHeight * 0.3);
@@ -199,7 +206,7 @@ class HealthBar {
             }
         }
 
-        // 7. 텍스처 슬롯 업데이트
+        // 텍스처 업데이트
         this.texture.refresh();
         
         this.lastHp = hp;
@@ -207,6 +214,56 @@ class HealthBar {
         this.lastSkillProgress = skillProgress;
         this.lastUltimateProgress = ultimateProgress;
         this.isDirty = false;
+    }
+
+    /**
+     * [신규] 상태 아이콘 업데이트 (Dirty Flag & Pooling)
+     */
+    updateStatusIcons() {
+        if (!this.targetEntity || !this.targetEntity.status) return;
+
+        const activeIds = this.targetEntity.status.getActiveEffectIds();
+        const statusKey = activeIds.sort().join('|');
+
+        // 상태가 변경되었을 때만 갱신
+        if (this.lastStatusKey === statusKey) return;
+        this.lastStatusKey = statusKey;
+
+        // 기존 아이콘 해제
+        this.activeIcons.forEach(icon => {
+            icon.setVisible(false);
+            poolingManager.release('status_icon', icon);
+        });
+        this.activeIcons = [];
+
+        if (activeIds.length === 0) return;
+
+        // 아이콘 배치 설정
+        const iconSize = 14;
+        const maxTotalWidth = 50; // HP바 근처로 제한
+        let spacing = 16;
+
+        // 아이콘이 많으면 겹침 발생 (Overlap)
+        if (activeIds.length * spacing > maxTotalWidth) {
+            spacing = maxTotalWidth / activeIds.length;
+        }
+
+        const startX = -((activeIds.length - 1) * spacing) / 2;
+
+        activeIds.forEach((id, index) => {
+            const icon = poolingManager.get('status_icon');
+            const path = iconManager.getStatusIconPath(id);
+            
+            icon.setTexture(this.scene.textures.exists(path) ? path : 'unknown'); 
+            // Note: 실제 로딩 여부 체크 필요하겠지만 여기선 단순화
+            
+            icon.setDisplaySize(iconSize, iconSize);
+            icon.setPosition(startX + index * spacing, 0);
+            icon.setVisible(true);
+            
+            this.iconContainer.add(icon);
+            this.activeIcons.push(icon);
+        });
     }
 
     onAcquire() {
@@ -219,6 +276,14 @@ class HealthBar {
         this.targetEntity = null;
         this.lastHp = -1;
         this.lastSkillProgress = -1;
+        this.lastStatusKey = "";
+        
+        // 아이콘들 해제
+        this.activeIcons.forEach(icon => {
+            icon.setVisible(false);
+            poolingManager.release('status_icon', icon);
+        });
+        this.activeIcons = [];
     }
 
     destroy() {
@@ -236,10 +301,16 @@ class HealthBarManager {
     init(scene) {
         this.scene = scene;
         
-        // PoolingManager에 HP바 등록
+        // HP바 풀 등록
         poolingManager.registerPool('hp_bar', () => new HealthBar(this.scene), 20);
         
-        Logger.system("HealthBarManager: Super-sampling & Pooling initialized.");
+        // [신규] 상태 아이콘 풀 등록
+        poolingManager.registerPool('status_icon', () => {
+            const img = scene.add.image(0, 0, 'unknown');
+            return img;
+        }, 50);
+        
+        Logger.system("HealthBarManager: Super-sampling & Status Icon Pooling initialized.");
     }
 
     /**

@@ -84,15 +84,15 @@ class ShadowManager {
 
             const shadow = pooledShadow.graphics;
 
-            // 그림자는 항상 지면 좌표(entity.x, entity.y)를 따르되, 
-            // 애니메이션 중인 경우 스프라이트의 오프셋을 반영합니다.
+            // [USER 요청] 그림자는 항상 지면 좌표(entity.x, entity.y)를 따르며, 
+            // 스프라이트의 바빙(bobbing)이나 고도(zHeight)에 의한 Y 오프셋을 무시합니다.
+            // 단, 대쉬 공격 등 스프라이트 자체가 X축으로 이동하는 경우(vx)는 따라갑니다.
             shadow.clear();
             this.updateShadowVisuals(shadow, entity, config);
             
-            // 스프라이트가 로컬 (0, 0)에서 벗어난 만큼 그림자도 이동
             const vx = entity.sprite ? entity.sprite.x : 0;
-            const vy = entity.sprite ? entity.sprite.y : 0;
-            shadow.setPosition(entity.x + vx, entity.y + vy);
+            // vy는 무시 (그림자가 공중에 뜨지 않도록)
+            shadow.setPosition(entity.x + vx, entity.y);
 
             // 레이어 고정
             shadow.setDepth(layerManager.getDepth('shadow'));

@@ -4,6 +4,8 @@ import aoeManager from '../AOEManager.js';
 import Airborne from '../effects/Airborne.js';
 import phaserParticleManager from '../../graphics/PhaserParticleManager.js';
 import ultimateCutsceneManager from '../../../ui/UltimateCutsceneManager.js';
+import poolingManager from '../../../core/PoolingManager.js';
+import Invincible from '../effects/Invincible.js';
 
 /**
  * 아렌 궁극기: 메시아를 위하여! (For Messiah!)
@@ -27,11 +29,8 @@ class ForMessiah {
         const scene = owner.scene;
         scene.tweens.killTweensOf([owner, owner.sprite]);
         
-        // 0. 상태 이상 부여 (AI 행동 차단)
-        if (owner.status) {
-            // 기모으기(300) + 점프(400) + 대기(300) + 강하(200) + 연출 지속(1000) = 2200ms
-            owner.status.applyEffect('stunned', 2200);
-        }
+        // 0. 무적 상태 부여 (AI 행동 차단 및 데미지 무시 - [USER 요청])
+        Invincible.apply(owner, 2200);
 
         const baseScale = owner.getEntityConfig().displayScale;
         owner.sprite.setPosition(0, 0); 

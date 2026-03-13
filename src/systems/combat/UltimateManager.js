@@ -1,5 +1,5 @@
-import Logger from '../../utils/Logger.js';
 import forMessiah from './skills/ForMessiah.js';
+import threadsOfFate from './skills/ThreadsOfFate.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -31,11 +31,11 @@ class UltimateManager {
         // 엘라 (Ella)
         this.ultimates.set('ella', {
             id: 'ella_ult',
-            name: 'Spirit Arrow',
-            description: 'Fires a rain of spirit arrows.',
+            name: 'Threads of Fate',
+            description: 'Fires penetrating threads through enemy clusters.',
             chargeMax: 100,
             chargeSpeedBase: 1.0,
-            logic: null // 추후 구현
+            logic: threadsOfFate
         });
 
         // 고블린(몬스터)은 궁극기 없음

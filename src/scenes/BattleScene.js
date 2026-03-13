@@ -15,6 +15,7 @@ import animationManager from '../systems/graphics/AnimationManager.js';
 import phaserParticleManager from '../systems/graphics/PhaserParticleManager.js';
 import soundManager from '../systems/SoundManager.js';
 import ultimateCutsceneManager from '../ui/UltimateCutsceneManager.js';
+import portraitHUDManager from '../systems/PortraitHUDManager.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -63,7 +64,15 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('for_messiah', 'assets/effect/for_messiah.png');
         this.load.image('arrow_projectile', assetPathManager.getPath('images', 'arrow_projectile'));
         this.load.image('knockback_shot_projectile', 'assets/effect/knockback_shot_projectile.png');
-        Logger.info("BATTLE_LOADER", "Preloading physical impact effects, skill assets, and projectiles.");
+
+        // [신규] 상태 이상 아이콘 프리로드
+        this.load.image('/assets/icon/knockback_icon.png', '/assets/icon/knockback_icon.png');
+        this.load.image('/assets/icon/airborne_icon.png', '/assets/icon/airborne_icon.png');
+        this.load.image('/assets/icon/debuff_stun.png', '/assets/icon/debuff_stun.png');
+        this.load.image('/assets/icon/debuff_burn.png', '/assets/icon/debuff_burn.png');
+        this.load.image('/assets/icon/invincible_icon.png', '/assets/icon/invincible_icon.png');
+
+        Logger.info("BATTLE_LOADER", "Preloading physical impact effects, skill assets, projectiles, and status icons.");
 
         // 4. [신규] 타격 효과음 프리로드
         this.load.audio('hit_phys_1', 'assets/sfx/hitting-1.mp3');
@@ -106,6 +115,7 @@ export default class BattleScene extends Phaser.Scene {
         this.events.once('shutdown', () => {
             if (this.projectileManager) this.projectileManager.clear();
             if (this.aiManager) this.aiManager.clear();
+            portraitHUDManager.clear();
         });
 
         // [USER 요청] 카메라 지터링 방지: 모든 물리 업데이트가 끝난 후 카메라 이동
@@ -120,9 +130,13 @@ export default class BattleScene extends Phaser.Scene {
             const spawnModule = await import('../systems/combat/SpawnManager.js');
             this.spawnManager = spawnModule.default;
 
-            // 이동 매니저
-            const moveModule = await import('../systems/combat/MovementManager.js');
-            this.movementManager = moveModule.default;
+        // [USER 요청] 스테이지 시작 시 ID 카운터 초기화 (ID 혼란 방지)
+        const instanceIDModule = await import('../utils/InstanceIDManager.js');
+        instanceIDModule.default.reset();
+
+        // 전열 이동 매니저
+        const moveModule = await import('../systems/combat/MovementManager.js');
+        this.movementManager = moveModule.default;
 
             // AI 매니저
             const aiModule = await import('../systems/ai/AIManager.js');
@@ -145,6 +159,14 @@ export default class BattleScene extends Phaser.Scene {
         fxManager.init(this);
         animationManager.init(this);
         phaserParticleManager.init(this);
+        const trailModule = await import('../systems/graphics/TrailManager.js');
+        const trailManager = trailModule.default;
+        trailManager.init(this);
+
+        const ghostModule = await import('../systems/graphics/GhostManager.js');
+        const ghostManager = ghostModule.default;
+        ghostManager.init(this);
+
         soundManager.init(this);
         ultimateCutsceneManager.init();
 
@@ -152,10 +174,10 @@ export default class BattleScene extends Phaser.Scene {
         const projectileModule = await import('../systems/combat/ProjectileManager.js');
         const ArrowProjectile = (await import('../entities/projectiles/common/ArrowProjectile.js')).default;
         const KnockbackShotProjectile = (await import('../entities/projectiles/skills/KnockbackShotProjectile.js')).default;
-        
+
         this.projectileManager = projectileModule.default;
         this.projectileManager.init(this);
-        
+
         // 투사체 라우팅 등록
         this.projectileManager.registerProjectile('arrow', ArrowProjectile);
         this.projectileManager.registerProjectile('knockback_shot', KnockbackShotProjectile);
@@ -166,6 +188,9 @@ export default class BattleScene extends Phaser.Scene {
         this.allies = this.spawnManager.spawnAllies(this);
         this.enemies = this.spawnManager.spawnEnemies(this, this.stageId);
 
+        // [HUD] 초상화 허드 초기화
+        portraitHUDManager.init(this, this.allies);
+
         Logger.info("BATTLE", `Spawned ${this.allies.length} allies and ${this.enemies.length} enemies.`);
 
         // [카메라] 중앙 정렬
@@ -175,24 +200,31 @@ export default class BattleScene extends Phaser.Scene {
     update(time, delta) {
         if (this.isTransitioning) return;
 
+        // [HUD] 초상화 허드 업데이트
+        portraitHUDManager.update(time, delta);
+
         // [그림자] 실시간 업데이트
         shadowManager.update([...this.allies, ...this.enemies]);
         fxManager.update(time, delta); // [신규] FX 시스템 업데이트 (HP바 등)
-        
+
         // [신규] 투사체 매니저 업데이트
         if (this.projectileManager) {
             // 투사체 업데이트는 그룹 내 runChildUpdate가 true이면 자동 실행되지만, 
             // 명시적으로 순서 관리가 필요할 수도 있음.
         }
 
+        // [신규] 활성 유닛 필터링 (사망하여 풀로 돌아간 유닛 제외)
+        this.allies = this.allies.filter(a => a.active);
+        this.enemies = this.enemies.filter(e => e.active);
+
         // [레이어] Y-Sorting 및 상태 업데이트
         this.allies.forEach(a => {
             a.updateDepth();
-            a.updateAttackCooldown(delta); // [신규] 쿨다운 업데이트
+            a.updateAttackCooldown(delta); 
         });
         this.enemies.forEach(e => {
             e.updateDepth();
-            e.updateAttackCooldown(delta); // [신규] 쿨다운 업데이트
+            e.updateAttackCooldown(delta); 
         });
 
         // AI 업데이트

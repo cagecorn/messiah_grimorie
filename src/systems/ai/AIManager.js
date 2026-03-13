@@ -18,11 +18,11 @@ class AIManager {
             [ENTITY_CLASSES.WARRIOR]: MeleeAI, // 클래스명(소문자)에 따른 AI 노드 맵핑
             [ENTITY_CLASSES.ARCHER]: RangedAI
         };
-        
+
         // [신규] AI 성능 및 안정성 필드
         this.thinkInterval = 200; // 0.2초마다 사고함 (60fps 기준 효율적)
         this.thinkCooldowns = new Map(); // EntityID -> cooldown
-        
+
         Logger.system("AIManager: Initialized with Optimized Thinking (200ms).");
     }
 
@@ -40,7 +40,7 @@ class AIManager {
             if (!entity.logic.isAlive) return;
 
             const entityId = entity.logic.id;
-            
+
             // 1. 블랙보드 초기화 (없을 경우)
             blackboardManager.initForEntity(entityId);
             const bb = blackboardManager.get(entityId, 'ai');
@@ -54,13 +54,20 @@ class AIManager {
                 const opponents = (entity.team === 'mercenary') ? enemies : allies;
                 const currentTarget = bb.get('target');
                 const newTarget = this.findNearestTargetWithHysteresis(entity, currentTarget, opponents);
-                
-                bb.set('target', newTarget);
-                
+
+                if (newTarget) {
+                    bb.set('target', newTarget);
+                } else {
+                    bb.set('target', null);
+                    if (entity.team === 'mercenary' && enemies.length > 0) {
+                        Logger.info("AI", `${entity.logic.name} found no ALIVE targets among ${enemies.length} enemies.`);
+                    }
+                }
+
                 // 쿨다운 리셋
                 cooldown = this.thinkInterval + Math.random() * 50; // 미세한 랜덤화로 작업 분산
             }
-            
+
             this.thinkCooldowns.set(entityId, cooldown);
 
             // 3. 클래스별 AI 노드 실행 (매 프레임 실행하여 이동은 부드럽게 유지)
@@ -84,7 +91,7 @@ class AIManager {
     findNearestTargetWithHysteresis(entity, currentTarget, opponents) {
         let nearest = null;
         let minDist = Infinity;
-        
+
         // 현재 타겟의 거리 계산 (있을 경우)
         let currentDist = Infinity;
         if (currentTarget && currentTarget.logic.isAlive && currentTarget.active) {

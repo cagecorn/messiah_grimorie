@@ -1,4 +1,5 @@
 import Logger from '../../utils/Logger.js';
+import ThreadsOfFateProjectile from '../../entities/projectiles/skills/ThreadsOfFateProjectile.js';
 
 /**
  * 투사체 매니저 (Projectile Manager)
@@ -23,7 +24,9 @@ class ProjectileManager {
         this.pools.clear();
         this.activeProjectiles.clear();
         
-        // [Routing] 초기 레지스트리는 지우지 않음 (정적 등록 가능)
+        // [Routing]
+        this.registerProjectile('threads_of_fate_projectile', ThreadsOfFateProjectile);
+
         Logger.system("ProjectileManager: Initialized for scene.");
     }
 

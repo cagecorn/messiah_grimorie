@@ -1,0 +1,49 @@
+/* ==========================================
+   🏰 [UI] Dungeon Dropdown
+   ========================================== */
+
+.hud-dungeon-dropdown {
+    background: rgba(15, 5, 5, 0.95);
+    border: 2px solid #5a3a1a;
+    border-radius: 8px;
+    padding: 10px;
+    min-width: 250px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(139, 69, 19, 0.3);
+    pointer-events: auto; /* 중요: 클릭 가능해야 함 */
+}
+
+.dungeon-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 5px;
+    background: rgba(40, 20, 10, 0.4);
+    border: 1px solid rgba(139, 69, 19, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dungeon-item:hover {
+    background: rgba(139, 69, 19, 0.4);
+    border-color: #ffd700;
+    transform: translateX(5px);
+}
+
+.dungeon-rank-badge {
+    background: #004d40;
+    color: #4db6ac;
+    border: 1px solid #00796b;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-right: 15px;
+    text-shadow: 0 0 5px rgba(77, 182, 172, 0.5);
+}
+
+.dungeon-name {
+    color: #e0e0e0;
+    font-weight: 500;
+    font-size: 0.95rem;
+}

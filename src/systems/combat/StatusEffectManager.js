@@ -13,7 +13,8 @@ class StatusEffectManager {
             burned: false,
             silenced: false,
             airborne: false,
-            knockback: false
+            knockback: false,
+            invincible: false
         };
         this.timers = {};
     }
@@ -24,11 +25,12 @@ class StatusEffectManager {
             if (this.timers[type]) clearTimeout(this.timers[type]);
 
             this.states[type] = true;
-            Logger.info("COMBAT", `${this.owner.logic.name} is now ${type}!`);
+            const targetName = this.owner.logic ? this.owner.logic.name : this.owner.name;
+            Logger.info("COMBAT", `${targetName} is now ${type}!`);
 
             this.timers[type] = setTimeout(() => {
                 this.states[type] = false;
-                Logger.info("COMBAT", `${this.owner.logic.name} recovered from ${type}.`);
+                Logger.info("COMBAT", `${targetName} recovered from ${type}.`);
             }, duration);
         }
     }
@@ -47,7 +49,14 @@ class StatusEffectManager {
     }
 
     isUnableToAct() {
-        return this.states.stunned || this.states.frozen || this.states.airborne || this.states.knockback;
+        return this.states.stunned || this.states.frozen || this.states.airborne || this.states.knockback || this.states.invincible;
+    }
+
+    /**
+     * 현재 활성화된 상태 이상의 ID 목록을 반환합니다.
+     */
+    getActiveEffectIds() {
+        return Object.keys(this.states).filter(key => this.states[key] === true);
     }
 }
 

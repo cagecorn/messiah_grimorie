@@ -8,10 +8,16 @@ export default class EntityMovementComponent {
     constructor(entity, measurementManager) {
         this.entity = entity;
         this.body = entity.body;
-        this.sprite = entity.sprite;
         this.measurementManager = measurementManager;
         this.zHeight = 0;
+        this.syncLogic();
     }
+
+    syncLogic() {
+        this.logic = this.entity.logic;
+    }
+
+    get sprite() { return this.entity.sprite; }
 
     /**
      * 속도 설정 및 스프라이트 방향 제어
@@ -27,11 +33,11 @@ export default class EntityMovementComponent {
 
         this.body.setVelocity(vx, vy);
 
-        // 방향 제어
-        if (vx > 0) {
-            this.sprite.setFlipX(true);
-        } else if (vx < 0) {
-            this.sprite.setFlipX(false);
+        // 방향 제어 (물리적 이동 방향에 따름)
+        if (vx > 5) {
+            this.entity.visual.setFlipX(true);
+        } else if (vx < -5) {
+            this.entity.visual.setFlipX(false);
         }
     }
 
@@ -49,7 +55,9 @@ export default class EntityMovementComponent {
      */
     setHeight(h) {
         this.zHeight = h;
-        this.sprite.setY(-h);
+        if (this.sprite) {
+            this.sprite.setY(-h);
+        }
     }
 
     /**

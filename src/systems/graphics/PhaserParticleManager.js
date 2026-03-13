@@ -19,10 +19,28 @@ class PhaserParticleManager {
         graphics.fillCircle(4, 4, 4);
         graphics.generateTexture('particle_blood', 8, 8);
         
+        // [텍스처] 글로우(Glow) 효과용 부드러운 원형 파티클 (강력한 발산형으로 개선)
+        const glowGraphics = scene.make.graphics({ x: 0, y: 0, add: false });
+        for (let i = 16; i > 0; i--) {
+            // 안쪽으로 갈수록 급격하게 불투명하게 (Punchy Center)
+            const alpha = Math.pow((17 - i) / 16, 4) * 0.9;
+            glowGraphics.fillStyle(0xffffff, alpha);
+            glowGraphics.fillCircle(16, 16, i);
+        }
+        glowGraphics.generateTexture('particle_glow', 32, 32);
+        
+        // [신규] 끈(Thread) 형태용 고밀도 파티클: 코어는 단단하고 외곽은 얇은 광채
+        const threadGraphics = scene.make.graphics({ x: 0, y: 0, add: false });
+        threadGraphics.fillStyle(0xffffff, 1);
+        threadGraphics.fillCircle(8, 8, 4); // 뚜렷한 실의 심심
+        threadGraphics.fillStyle(0xffffff, 0.4);
+        threadGraphics.fillCircle(8, 8, 10); // 얇은 광배
+        threadGraphics.generateTexture('particle_thread', 16, 16);
+
         this.createBloodPool();
         this.createDustPool();
         this.createSoulPool();
-        Logger.system("PhaserParticleManager: Particle systems initialized.");
+        Logger.system("PhaserParticleManager: Particle systems initialized with Glow texture.");
     }
 
     /**

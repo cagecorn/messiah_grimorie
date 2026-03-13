@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import Logger from '../../utils/Logger.js';
 import poolingManager from '../../core/PoolingManager.js';
 import phaserParticleManager from './PhaserParticleManager.js';
+import ghostManager from './GhostManager.js';
 
 // ==========================================
 // 💥 [구역 1] 피격 이펙트 풀링 (PooledHitEffect)
@@ -99,14 +100,14 @@ class AnimationManager {
 
     init(scene) {
         this.scene = scene;
-        
+
         // [신규] 피격 이펙트 풀 등록 (초기 50개로 상향 - 대규모 전투 대비)
         poolingManager.registerPool('impact_effect', () => new PooledHitEffect(this.scene), 50);
-        
+
         // [USER 요청] 차지 어택 및 궁극기 기둥 효과 풀링
         poolingManager.registerPool('charge_attack_fx', () => new PooledSkillEffect(this.scene, 'charge_attack'), 5);
         poolingManager.registerPool('for_messiah_pillar', () => new PooledSkillEffect(this.scene, 'for_messiah'), 3);
-        
+
         Logger.system("AnimationManager: Tactics-style animation system ready.");
     }
 
@@ -133,7 +134,7 @@ class AnimationManager {
             if (effect1) {
                 effect1.show(target, 'impact_phys_1');
             }
-            
+
             // 약간의 딜레이와 함께 두 번째 이펙트 오버랩
             this.scene.time.delayedCall(50, () => {
                 const effect2 = poolingManager.get('impact_effect');
@@ -170,20 +171,20 @@ class AnimationManager {
         // [USER 요청] 풀링된 궤적 이미지 사용
         const pooledFx = poolingManager.get('charge_attack_fx');
         const trajectory = pooledFx.sprite;
-        
+
         trajectory.setPosition(entity.x, entity.y);
         trajectory.setOrigin(0, 0.5); // 시작점 기준
         trajectory.setRotation(angle);
         trajectory.setAlpha(1.0); // 초기 알파값 강화
         trajectory.setBlendMode(Phaser.BlendModes.ADD); // [신규] 빛 효과 추가
         trajectory.setDepth(entity.depth - 1); // 유닛 밑에
-        
+
         // [신규] 가로 길이만 압축 (Horizontal Distortion)
-        trajectory.setDisplaySize(dist, 320); 
+        trajectory.setDisplaySize(dist, 320);
 
         // [신규] 유닛 스트레칭 (속도감 강조)
         const originalScaleX = entity.sprite.scaleX;
-        entity.sprite.scaleX = originalScaleX * 1.5; 
+        entity.sprite.scaleX = originalScaleX * 1.5;
 
         // 2. 잔상 생성 (Ghosting) + 먼지 트레일
         const ghostTimer = this.scene.time.addEvent({
@@ -191,18 +192,12 @@ class AnimationManager {
             repeat: Math.floor(dist / 25),
             callback: () => {
                 if (!entity.active || !entity.sprite) return;
-                
-                // 잔상 생성
-                const ghost = this.scene.add.sprite(entity.x + entity.sprite.x, entity.y + entity.sprite.y, entity.sprite.texture.key);
-                ghost.setFlipX(entity.sprite.flipX);
-                ghost.setScale(entity.sprite.scaleX, entity.sprite.scaleY);
-                ghost.setAlpha(0.6);
-                ghost.setTint(0x00ffff);
-                this.scene.tweens.add({
-                    targets: ghost,
-                    alpha: 0,
-                    duration: 300,
-                    onComplete: () => ghost.destroy()
+
+                // [신규] GhostManager 연동 잔상 생성
+                ghostManager.spawnGhost(entity, {
+                    lifeTime: 300,
+                    tint: 0x00ffff,
+                    alpha: 0.6
                 });
 
                 // 먼지 트레일 (바닥에 먼지가 일어나는 연출)
@@ -256,25 +251,14 @@ class AnimationManager {
         const dashY = dy * 0.4;
 
         // [신규] 고퀄리티 모션 블러 (Ghosting / Afterimage)
-        // 대쉬 중에 일정 간격으로 유닛의 잔상을 남깁니다.
+        // 대쉬 중에 일정 간격으로 유닛의 잔상을 남깁니다. (GhostManager 연동)
         const spawnGhost = () => {
             if (!entity.active || !entity.sprite) return;
 
-            // 현재 스프라이트 상태 복제
-            const ghost = this.scene.add.sprite(entity.x + entity.sprite.x, entity.y + entity.sprite.y, entity.sprite.texture.key);
-            ghost.setFlipX(entity.sprite.flipX);
-            ghost.setScale(entity.sprite.scaleX, entity.sprite.scaleY);
-            ghost.setOrigin(entity.sprite.originX, entity.sprite.originY);
-            ghost.setAlpha(0.4);
-            ghost.setDepth(entity.depth - 0.01); // 유닛보다 살짝 뒤에
-
-            // 잔상 소멸 애니메이션
-            this.scene.tweens.add({
-                targets: ghost,
-                alpha: 0,
-                duration: 200,
-                ease: 'Power1',
-                onComplete: () => ghost.destroy()
+            ghostManager.spawnGhost(entity, {
+                lifeTime: 200,
+                tint: 0x00ffff,
+                alpha: 0.4
             });
         };
 
@@ -308,48 +292,121 @@ class AnimationManager {
         });
     }
 
-    /**
-     * 유닛 사망 애니메이션 (Death Animation)
-     * [충격 -> 쓰러짐 -> 소멸] 과정을 단계별 트윈으로 연출
-     */
     playDeathAnimation(entity, onComplete) {
-        if (!this.scene || !entity || !entity.sprite) return;
+        if (!this.scene || !entity || !entity.sprite) {
+            if (onComplete) onComplete();
+            return;
+        }
 
-        // 1. 충격 페이즈: 하얗게 번쩍임
-        entity.sprite.setTint(0xffffff);
+        const sprite = entity.sprite;
+
+        // [USER 요청] 택티컬 콜랩스 프리미엄 연출 복구
+        this.stopIdleBobbing(entity);
+        this.scene.tweens.killTweensOf(sprite);
+
+        // [신규] 물리 엔진 즉시 비활성화 (죽는 도중 피격/간섭 방지)
+        if (entity.body) {
+            entity.body.setEnable(false);
+        }
+
+        // 1. 충격 페이즈: 하얗게 번쩍임 + 카메라 흔들림
+        sprite.setTint(0xffffff);
         this.scene.cameras.main.shake(150, 0.005);
 
-        // 2. 쓰러짐 & 가라앉음 페이즈
-        // 방향에 따라 쓰러지는 각도 조절
-        const fallAngle = entity.sprite.flipX ? -90 : 90;
+        // 2. 쓰러짐 & 바운스 페이즈
+        const fallAngle = sprite.flipX ? -90 : 90;
 
+        // [USER 요청] 1단계: 쓰러지면서 지면에 충돌
         this.scene.tweens.add({
-            targets: entity.sprite,
+            targets: sprite,
             angle: fallAngle,
-            y: 40, // 바닥으로 가라앉는 느낌
-            duration: 600,
+            y: -10, // 쓰러질 때 머리가 들리는 느낌을 위해 아주 살짝 위로 (Origin 보정)
+            duration: 300,
             ease: 'Cubic.in',
-            delay: 100, // 충격 직후 잠시 멈춤
             onStart: () => {
-                // 서서히 어둡게 (시체 느낌)
-                entity.sprite.setTint(0x444444);
+                sprite.setTint(0x666666); // 살짝 어둡게
             },
             onComplete: () => {
-                // 3. 소멸 & 영혼 승천 페이즈
-                if (phaserParticleManager.spawnSoul) {
-                    phaserParticleManager.spawnSoul(entity.x, entity.y - 20);
-                }
-
+                // 2단계: 지면 반동 (Bounce)
                 this.scene.tweens.add({
-                    targets: entity,
-                    alpha: 0,
-                    duration: 1000,
+                    targets: sprite,
+                    y: -25, // 한 번 튕겨져 나감
+                    duration: 200,
+                    ease: 'Cubic.out',
+                    yoyo: true, // 다시 바닥으로
                     onComplete: () => {
-                        if (onComplete) onComplete();
+                        // 3단계: 최종 안착 및 소멸
+                        if (phaserParticleManager.spawnSoul) {
+                            const baseY = entity.y - (entity.zHeight || 0);
+                            phaserParticleManager.spawnSoul(entity.x, baseY - 20);
+                        }
+
+                        this.scene.tweens.add({
+                            targets: entity,
+                            alpha: 0,
+                            duration: 800,
+                            delay: 200, // 잠시 안착된 모습을 보여줌
+                            onComplete: () => {
+                                // 초기화 후 콜백 호출
+                                sprite.setTint(0xffffff);
+                                sprite.setAngle(0);
+                                sprite.setY(0);
+                                entity.alpha = 1;
+                                if (onComplete) onComplete();
+                            }
+                        });
                     }
                 });
             }
         });
+    }
+
+    /**
+     * [신규] 유닛 아이들 바빙 애니메이션 (Idle Bobbing)
+     * 역할: [가만히 있을 때 위아래로 둥둥 떠있는 효과]
+     * @param {CombatEntity} entity 
+     * @param {string} className 클래스명에 따른 커스텀 바빙 적용
+     */
+    playIdleBobbing(entity, className) {
+        if (!this.scene || !entity || !entity.sprite || entity.idleBobbingTween) return;
+
+        // [USER 요청] 둘의 바빙이 다른 이유: 클래스별 속도 차이가 너무 컸음.
+        // 프리셋을 더 좁은 범위로 조정하여 통일성 부여
+        let amplitude = -4;      // 발이 땅에서 너무 떨어지지 않게 고정
+        let baseDuration = 1000;
+
+        if (className === 'warrior') {
+            baseDuration = 1100; // 아주 미세하게 느림
+        } else if (className === 'archer') {
+            baseDuration = 900;  // 아주 미세하게 빠름
+        }
+
+        entity.idleBobbingTween = this.scene.tweens.add({
+            targets: entity.sprite,
+            y: amplitude,
+            duration: baseDuration, // 랜덤성 제거 (통일감 강조)
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+    }
+
+    /**
+     * [신규] 아이들 바빙 애니메이션 중지
+     */
+    stopIdleBobbing(entity) {
+        if (entity.idleBobbingTween) {
+            entity.idleBobbingTween.stop();
+            entity.idleBobbingTween = null;
+
+            // 스프라이트 위치 원복
+            this.scene.tweens.add({
+                targets: entity.sprite,
+                y: 0,
+                duration: 200,
+                ease: 'Cubic.out'
+            });
+        }
     }
 }
 

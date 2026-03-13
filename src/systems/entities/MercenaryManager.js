@@ -41,6 +41,7 @@ class MercenaryManager {
         return new BaseEntity({
             ...baseData,
             ...customConfig,
+            baseId: mercId.toLowerCase(),
             id: uniqueId,
             type: 'mercenary'
         });

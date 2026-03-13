@@ -35,7 +35,7 @@ class CombatManager {
      */
     fireProjectile(type, attacker, target, multiplier = 1.0) {
         if (type === 'arrow') {
-            projectileManager.fire('arrow', ArrowProjectile, attacker, target, {
+            projectileManager.fire('arrow', attacker, target, {
                 damageMultiplier: multiplier
             });
         }

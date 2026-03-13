@@ -4,6 +4,9 @@ import projectileManager from '../../../systems/combat/ProjectileManager.js';
 import combatManager from '../../../systems/CombatManager.js';
 import instanceIDManager from '../../../utils/InstanceIDManager.js';
 import Knockback from '../../../systems/combat/effects/Knockback.js';
+import trailManager from '../../../systems/graphics/TrailManager.js';
+import ghostManager from '../../../systems/graphics/GhostManager.js';
+import layerManager from '../../../ui/LayerManager.js';
 
 /**
  * 넉백 샷 투사체 (Knockback Shot Projectile)
@@ -12,12 +15,12 @@ import Knockback from '../../../systems/combat/effects/Knockback.js';
 export default class KnockbackShotProjectile extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y) {
         super(scene, x, y, 'knockback_shot_projectile');
-        
+
         this.owner = null;
         this.damageMultiplier = 1.5;
         this.speed = 800;
         this.hitTargets = new Set(); // 관통형이므로 중복 타격 방지
-        
+
         this.setOrigin(0.5, 0.5);
         this.id = "";
     }
@@ -27,7 +30,7 @@ export default class KnockbackShotProjectile extends Phaser.GameObjects.Sprite {
         this.damageMultiplier = config.damageMultiplier || 1.5;
         this.speed = config.speed || 800;
         this.hitTargets.clear();
-        
+
         this.id = instanceIDManager.generate(`proj_knockback_${owner.id}`);
 
         // 타겟 방향으로 발사 (타겟의 현재 위치 기준 방향 벡터)
@@ -36,10 +39,15 @@ export default class KnockbackShotProjectile extends Phaser.GameObjects.Sprite {
 
         this.setX(owner.x);
         this.setY(owner.y - 40);
-        
+
         this.setActive(true);
         this.setVisible(true);
-        this.setScale(0.5); // [USER 요청] 화살 크기 절반으로 축소
+        this.setScale(0.3); // [USER 요청] 화살 크기 30%로 조정
+        layerManager.assignToLayer(this, 'entities');
+
+        // [중요] 궤적 매니저 연동
+        this.trail = trailManager.createKnockbackTrail(this);
+        this.ghostTimer = 0; // [신규] 잔상 생성 타이머
 
         // 방향에 따른 플립 (이미지가 왼쪽을 보고 있다고 가정)
         if (Math.abs(angle) < Math.PI / 2) {
@@ -60,8 +68,29 @@ export default class KnockbackShotProjectile extends Phaser.GameObjects.Sprite {
         Logger.info("PROJECTILE", `Knockback Shot fired: ${this.id}`);
     }
 
-    update() {
+    update(time, delta) {
         if (!this.active) return;
+
+        // [USER 요청] 가속도 적용 (초기 속도에서 점점 빨라짐)
+        // 1초마다 속도가 약 400px/s 증가하도록 설정
+        const acceleration = 400;
+        this.speed += acceleration * (delta / 1000);
+
+        // 새로운 속도로 물리 바디 속도 갱신
+        if (this.body && this.body.enable) {
+            this.scene.physics.velocityFromRotation(this.rotation, this.speed, this.body.velocity);
+        }
+
+        // [USER 요청] 잔상 이펙트 추가 (GhostManager 연동)
+        this.ghostTimer += delta;
+        if (this.ghostTimer > 40) { // 40ms 마다 잔상 하나 생성
+            ghostManager.spawnGhost(this, {
+                lifeTime: 200,
+                tint: 0xff3333,
+                alpha: 0.5
+            });
+            this.ghostTimer = 0;
+        }
 
         // 화면 밖으로 나가면 제거
         const world = this.scene.physics.world.bounds;
@@ -74,7 +103,7 @@ export default class KnockbackShotProjectile extends Phaser.GameObjects.Sprite {
         const enemies = this.scene.enemies;
         enemies.forEach(enemy => {
             if (this.hitTargets.has(enemy.id)) return;
-            
+
             // 거리 기반 충돌 (물리 바디를 써도 되지만 간단하게 거리로 처리)
             const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y - 40);
             if (dist < 50) {
@@ -85,9 +114,9 @@ export default class KnockbackShotProjectile extends Phaser.GameObjects.Sprite {
 
     hit(target) {
         if (!target || !target.logic.isAlive) return;
-        
+
         this.hitTargets.add(target.id);
-        
+
         // 1. 데미지 적용
         combatManager.processDamage(this.owner, target, {
             multiplier: this.damageMultiplier,
@@ -102,6 +131,13 @@ export default class KnockbackShotProjectile extends Phaser.GameObjects.Sprite {
 
     destroyProjectile() {
         if (this.body) this.body.setEnable(false);
+
+        // [신규] 궤적 중지
+        if (this.trail) {
+            trailManager.stopTrail(this.trail);
+            this.trail = null;
+        }
+
         projectileManager.release(this);
     }
 }

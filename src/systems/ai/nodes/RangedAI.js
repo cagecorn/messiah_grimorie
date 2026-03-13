@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import KnockbackShotAI from './KnockbackShotAI.js';
+import ThreadsOfFateAI from './ThreadsOfFateAI.js';
 
 /**
  * 원거리 AI 노드 (Ranged AI Node)
@@ -20,6 +21,13 @@ class RangedAI {
         const allies = entity.scene.allies;
         const enemies = (entity.team === 'mercenary') ? entity.scene.enemies : entity.scene.allies;
         
+        // [신규] 궁극기 사용 시도 (우선순위 1)
+        if (ThreadsOfFateAI.update(entity, enemies)) {
+            entity.moveDirection = { x: 0, y: 0 };
+            return;
+        }
+
+        // [기본] 스킬 사용 시도 (넉백 샷)
         if (KnockbackShotAI.tick(entity, allies, enemies)) {
             entity.moveDirection = { x: 0, y: 0 };
             return;
