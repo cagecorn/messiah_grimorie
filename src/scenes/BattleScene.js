@@ -14,6 +14,7 @@ import fxManager from '../systems/graphics/FXManager.js';
 import animationManager from '../systems/graphics/AnimationManager.js';
 import phaserParticleManager from '../systems/graphics/PhaserParticleManager.js';
 import soundManager from '../systems/SoundManager.js';
+import ultimateCutsceneManager from '../ui/UltimateCutsceneManager.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -82,8 +83,8 @@ export default class BattleScene extends Phaser.Scene {
 
         // 배경 이미지 출력
         if (this.bgKey) {
-            backgroundManager.setBackground(this, this.bgKey, { 
-                fixedScale: world.bgScale 
+            backgroundManager.setBackground(this, this.bgKey, {
+                fixedScale: world.bgScale
             });
         }
 
@@ -107,7 +108,7 @@ export default class BattleScene extends Phaser.Scene {
             // 스폰 매니저
             const spawnModule = await import('../systems/combat/SpawnManager.js');
             this.spawnManager = spawnModule.default;
-            
+
             // 이동 매니저
             const moveModule = await import('../systems/combat/MovementManager.js');
             this.movementManager = moveModule.default;
@@ -120,7 +121,7 @@ export default class BattleScene extends Phaser.Scene {
 
             // 초기 유닛 스폰 실행
             this.spawnInitialUnits();
-            
+
         } catch (err) {
             Logger.error("BATTLE_INIT", `Failed to load managers: ${err.message}`);
         }
@@ -134,6 +135,7 @@ export default class BattleScene extends Phaser.Scene {
         animationManager.init(this);
         phaserParticleManager.init(this);
         soundManager.init(this);
+        ultimateCutsceneManager.init();
 
         // [전투] 스폰 매니저를 통한 초기 배치
         this.spawnManager = spawnManager;
@@ -165,7 +167,7 @@ export default class BattleScene extends Phaser.Scene {
             e.updateDepth();
             e.updateAttackCooldown(delta); // [신규] 쿨다운 업데이트
         });
-    
+
         // AI 업데이트
         if (this.aiManager) {
             this.aiManager.update(this.allies, this.enemies, delta);

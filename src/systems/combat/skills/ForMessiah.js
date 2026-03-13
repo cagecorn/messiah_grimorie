@@ -3,6 +3,7 @@ import Logger from '../../../utils/Logger.js';
 import aoeManager from '../AOEManager.js';
 import Airborne from '../effects/Airborne.js';
 import phaserParticleManager from '../../graphics/PhaserParticleManager.js';
+import ultimateCutsceneManager from '../../../ui/UltimateCutsceneManager.js';
 
 /**
  * 아렌 궁극기: 메시아를 위하여! (For Messiah!)
@@ -18,6 +19,9 @@ class ForMessiah {
         if (!owner || !targetPos) return;
 
         Logger.info("ULTIMATE", `[Aren] For Messiah!`);
+
+        // [신규] 궁극기 컷씬 출력
+        ultimateCutsceneManager.show('aren', 'For Messiah!');
 
         // [Robust Fix] 시전 전 기존 연출 트윈 제거 및 상태 초기화
         const scene = owner.scene;

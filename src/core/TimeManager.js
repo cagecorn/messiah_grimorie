@@ -12,7 +12,7 @@ class TimeManager {
     constructor() {
         this.isPaused = false;
         this.timeScale = 1.0; // 배속 기능을 위한 예비 필드
-        
+
         Logger.system("TimeManager: Initialized.");
     }
 
@@ -22,10 +22,10 @@ class TimeManager {
      */
     pause(reason = "General") {
         if (this.isPaused) return;
-        
+
         this.isPaused = true;
         Logger.info("TIME_SYSTEM", `Game PAUSED. Reason: ${reason}`);
-        
+
         // 전역 이벤트 발행하여 AI 및 물리 엔진 등이 멈추도록 유도
         EventBus.emit('GAME_PAUSE', { reason });
     }
@@ -35,10 +35,10 @@ class TimeManager {
      */
     resume() {
         if (!this.isPaused) return;
-        
+
         this.isPaused = false;
         Logger.info("TIME_SYSTEM", "Game RESUMED.");
-        
+
         EventBus.emit('GAME_RESUME');
     }
 

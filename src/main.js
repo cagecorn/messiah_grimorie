@@ -1,3 +1,4 @@
+import './styles/cutscene.css';
 import Phaser from 'phaser';
 
 // Styles Modularization
