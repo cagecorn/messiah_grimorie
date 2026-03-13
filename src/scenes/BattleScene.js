@@ -76,6 +76,7 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('light_projectile', assetPathManager.getPath('images', 'light_projectile'));
         this.load.image('wizard_projectile', assetPathManager.getPath('images', 'wizard_projectile'));
         this.load.image('meteor_sprite', assetPathManager.getPath('images', 'meteor_sprite'));
+        this.load.image('explosion_effect', assetPathManager.getPath('images', 'explosion_effect'));
 
         // [신규] 상태 이상 아이콘 프리로드
         this.load.image('/assets/icon/knockback_icon.png', '/assets/icon/knockback_icon.png');

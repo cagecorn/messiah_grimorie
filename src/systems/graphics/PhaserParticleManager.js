@@ -196,6 +196,7 @@ class PhaserParticleManager {
             emitting: false
         });
 
+        emitter.setDepth(this.scene.sys.game.layerManager ? this.scene.sys.game.layerManager.getDepth('fx') : 800);
         this.emitters.set('explosion', emitter);
     }
 
@@ -217,6 +218,7 @@ class PhaserParticleManager {
             emitting: false
         });
 
+        emitter.setDepth(this.scene.sys.game.layerManager ? this.scene.sys.game.layerManager.getDepth('fx') : 800);
         this.emitters.set('red_magic', emitter);
     }
 

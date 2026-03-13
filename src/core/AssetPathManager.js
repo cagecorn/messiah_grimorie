@@ -22,7 +22,8 @@ class AssetPathManager {
             summon_guardian_angel_effect: `${this.basePath}effect/summon_guardian_angel_effect.png`,
             light_projectile: `${this.basePath}effect/light_projectile.png`,
             wizard_projectile: `${this.basePath}effect/wizard_projectile_effect.png`,
-            meteor_sprite: `${this.basePath}effect/meteor_sprite.png`
+            meteor_sprite: `${this.basePath}effect/meteor_sprite.png`,
+            explosion_effect: `${this.basePath}effect/explosion_effect.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)

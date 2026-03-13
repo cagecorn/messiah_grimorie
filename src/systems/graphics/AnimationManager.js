@@ -10,6 +10,7 @@ import PooledSkillEffect from './effects/PooledSkillEffect.js';
 import PooledHealingEffect from './effects/PooledHealingEffect.js';
 import PooledMassHealCircle from './effects/PooledMassHealCircle.js';
 import PooledSummonEffect from './effects/PooledSummonEffect.js';
+import PooledExplosion from './effects/PooledExplosion.js';
 
 /**
  * 애니메이션 매니저 (Animation Manager)
@@ -37,6 +38,7 @@ class AnimationManager {
         poolingManager.registerPool('healing_effect', () => new PooledHealingEffect(this.scene), 60);
         poolingManager.registerPool('mass_heal_circle', () => new PooledMassHealCircle(this.scene), 20);
         poolingManager.registerPool('summon_guardian_angel_fx', () => new PooledSummonEffect(this.scene), 30);
+        poolingManager.registerPool('explosion_fx', () => new PooledExplosion(this.scene), 20);
 
         Logger.system("AnimationManager: Tactics-style animation system ready.");
     }
@@ -123,6 +125,19 @@ class AnimationManager {
                     fx.show(target.x, target.y + verticalOffset, { scale: 4.5, alpha: 0.8, duration: 1000, tint: tint });
                 }
             });
+        }
+    }
+
+    /**
+     * 거대 폭발 이펙트 재생 (메테오 등)
+     * [USER 요청] 여러 장을 겹쳐서 ADD 모드로 크게 연출
+     */
+    playExplosion(x, y, scale = 1.0) {
+        if (!this.scene) return;
+
+        const fx = poolingManager.get('explosion_fx');
+        if (fx) {
+            fx.show(x, y, { scale: scale });
         }
     }
     //#endregion
