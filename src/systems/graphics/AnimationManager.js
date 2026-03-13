@@ -38,18 +38,49 @@ class PooledHitEffect {
             duration: 250,
             ease: 'Back.out',
             onComplete: () => {
-                this.onRelease();
+                poolingManager.release('impact_effect', this);
             }
         });
     }
 
     onAcquire() {
-        // 획득 시 특별한 처리 없음
+        this.sprite.setVisible(true);
+        this.sprite.setAlpha(0.8);
+        this.sprite.setScale(0);
     }
 
     onRelease() {
         this.sprite.setVisible(false);
-        if (this.tween) this.tween.stop();
+        if (this.tween) {
+            this.tween.stop();
+            this.tween = null;
+        }
+    }
+}
+
+// ==========================================
+// ✨ [구역 2] 스킬 이펙트 풀링 (PooledSkillEffect)
+// ==========================================
+class PooledSkillEffect {
+    constructor(scene, textureKey) {
+        this.scene = scene;
+        this.sprite = scene.add.image(0, 0, textureKey);
+        this.sprite.setVisible(false);
+        this.tween = null;
+    }
+
+    onAcquire() {
+        this.sprite.setVisible(true);
+        this.sprite.setAlpha(1);
+        this.sprite.setScale(1);
+    }
+
+    onRelease() {
+        this.sprite.setVisible(false);
+        if (this.tween) {
+            this.scene.tweens.killTweensOf(this.sprite);
+            this.tween = null;
+        }
     }
 }
 
@@ -69,8 +100,12 @@ class AnimationManager {
     init(scene) {
         this.scene = scene;
         
-        // [신규] 피격 이펙트 풀 등록 (초기 20개 확보)
-        poolingManager.registerPool('impact_effect', () => new PooledHitEffect(this.scene), 20);
+        // [신규] 피격 이펙트 풀 등록 (초기 50개로 상향 - 대규모 전투 대비)
+        poolingManager.registerPool('impact_effect', () => new PooledHitEffect(this.scene), 50);
+        
+        // [USER 요청] 차지 어택 및 궁극기 기둥 효과 풀링
+        poolingManager.registerPool('charge_attack_fx', () => new PooledSkillEffect(this.scene, 'charge_attack'), 5);
+        poolingManager.registerPool('for_messiah_pillar', () => new PooledSkillEffect(this.scene, 'for_messiah'), 3);
         
         Logger.system("AnimationManager: Tactics-style animation system ready.");
     }
@@ -97,7 +132,6 @@ class AnimationManager {
             const effect1 = poolingManager.get('impact_effect');
             if (effect1) {
                 effect1.show(target, 'impact_phys_1');
-                this.scene.time.delayedCall(300, () => poolingManager.release('impact_effect', effect1));
             }
             
             // 약간의 딜레이와 함께 두 번째 이펙트 오버랩
@@ -105,14 +139,12 @@ class AnimationManager {
                 const effect2 = poolingManager.get('impact_effect');
                 if (effect2) {
                     effect2.show(target, 'impact_phys_2');
-                    this.scene.time.delayedCall(300, () => poolingManager.release('impact_effect', effect2));
                 }
             });
         } else {
             const effect = poolingManager.get('impact_effect');
             if (effect) {
                 effect.show(target, key);
-                this.scene.time.delayedCall(300, () => poolingManager.release('impact_effect', effect));
             }
         }
     }
@@ -135,7 +167,11 @@ class AnimationManager {
         const angle = Math.atan2(dy, dx);
         const dist = Phaser.Math.Distance.Between(entity.x, entity.y, targetPos.x, targetPos.y);
 
-        const trajectory = this.scene.add.image(entity.x, entity.y, 'charge_attack');
+        // [USER 요청] 풀링된 궤적 이미지 사용
+        const pooledFx = poolingManager.get('charge_attack_fx');
+        const trajectory = pooledFx.sprite;
+        
+        trajectory.setPosition(entity.x, entity.y);
         trajectory.setOrigin(0, 0.5); // 시작점 기준
         trajectory.setRotation(angle);
         trajectory.setAlpha(1.0); // 초기 알파값 강화
@@ -196,7 +232,7 @@ class AnimationManager {
                     scaleY: 0.5,
                     duration: 400,
                     ease: 'Quad.out',
-                    onComplete: () => trajectory.destroy()
+                    onComplete: () => poolingManager.release('charge_attack_fx', pooledFx)
                 });
 
                 if (onComplete) onComplete();

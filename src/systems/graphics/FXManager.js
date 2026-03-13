@@ -25,6 +25,7 @@ class FXManager {
         // 1. 하위 매니저 초기화
         healthBarManager.init(scene);
         damageTextManager.init(scene);
+        shadowManager.init(scene);
         
         this.isInitialized = true;
         Logger.system("FXManager: Central Command Tower initialized.");

@@ -1,6 +1,29 @@
 import measurementManager from '../../core/MeasurementManager.js';
 import Logger from '../../utils/Logger.js';
 import layerManager from '../../ui/LayerManager.js';
+import poolingManager from '../../core/PoolingManager.js';
+
+/**
+ * 풀링용 그림자 객체 (Pooled Shadow)
+ */
+class PooledShadow {
+    constructor(scene) {
+        this.scene = scene;
+        this.graphics = scene.add.graphics();
+        this.graphics.setVisible(false);
+        this.graphics.setDepth(layerManager.getDepth('shadow'));
+    }
+
+    onAcquire() {
+        this.graphics.setVisible(true);
+        this.graphics.clear();
+    }
+
+    onRelease() {
+        this.graphics.setVisible(false);
+        this.graphics.clear();
+    }
+}
 
 /**
  * 그림자 매니저 (Shadow Manager)
@@ -11,7 +34,18 @@ import layerManager from '../../ui/LayerManager.js';
  */
 class ShadowManager {
     constructor() {
-        this.shadows = new Map(); // EntityID -> ShadowGraphics
+        this.scene = null;
+        this.shadows = new Map(); // EntityID -> PooledShadow
+    }
+
+    /**
+     * 초기화 및 풀 등록
+     */
+    init(scene) {
+        this.scene = scene;
+        // 전투 중 유닛 수에 맞춰 약 50개 정도 초기 확보
+        poolingManager.registerPool('shadow', () => new PooledShadow(this.scene), 50);
+        Logger.system("ShadowManager: Shadow pooling initialized (50 units).");
     }
 
     /**
@@ -22,15 +56,15 @@ class ShadowManager {
     createShadow(scene, entity) {
         const config = measurementManager.graphics.shadow;
         
-        // 타원형 그림자 생성
-        const shadow = scene.add.graphics();
-        this.updateShadowVisuals(shadow, entity, config);
+        // 풀에서 그림자 객체 획득
+        const pooledShadow = poolingManager.get('shadow');
+        const graphics = pooledShadow.graphics;
         
-        // 레이어 매니저를 통한 표준화된 깊이 설정
-        shadow.setDepth(layerManager.getDepth('shadow'));
+        this.updateShadowVisuals(graphics, entity, config);
+        graphics.setDepth(layerManager.getDepth('shadow'));
         
-        this.shadows.set(entity.id, shadow);
-        return shadow;
+        this.shadows.set(entity.id, pooledShadow);
+        return graphics;
     }
 
     /**
@@ -40,14 +74,15 @@ class ShadowManager {
         const config = measurementManager.graphics.shadow;
         
         entities.forEach(entity => {
-            const shadow = this.shadows.get(entity.id);
-            if (!shadow) return;
+            const pooledShadow = this.shadows.get(entity.id);
+            if (!pooledShadow) return;
 
             if (!entity.active) {
-                shadow.destroy();
-                this.shadows.delete(entity.id);
+                this.removeShadow(entity);
                 return;
             }
+
+            const shadow = pooledShadow.graphics;
 
             // 그림자는 항상 지면 좌표(entity.x, entity.y)를 따르되, 
             // 애니메이션 중인 경우 스프라이트의 오프셋을 반영합니다.
@@ -85,10 +120,23 @@ class ShadowManager {
     }
 
     /**
+     * 특정 유닛의 그림자 제거 (풀 반납)
+     */
+    removeShadow(entity) {
+        const pooledShadow = this.shadows.get(entity.id);
+        if (pooledShadow) {
+            poolingManager.release('shadow', pooledShadow);
+            this.shadows.delete(entity.id);
+        }
+    }
+
+    /**
      * 모든 그림자 제거
      */
     cleanup() {
-        this.shadows.forEach(s => s.destroy());
+        this.shadows.forEach((pooledShadow, id) => {
+            poolingManager.release('shadow', pooledShadow);
+        });
         this.shadows.clear();
     }
 }

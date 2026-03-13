@@ -26,7 +26,7 @@ class PhaserParticleManager {
     }
 
     /**
-     * 핏방울 파티클 풀 생성
+     * 핏방울 파티클 풀 생성 (Phaser 내장 풀링 활용)
      */
     createBloodPool() {
         if (!this.scene) return;
@@ -39,7 +39,8 @@ class PhaserParticleManager {
             lifespan: 400,
             blendMode: 'NORMAL',
             gravityY: 400,
-            quantity: 10,
+            quantity: 15, // [상향] 더 많은 핏방울
+            maxParticles: 1000, // [풀링] 최대 입자 수 제한으로 과부하 방지
             emitting: false
         });
 
@@ -61,6 +62,7 @@ class PhaserParticleManager {
             blendMode: 'NORMAL',
             gravityY: 200,
             quantity: 20,
+            maxParticles: 500, // [풀링]
             emitting: false
         });
 
@@ -81,7 +83,8 @@ class PhaserParticleManager {
             alpha: { start: 1.0, end: 0 },
             lifespan: 1500,
             blendMode: 'ADD',
-            quantity: 5,
+            quantity: 10, // [상향]
+            maxParticles: 300, // [풀링]
             emitting: false
         });
 

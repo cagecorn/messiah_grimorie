@@ -29,6 +29,7 @@ class DamageText {
         this.sprite.setVisible(false);
         this.sprite.setDepth(layerManager.getDepth('fx')); // fx 레이어
 
+        this.poolType = 'damage_text';
         this.tween = null;
     }
 
@@ -65,6 +66,7 @@ class DamageText {
         // 2. 초기 위치 설정 및 표시
         this.sprite.setPosition(x, y);
         this.sprite.setAlpha(1);
+        this.sprite.setScale(this.buffer.displayScale); // 스케일 리셋
         this.sprite.setVisible(true);
 
         // [애니메이션]: 위로 솟구치며 사라짐
@@ -72,24 +74,27 @@ class DamageText {
         
         this.tween = this.scene.tweens.add({
             targets: this.sprite,
-            y: y - 50,
+            y: y - 60, // [상향] 조금 더 많이 올라감
             alpha: 0,
             duration: 800,
             ease: 'Cubic.out',
             onComplete: () => {
-                this.onRelease();
+                poolingManager.release(this.poolType, this);
             }
         });
     }
 
     onAcquire() {
-        // poolingManager가 호출
+        this.sprite.setVisible(true);
+        this.sprite.setAlpha(1);
     }
 
     onRelease() {
         this.sprite.setVisible(false);
-        if (this.tween) this.tween.stop();
-        // 실제 release는 매니저가 poolingManager.release 호출
+        if (this.tween) {
+            this.tween.stop();
+            this.tween = null;
+        }
     }
 }
 
@@ -104,10 +109,10 @@ class DamageTextManager {
 
     init(scene) {
         this.scene = scene;
-        // 풀링 등록 (데미지 텍스트는 많이 생성되므로 50개 정도 확보)
-        poolingManager.registerPool('damage_text', () => new DamageText(this.scene), 30);
+        // [USER 요청] 풀링 등록 (데미지 텍스트는 많이 생성되므로 80개 정도로 확장)
+        poolingManager.registerPool('damage_text', () => new DamageText(this.scene), 80);
         
-        Logger.system("DamageTextManager: High-res text pooling initialized.");
+        Logger.system("DamageTextManager: High-res text pooling initialized (80 units).");
     }
 
     /**
@@ -117,6 +122,7 @@ class DamageTextManager {
         if (!this.scene) return;
 
         const text = poolingManager.get('damage_text');
+        if (!text) return;
         
         // 타입별 색상 결정
         let color = '#ffffff';
@@ -130,16 +136,10 @@ class DamageTextManager {
         if (type === 'lightning') color = '#feca57'; // 노란색 번개
 
         // 유닛 머리 위 살짝 랜덤 위치 (겹침 방지)
-        const rx = x + (Math.random() - 0.5) * 30;
+        const rx = x + (Math.random() - 0.5) * 40;
         const ry = y - 80;
 
         text.show(rx, ry, amount, color);
-        
-        // 애니메이션 종료 시 풀에 자동 반납되도록 DamageText 내부에 로직 구성 필요
-        // 또는 반납 타이머 설정 (Phaser 타이머 사용 권장)
-        this.scene.time.delayedCall(1000, () => {
-            poolingManager.release('damage_text', text);
-        });
     }
 }
 

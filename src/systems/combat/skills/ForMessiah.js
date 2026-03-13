@@ -159,8 +159,11 @@ class ForMessiah {
         // 1. 화면 효과
         scene.cameras.main.shake(400, 0.015);
 
-        // 2. [변경] 거대한 빛의 기둥 연출 (Persistence 강화)
-        const pillar = scene.add.image(pos.x, pos.y, 'for_messiah');
+        // 2. [변경] 거대한 빛의 기둥 연출 (Persistence 강화) - 풀링 적용
+        const pooledPillar = poolingManager.get('for_messiah_pillar');
+        const pillar = pooledPillar.sprite;
+        
+        pillar.setPosition(pos.x, pos.y);
         pillar.setOrigin(0.5, 0.9);
         pillar.setBlendMode(Phaser.BlendModes.ADD);
         pillar.setDepth(owner.depth - 1);
@@ -180,7 +183,7 @@ class ForMessiah {
                     scaleX: 1.8, // 더 넓게 퍼짐
                     duration: 1000, // [상향] 1초간 잔상 유지
                     ease: 'Cubic.out',
-                    onComplete: () => pillar.destroy()
+                    onComplete: () => poolingManager.release('for_messiah_pillar', pooledPillar)
                 });
             }
         });

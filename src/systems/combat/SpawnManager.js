@@ -6,6 +6,7 @@ import collectionManager from '../MercenaryCollectionManager.js';
 import assetPathManager from '../../core/AssetPathManager.js';
 import CombatEntity from '../../entities/CombatEntity.js';
 import measurementManager from '../../core/MeasurementManager.js';
+import poolingManager from '../../core/PoolingManager.js';
 
 /**
  * 스폰 매니저 (Spawn Manager)
@@ -15,6 +16,28 @@ import measurementManager from '../../core/MeasurementManager.js';
  * 월드에 물리적으로 배치하는 역할을 담당합니다.
  */
 class SpawnManager {
+    constructor() {
+        this.scene = null;
+    }
+
+    /**
+     * 초기화 및 풀 등록
+     */
+    init(scene) {
+        this.scene = scene;
+
+        // [USER 요청] 고블린 등 자주 쓰이는 몬스터 풀 등록
+        // 초기 10마리 확보 (부족하면 자동 생성됨)
+        poolingManager.registerPool('monster_goblin', () => {
+            // 팩토리 함수에서는 가짜 데이터를 넣어서 생성만 해둠 (실제 초기화는 spawn 시기에 호출)
+            const dummyLogic = monsterManager.spawn('goblin', { level: 1 });
+            const entity = new CombatEntity(scene, 0, 0, dummyLogic, 'enemy_goblin_sprite');
+            entity.poolType = 'monster_goblin';
+            return entity;
+        }, 10);
+
+        Logger.system("SpawnManager: Pooling registered for common monsters.");
+    }
     /**
      * 아군 유닛 스폰 (편성된 유닛들)
      */
@@ -74,9 +97,18 @@ class SpawnManager {
             const x = Math.round(world.width * 0.85 - (index % 2) * 60);
             const y = Math.round(world.height * 0.35 + (index * 120));
 
-            // 3. 물리 엔티티 생성
+            // 3. 물리 엔티티 생성 (풀링 적용)
+            const poolId = `monster_${id.toLowerCase()}`;
             const spriteKey = `enemy_${id}_sprite`;
-            const combatEntity = new CombatEntity(scene, x, y, logicEntity, spriteKey);
+            
+            let combatEntity = poolingManager.get(poolId);
+            
+            if (combatEntity) {
+                combatEntity.init(x, y, logicEntity, spriteKey);
+            } else {
+                // 풀이 없거나 고갈된 경우 새로 생성
+                combatEntity = new CombatEntity(scene, x, y, logicEntity, spriteKey);
+            }
             
             spawnedUnits.push(combatEntity);
         });
