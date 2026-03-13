@@ -1,6 +1,7 @@
 import forMessiah from './skills/ForMessiah.js';
 import threadsOfFate from './skills/ThreadsOfFate.js';
 import summonGuardianAngel from './skills/SummonGuardianAngel.js';
+import meteorStrike from './skills/MeteorStrike.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -47,6 +48,16 @@ class UltimateManager {
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: threadsOfFate
+        });
+
+        // 🔮 [Wizard Class] 멀린 (Merlin)
+        this.ultimates.set('merlin', {
+            id: 'merlin_ult',
+            name: 'Meteor Strike',
+            description: 'Unleashes a devastating rain of 30 meteors.',
+            chargeMax: 100,
+            chargeSpeedBase: 1.0,
+            logic: meteorStrike
         });
 
         // 고블린(몬스터)은 궁극기 없음

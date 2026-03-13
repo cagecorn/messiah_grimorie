@@ -73,6 +73,9 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('mass_heal_effect', assetPathManager.getPath('images', 'mass_heal_effect'));
         this.load.image('guardian_angel_sprite', assetPathManager.getPath('images', 'guardian_angel_sprite'));
         this.load.image('summon_guardian_angel_effect', assetPathManager.getPath('images', 'summon_guardian_angel_effect'));
+        this.load.image('light_projectile', assetPathManager.getPath('images', 'light_projectile'));
+        this.load.image('wizard_projectile', assetPathManager.getPath('images', 'wizard_projectile'));
+        this.load.image('meteor_sprite', assetPathManager.getPath('images', 'meteor_sprite'));
 
         // [신규] 상태 이상 아이콘 프리로드
         this.load.image('/assets/icon/knockback_icon.png', '/assets/icon/knockback_icon.png');
@@ -89,6 +92,8 @@ export default class BattleScene extends Phaser.Scene {
         this.load.audio('hit_phys_3', 'assets/sfx/hitting-3.mp3');
         this.load.audio('unit_fallen', 'assets/sfx/fallen-1.mp3');
         this.load.audio('arrow_1', 'assets/sfx/arrow_1.mp3');
+        this.load.audio('magic_hit_1', 'assets/sfx/magic-hit-1.mp3');
+        this.load.audio('explosive_1', 'assets/sfx/explosive-1.mp3');
         Logger.info("BATTLE_LOADER", "Preloading hitting sound effects and death sfx.");
     }
 

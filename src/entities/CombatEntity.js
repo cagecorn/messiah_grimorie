@@ -181,6 +181,12 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         this.skills.gainUltimateCharge(points, applyMultiplier);
     }
 
+    // [신규] 스킬 및 궁극기 실행 프록시
+    isSkillReady(skillId) { return this.skills.isReady(skillId); }
+    useSkill(skillId, target) { return this.skills.useSkill(skillId, target); }
+    isUltimateReady() { return this.skills.isUltimateReady(); }
+    useUltimate(target) { return this.skills.useUltimate(target); }
+
     preDestroy() {
         if (this.visual) this.visual.cleanup();
         super.preDestroy();

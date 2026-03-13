@@ -19,12 +19,16 @@ class AssetPathManager {
             healing_effect: `${this.basePath}effect/healing_effect.png`,
             mass_heal_effect: `${this.basePath}effect/mass_heal_effect.png`,
             guardian_angel_sprite: `${this.basePath}characters/summon/guadian_angel_sprite.png`,
-            summon_guardian_angel_effect: `${this.basePath}effect/summon_guardian_angel_effect.png`
+            summon_guardian_angel_effect: `${this.basePath}effect/summon_guardian_angel_effect.png`,
+            light_projectile: `${this.basePath}effect/light_projectile.png`,
+            wizard_projectile: `${this.basePath}effect/wizard_projectile_effect.png`,
+            meteor_sprite: `${this.basePath}effect/meteor_sprite.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)
         this.audio = {
             // 예: bgm_focus: `${this.basePath}audio/bgm/focus_lofi.mp3`
+            explosive_1: `${this.basePath}sfx/explosive-1.mp3`
         };
 
         // [구역 3] 애니메이션 및 데이터 (Data/Atlas)

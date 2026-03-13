@@ -5,8 +5,9 @@ export default {
     name: 'Merlin',
     className: ENTITY_CLASSES.WIZARD,
     isSpecial: false,
-    skill: 'SkillFireball',
-    description: '도박사 마법사. 가계부를 잘 씀.',
+    skill: 'Fireball',
+    ultimate: 'MeteorStrike',
+    description: '전설적인 위자드. 가계부보다 마법서가 더 두껍습니다.',
     level: 1,
     exp: 0,
     baseStats: {

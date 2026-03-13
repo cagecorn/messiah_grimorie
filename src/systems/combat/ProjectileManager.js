@@ -1,5 +1,8 @@
 import Logger from '../../utils/Logger.js';
 import ThreadsOfFateProjectile from '../../entities/projectiles/skills/ThreadsOfFateProjectile.js';
+import LightProjectile from '../../entities/projectiles/skills/LightProjectile.js';
+import WizardProjectile from '../../entities/projectiles/skills/WizardProjectile.js';
+import MeteorProjectile from '../../entities/projectiles/skills/MeteorProjectile.js';
 
 /**
  * 투사체 매니저 (Projectile Manager)
@@ -26,6 +29,9 @@ class ProjectileManager {
         
         // [Routing]
         this.registerProjectile('threads_of_fate_projectile', ThreadsOfFateProjectile);
+        this.registerProjectile('light', LightProjectile);
+        this.registerProjectile('wizard', WizardProjectile);
+        this.registerProjectile('meteor', MeteorProjectile);
 
         Logger.system("ProjectileManager: Initialized for scene.");
     }

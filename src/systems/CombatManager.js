@@ -38,6 +38,18 @@ class CombatManager {
             projectileManager.fire('arrow', attacker, target, {
                 damageMultiplier: multiplier
             });
+        } else if (type === 'light') {
+            projectileManager.fire('light', attacker, target, {
+                damageMultiplier: multiplier
+            });
+        } else if (type === 'wizard') {
+            projectileManager.fire('wizard', attacker, target, {
+                damageMultiplier: multiplier
+            });
+        } else if (type === 'meteor') {
+            projectileManager.fire('meteor', attacker, target, {
+                damageMultiplier: multiplier
+            });
         }
     }
 
@@ -103,9 +115,11 @@ class CombatManager {
         if (isAlly && className === 'healer') {
             this.processHeal(attackerEntity, targetEntity, 1.0);
         } else if (!isAlly) {
-            // [USER 요청] 힐러는 공격 시에도 mAtk 기반 마법 데미지 적용
+            // [USER 요청] 힐러는 빛의 투사체(light) 발사
             if (className === 'healer') {
-                this.processDamage(attackerEntity, targetEntity, 1.0, 'magic');
+                this.fireProjectile('light', attackerEntity, targetEntity, 1.0);
+            } else if (className === 'wizard') {
+                this.fireProjectile('wizard', attackerEntity, targetEntity, 1.0);
             } else if (className === 'archer') {
                 this.fireProjectile('arrow', attackerEntity, targetEntity, 1.0);
             } else {

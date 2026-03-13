@@ -41,6 +41,10 @@ class PhaserParticleManager {
         this.createDustPool();
         this.createSoulPool();
         this.createHealPool();
+        this.createMagicFlashPool();
+        this.createPurpleMagicPool();
+        this.createExplosionPool();
+        this.createRedMagicPool();
         Logger.system("PhaserParticleManager: Particle systems initialized with Glow, Thread, and Heal textures.");
     }
 
@@ -133,6 +137,90 @@ class PhaserParticleManager {
     }
 
     /**
+     * 마법 섬광(Magic Flash) 파티클 풀 생성: 적중 시 노란색 불꽃 퍼짐
+     */
+    createMagicFlashPool() {
+        if (!this.scene) return;
+
+        const emitter = this.scene.add.particles(0, 0, 'particle_glow', {
+            color: [ 0xffff00, 0xffaa00, 0xff8800 ], // 노랑 ~ 주황
+            speed: { min: 100, max: 300 },
+            scale: { start: 0.4, end: 0 },
+            alpha: { start: 1.0, end: 0 },
+            lifespan: 400,
+            blendMode: 'ADD',
+            quantity: 15,
+            maxParticles: 500,
+            emitting: false
+        });
+
+        this.emitters.set('magic_flash', emitter);
+    }
+
+    /**
+     * 보라색 마법 파티클 풀 생성 (위자드 평타용)
+     */
+    createPurpleMagicPool() {
+        if (!this.scene) return;
+
+        const emitter = this.scene.add.particles(0, 0, 'particle_glow', {
+            color: [ 0xaa00ff, 0xdd00ff, 0xffffff ], 
+            speed: { min: 80, max: 200 },
+            scale: { start: 0.3, end: 0 },
+            alpha: { start: 1.0, end: 0 },
+            lifespan: 400,
+            blendMode: 'ADD',
+            quantity: 10,
+            maxParticles: 500,
+            emitting: false
+        });
+
+        this.emitters.set('purple_magic', emitter);
+    }
+
+    /**
+     * 폭발(Explosion) 파티클 풀 생성 (메테오 히트용)
+     */
+    createExplosionPool() {
+        if (!this.scene) return;
+
+        const emitter = this.scene.add.particles(0, 0, 'particle_glow', {
+            color: [ 0xff4400, 0xff0000, 0xffff00 ], // 빨강 ~ 주황 ~ 노랑
+            speed: { min: 150, max: 400 },
+            scale: { start: 0.8, end: 0 },
+            alpha: { start: 1.0, end: 0 },
+            lifespan: 800,
+            blendMode: 'ADD',
+            quantity: 30,
+            maxParticles: 1000,
+            emitting: false
+        });
+
+        this.emitters.set('explosion', emitter);
+    }
+
+    /**
+     * 빨간색 마법 흔적(Trail) 풀
+     */
+    createRedMagicPool() {
+        if (!this.scene) return;
+
+        const emitter = this.scene.add.particles(0, 0, 'particle_glow', {
+            color: [ 0xff0000, 0xff8800, 0xffff00 ],
+            speed: { min: 40, max: 120 },
+            scale: { start: 0.5, end: 0 },
+            alpha: { start: 0.8, end: 0 },
+            lifespan: 600,
+            blendMode: 'ADD',
+            quantity: 5,
+            maxParticles: 1000,
+            emitting: false
+        });
+
+        this.emitters.set('red_magic', emitter);
+    }
+
+    /**
      * 특정 위치에서 핏방울 폭발 효과 발생
      */
     spawnBloodBurst(x, y) {
@@ -171,6 +259,46 @@ class PhaserParticleManager {
         if (!emitter) return;
 
         emitter.explode(12, x, y);
+    }
+
+    /**
+     * 특정 위치에서 마법 섬광 연출
+     */
+    spawnMagicFlash(x, y) {
+        const emitter = this.emitters.get('magic_flash');
+        if (!emitter) return;
+
+        emitter.explode(15, x, y);
+    }
+
+    /**
+     * 보라색 파티클 폭발 연출
+     */
+    spawnPurpleMagic(x, y) {
+        const emitter = this.emitters.get('purple_magic');
+        if (!emitter) return;
+
+        emitter.explode(12, x, y);
+    }
+
+    /**
+     * 메테오 폭발 연출
+     */
+    spawnExplosion(x, y) {
+        const emitter = this.emitters.get('explosion');
+        if (!emitter) return;
+
+        emitter.explode(30, x, y);
+    }
+
+    /**
+     * 빨간색 마법 파티클 한 점 생성
+     */
+    spawnRedMagic(x, y, count = 5) {
+        const emitter = this.emitters.get('red_magic');
+        if (!emitter) return;
+
+        emitter.explode(count, x, y);
     }
 }
 

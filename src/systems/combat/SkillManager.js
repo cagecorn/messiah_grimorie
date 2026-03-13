@@ -2,6 +2,7 @@ import Logger from '../../utils/Logger.js';
 import chargeAttack from './skills/ChargeAttack.js';
 import knockbackShot from './skills/KnockbackShot.js';
 import massHeal from './skills/MassHeal.js';
+import fireball from './skills/Fireball.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -48,6 +49,17 @@ class SkillManager {
             descriptionKey: 'skill_mass_heal_desc',
             cooldown: 12000, // 12 seconds
             logic: massHeal
+        });
+
+        // 멀린 (Merlin) - 위자드
+        this.skills.set('merlin', {
+            id: 'fireball',
+            name: 'Fireball',
+            nameKey: 'skill_fireball_name',
+            description: 'Drops a massive meteor on target area.',
+            descriptionKey: 'skill_fireball_desc',
+            cooldown: 8000, 
+            logic: fireball
         });
 
         // 고블린 (Goblin) - 스킬 없음

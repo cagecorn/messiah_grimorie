@@ -5,6 +5,7 @@ import blackboardManager from './BlackboardManager.js';
 import MeleeAI from './nodes/MeleeAI.js';
 import RangedAI from './nodes/RangedAI.js';
 import HealerAI from './nodes/HealerAI.js';
+import WizardAI from './nodes/WizardAI.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -18,7 +19,8 @@ class AIManager {
         this.aiNodes = {
             [ENTITY_CLASSES.WARRIOR]: MeleeAI, // 클래스명(소문자)에 따른 AI 노드 맵핑
             [ENTITY_CLASSES.ARCHER]: RangedAI,
-            [ENTITY_CLASSES.HEALER]: HealerAI
+            [ENTITY_CLASSES.HEALER]: HealerAI,
+            [ENTITY_CLASSES.WIZARD]: WizardAI
         };
 
         // [신규] AI 성능 및 안정성 필드
