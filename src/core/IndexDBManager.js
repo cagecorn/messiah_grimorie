@@ -10,7 +10,7 @@ import Logger from '../utils/Logger.js';
 class IndexDBManager {
     constructor() {
         this.dbName = 'MessiahGrimoireDB';
-        this.version = 1;
+        this.version = 2; // formations 등 신규 스토어 생성을 위해 버전업
         this.db = null;
         
         Logger.system("IndexDBManager Router: Initialized.");

@@ -8,6 +8,8 @@ import displayManager from '../core/DisplayManager.js';
 import measurementManager from '../core/MeasurementManager.js';
 import dungeonStageManager from '../systems/DungeonStageManager.js';
 import graphicManager from '../systems/graphics/GraphicManager.js';
+import cameraManager from '../core/CameraManager.js';
+import shadowManager from '../systems/graphics/ShadowManager.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -58,6 +60,9 @@ export default class BattleScene extends Phaser.Scene {
         this.physics.world.setBounds(0, 0, world.width, world.height);
         this.cameras.main.setBounds(0, 0, world.width, world.height);
 
+        // [카메라 매니저] 메인 카메라 등록
+        cameraManager.setMainCamera(this.cameras.main);
+
         // 배경 이미지 출력
         if (this.bgKey) {
             backgroundManager.setBackground(this, this.bgKey, { 
@@ -67,6 +72,10 @@ export default class BattleScene extends Phaser.Scene {
 
         // [SYSTEM] 매니저 레이어 동적 로드 및 초기화
         await this.initializeManagers();
+
+        // [SHADOW] 그림자 시스템 시작
+        this.allies.forEach(a => shadowManager.createShadow(this, a));
+        this.enemies.forEach(e => shadowManager.createShadow(this, e));
 
         // [GRAPHICS] 시각 효과 적용
         await graphicManager.initialize();
@@ -111,6 +120,18 @@ export default class BattleScene extends Phaser.Scene {
     }
 
     update(time, delta) {
+        // [카메라] 아군 추적 및 자동 줌
+        if (cameraManager && this.allies.length > 0) {
+            cameraManager.updateFollowAllies(this, this.allies, delta);
+        }
+
+        // [그림자] 실시간 위치 및 고도 반영
+        shadowManager.update([...this.allies, ...this.enemies]);
+
+        // [정렬] Y축 기준 깊이 업데이트
+        this.allies.forEach(a => a.updateDepth());
+        this.enemies.forEach(e => e.updateDepth());
+
         // AI 업데이트
         if (this.aiManager) {
             this.aiManager.update(this.allies, this.enemies, delta);

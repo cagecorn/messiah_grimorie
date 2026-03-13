@@ -1,6 +1,7 @@
 import EventBus, { EVENTS } from '../core/EventBus.js';
 import Logger from '../utils/Logger.js';
 import measurementManager from '../core/MeasurementManager.js';
+import layerManager from '../ui/LayerManager.js';
 
 /**
  * 배경 매니저 (Background Manager)
@@ -24,7 +25,7 @@ class BackgroundManager {
      * @param {Object} options { depth, fixedScale }
      */
     setBackground(scene, textureKey, options = {}) {
-        const { depth = -100, fixedScale = null } = options;
+        const { depth = layerManager.getDepth('background'), fixedScale = null } = options;
         
         // [CLEANUP] 이전 배경이 있다면 제거
         this.clearBackground();

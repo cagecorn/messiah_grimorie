@@ -9,25 +9,22 @@ class MeasurementManager {
         this.world = {
             width: 2304,
             height: 1536,
-            bgScale: 1.5 // 1536x1024 배경을 1.5배 스케일링
+            bgScale: 1.5 // 1536x1024 배경을 1.5배 스케일링하여 2304x1536 월드 커버
         };
 
-        // [구역 2] 엔티티 픽셀 사이즈 (Unit Dimensions)
+        // [구역 2] 엔티티 크기 및 정보 (Entity Sizes)
         this.entity = {
             mercenary: {
-                baseSize: 64,
-                scale: 1.0,
-                bodyRadius: 20 // 히트박스 반경
+                scale: 0.5,        // 128px -> 64px (High-Res 대응)
+                bodyRadius: 20
             },
             monster: {
-                baseSize: 64,
-                scale: 1.0,
-                bossScale: 4.0
+                scale: 0.5,        // 128px -> 64px (용병과 1:1 비율)
+                bossScale: 1.0,    // 보스는 128px 크기로 출력 (1.0배)
+                bodyRadius: 25
             },
             pet: {
-                dog: 0.45,
-                wolf: 0.5,
-                owl: 0.4
+                default: 0.25      // 128px -> 32px
             }
         };
 
@@ -37,6 +34,31 @@ class MeasurementManager {
             fontSizeNormal: '24px',
             fontSizeSmall: '16px',
             padding: 20
+        };
+
+        // [구역 4] 카메라 설정 (Camera Settings)
+        this.camera = {
+            lerp: 0.05,
+            zoomLerp: 0.02,
+            minZoom: 0.5,
+            maxZoom: 2.0,          // High-Res 이므로 줌아웃/줌인 폭 확대
+            spreadPadding: 1.5,
+            minSpread: 400
+        };
+
+        // [구역 5] 그림자 및 고도 설정 (Shadow & Elevation)
+        this.graphics = {
+            shadow: {
+                baseWidth: 50,
+                baseHeight: 18,
+                baseAlpha: 0.6,
+                color: 0x000000,
+                offsetX: 0,            // 좌우 치우침 보정용
+                offsetY: -10,          // [FIX] 이미지 하단 여백 보정 (그림자를 위로 띄움)
+                scaleAtMaxHeight: 0.3, 
+                alphaAtMaxHeight: 0.0, 
+                maxEffectHeight: 400   
+            }
         };
     }
 

@@ -18,6 +18,7 @@ class LayerManager {
          * 1000:  일반 HUD (HUD - #hud-round-display, #hud-bottom)
          * 500:   전투 HUD (WORLD_UI - #npc-hud, #messiah-hud) - 월드 내 유닛 정보.
          * 100:   엔티티 (ENTITIES) - 캐릭터, 오브젝트.
+         * 10:    그림자 (SHADOW) - 유닛 발밑 그림자.
          * 0:     배경 (BACKGROUND) - 맵, 타일.
          * 
          * [구조적 제약 (Structural Constraints)]:
@@ -26,6 +27,7 @@ class LayerManager {
          */
         this.layers = {
             background: 0,
+            shadow: 10,
             world: 100,
             entities: 100,
             world_ui: 500, // #npc-hud, #messiah-hud

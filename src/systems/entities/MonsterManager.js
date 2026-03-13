@@ -1,5 +1,6 @@
 import Logger from '../../utils/Logger.js';
 import BaseEntity from '../../entities/BaseEntity.js';
+import instanceIDManager from '../../utils/InstanceIDManager.js';
 
 // [데이터 로드] 초기 몬스터 라인업
 import goblin from '../../data/monsters/goblin.js';
@@ -32,11 +33,16 @@ class MonsterManager {
             return null;
         }
 
-        // 기본 데이터와 커스텀 설정을 병합 (레벨 포함)
+        // 1. 고유 인스턴스 ID 생성 (고블린 1, 고블린 2...)
+        const uniqueId = instanceIDManager.generate(monsterId.toLowerCase());
+
+        // 2. 기본 데이터와 커스텀 설정을 병합
         const config = { 
-            level: 1, // 기본값
+            level: 1,
             ...baseData, 
-            ...customConfig 
+            ...customConfig,
+            id: uniqueId, // 베이스 ID를 고유 ID로 덮어씌움
+            type: 'monster' // [FIX] 타입 명시
         };
 
         return this.createMonster(config);
@@ -46,14 +52,10 @@ class MonsterManager {
      * 새로운 몬스터 생성
      */
     createMonster(config) {
-        const monster = new BaseEntity({
-            ...config,
-            type: 'monster'
-        });
+        const monster = new BaseEntity(config);
         
-        // 고유 ID 생성 (인스턴스 구분을 위해)
-        const instanceId = `${config.id}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-        this.monsters.set(instanceId, monster);
+        // 고유 ID는 이미 config.id에 들어있음 (BaseEntity.id)
+        this.monsters.set(monster.id, monster);
         
         return monster;
     }

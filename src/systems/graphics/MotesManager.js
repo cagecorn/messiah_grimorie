@@ -17,7 +17,7 @@ class MotesManager {
     createAmbientMotes() {
         // [3층 레이어] Parallax 효과를 위한 파티클 생성
         // 배경(0.2x), 중경(0.5x), 전경(1.0x) 속도로 이동하는 빛가루들
-        
+
         const layers = [
             { count: 20, speed: 10, scale: 0.2, alpha: 0.3, scroll: 0.2 },
             { count: 15, speed: 20, scale: 0.4, alpha: 0.5, scroll: 0.5 },

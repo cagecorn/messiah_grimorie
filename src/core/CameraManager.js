@@ -1,73 +1,93 @@
 import Logger from '../utils/Logger.js';
+import coordinateManager from '../systems/combat/CoordinateManager.js';
+import measurementManager from '../core/MeasurementManager.js';
 
 /**
  * 카메라 매니저 (Camera Manager)
  * 역할: [라우터 (Router) & 좌표 동기화기]
- * 
- * 설명: Phaser의 다중 카메라 시스템과 DOM 요소 간의 좌표 연동을 총괄하는 라우터입니다.
- * 줌인/줌아웃 시에도 Canvas 상의 위치와 DOM UI의 위치가 어긋나지 않도록 계산 로직을 제공합니다.
  */
 class CameraManager {
     constructor() {
         this.mainCamera = null;
-        this.cameras = new Map(); // 다중 카메라 관리용
+        this.cameras = new Map();
         
-        Logger.system("CameraManager Router: Initialized (Multi-camera & DOM sync ready).");
+        Logger.system("CameraManager: Initialized.");
     }
-
-    /**
-     * 메인 카메라 등록
-     */
+// ... [existing methods setMainCamera, addCamera, worldToDOM, domToWorld remain same] ...
     setMainCamera(camera) {
         this.mainCamera = camera;
         this.cameras.set('main', camera);
-        Logger.info("CAMERA_SYSTEM", "Main camera registered.");
     }
 
-    /**
-     * 특정 카메라 추가 (다중 카메라 시스템)
-     */
     addCamera(id, camera) {
         this.cameras.set(id, camera);
-        Logger.info("CAMERA_SYSTEM", `Additional camera registered: ${id}`);
     }
 
-    /**
-     * [핵심] Canvas 좌표 -> DOM 좌표 변환
-     * 줌(Zoom)과 스크롤(Scroll)을 계산하여 DOM 요소가 월드 객체를 정확히 따라가게 합니다.
-     * @param {number} x 월드 x 좌표
-     * @param {number} y 월드 y 좌표
-     * @param {string} cameraId 기본값 'main'
-     */
     worldToDOM(x, y, cameraId = 'main') {
         const cam = this.cameras.get(cameraId);
         if (!cam) return { x: 0, y: 0 };
-
-        // 1. 카메라의 줌과 스크롤을 반영한 화면 좌표 계산
-        // (Phaser 내부 메서드인 worldToScreen 유사 로직)
         const screenX = (x - cam.scrollX) * cam.zoom;
         const screenY = (y - cam.scrollY) * cam.zoom;
-
-        // 2. 캔버스 오프셋 반영 (필요 시)
-        // 현재는 꽉 찬 화면(RESIZE)이므로 캔버스 자체가 0,0에서 시작한다고 가정
-        return {
-            x: screenX,
-            y: screenY,
-            zoom: cam.zoom // DOM 요소도 줌에 맞춰 스케일을 조절해야 할 수 있음
-        };
+        return { x: screenX, y: screenY, zoom: cam.zoom };
     }
 
-    /**
-     * [핵심] DOM 좌표 -> Canvas 좌표 변환 (월드 좌표 찾기)
-     */
     domToWorld(x, y, cameraId = 'main') {
         const cam = this.cameras.get(cameraId);
         if (!cam) return { x: 0, y: 0 };
-
         return {
             x: (x / cam.zoom) + cam.scrollX,
             y: (y / cam.zoom) + cam.scrollY
         };
+    }
+
+    /**
+     * [신규] 아군 군집 추적 및 자동 줌 업데이트
+     */
+    updateFollowAllies(scene, allies, delta) {
+        if (!this.mainCamera || !allies || allies.length === 0) return;
+
+        // 1. 아군 중앙 위치 및 확산 정도 계산 (CoordinateManager 활용)
+        const bounds = coordinateManager.getGroupBounds(allies);
+        
+        // 유닛이 한 명이라도 있으면 트래킹 진행 (spread가 0이어도 중심 좌표는 존재)
+        if (allies.length > 0 && isNaN(bounds.centerX)) return; 
+
+        const config = measurementManager.camera;
+        const centerX = bounds.centerX;
+        const centerY = bounds.centerY;
+        const maxSpread = Math.max(bounds.maxSpread || 0, config.minSpread);
+
+        // 2. 부드러운 카메라 이동 (Lerp + centerOn)
+        // Phaser 카메라의 midPoint는 현재 화면의 실제 월드 중심을 반환합니다 (줌 반영됨)
+        const currentX = this.mainCamera.midPoint.x;
+        const currentY = this.mainCamera.midPoint.y;
+
+        // [DEBUG] 카메라 트레킹 로그
+        if (allies.length > 0 && scene.time.now % 1000 < 20) {
+            console.log(`[CAMERA] Target: (${centerX.toFixed(1)}, ${centerY.toFixed(1)}), Current: (${currentX.toFixed(1)}, ${currentY.toFixed(1)}), Zoom: ${this.mainCamera.zoom.toFixed(2)}`);
+        }
+
+        const nextX = Phaser.Math.Linear(currentX, centerX, config.lerp);
+        const nextY = Phaser.Math.Linear(currentY, centerY, config.lerp);
+
+        this.mainCamera.centerOn(nextX, nextY);
+
+        // 3. 적응형 줌 계산
+        const screenWidth = this.mainCamera.width;
+        const screenHeight = this.mainCamera.height;
+        
+        // 줌 레벨 계산 (spread가 0인 경우를 대비해 minSpread 사용)
+        let targetZoom = Math.min(
+            screenWidth / (maxSpread * config.spreadPadding), 
+            screenHeight / (maxSpread * config.spreadPadding)
+        );
+        
+        // 줌 범위 제한
+        targetZoom = Phaser.Math.Clamp(targetZoom, config.minZoom, config.maxZoom);
+
+        // 4. 부드러운 줌 전환
+        const newZoom = Phaser.Math.Linear(this.mainCamera.zoom, targetZoom, config.zoomLerp);
+        this.mainCamera.setZoom(newZoom);
     }
 
     /**
