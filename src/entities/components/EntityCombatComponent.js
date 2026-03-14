@@ -191,5 +191,9 @@ export default class EntityCombatComponent {
             }
         });
         Logger.system(`${this.logic.name} has fallen.`);
+
+        // [신규] 이벤트 버스에 사망 공지 (중앙화된 처리를 위해 유저 요청 반영)
+        // LootManager, ExperienceManager 등이 이 이벤트를 듣고 반응합니다.
+        EventBus.emit(EVENTS.ENTITY_DIED, this.entity);
     }
 }

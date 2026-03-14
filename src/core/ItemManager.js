@@ -11,7 +11,34 @@ import Registry from './Registry.js';
 class ItemManager {
     constructor() {
         this.itemDefinitions = new Map();
+        this.initDefaultItems();
         Logger.system("ItemManager Router: Initialized (Item metadata hub ready).");
+    }
+
+    /**
+     * 기본 아이템 공식 등록
+     */
+    initDefaultItems() {
+        this.registerItem('gold', {
+            name: 'Gold',
+            description: 'Standard currency used in Messiah Grimoire.',
+            icon: '🪙',
+            type: 'CURRENCY'
+        });
+
+        this.registerItem('diamond', {
+            name: 'Diamond',
+            description: 'Rare premium currency.',
+            icon: '💎',
+            type: 'CURRENCY'
+        });
+
+        this.registerItem('log', {
+            name: 'Log',
+            description: 'A basic wood material for crafting.',
+            icon: '🪵',
+            type: 'MATERIAL'
+        });
     }
 
     /**
@@ -20,31 +47,14 @@ class ItemManager {
      * @param {object} config 아이템 설정 (이름, 설명, 스탯 등)
      */
     registerItem(id, config) {
-        // Registry를 통해 대소문자 구분 없이 관리
-        Registry.register('items', id, config);
-        Logger.info("ITEM_ROUTER", `Item registered: ${id}`);
-    }
-
-    /**
-     * 아이템 정보 조회 라우팅
-     */
-    getItem(id) {
-        return Registry.get('items', id);
-    }
-
-    /**
-     * 아이템 사용 요청 라우팅
-     */
-    useItem(actor, itemId) {
-        const item = this.getItem(itemId);
-        if (!item) {
-            Logger.warn("ITEM_ROUTER", `Unknown item use requested: ${itemId}`);
-            return false;
+        // 이미 등록된 아이템인지 확인 (중복 방지)
+        if (Registry.get('items', id)) {
+            Logger.warn("ITEM_ROUTER", `Item ID '${id}' is already registered. Skipping.`);
+            return;
         }
-
-        Logger.info("ITEM_ROUTER", `Routing item use: ${itemId} by ${actor.id || 'Unknown'}`);
-        // [TODO] 아이템 타입별 사용 로직 분기 (Consumable, Equipment 등)
-        return true;
+        
+        Registry.register('items', id, config);
+        Logger.info("ITEM_ROUTER", `Item officially registered: ${id}`);
     }
 }
 

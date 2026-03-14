@@ -13,7 +13,8 @@ class EmojiManager {
         this.emojiMap = {
             '🪙': 'gold.png',
             '💎': 'diamond.png',
-            '🛡️': 'shield.png'
+            '🛡️': 'shield.png',
+            '🪵': 'log.png'
         };
         
         Logger.system("EmojiManager: Initialized (Visual mapping ready).");

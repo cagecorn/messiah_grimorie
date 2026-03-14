@@ -16,6 +16,9 @@ import phaserParticleManager from '../systems/graphics/PhaserParticleManager.js'
 import soundManager from '../systems/SoundManager.js';
 import ultimateCutsceneManager from '../ui/UltimateCutsceneManager.js';
 import portraitHUDManager from '../systems/PortraitHUDManager.js';
+import experienceManager from '../systems/combat/ExperienceManager.js';
+import lootManager from '../systems/combat/LootManager.js';
+import dungeonRoundManager from '../systems/dungeons/DungeonRoundManager.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -30,6 +33,8 @@ export default class BattleScene extends Phaser.Scene {
         this.stageId = null;
         this.allies = [];
         this.enemies = [];
+        this.isIntermission = false;
+        this.roundTimer = null;
     }
 
     init(data) {
@@ -108,8 +113,9 @@ export default class BattleScene extends Phaser.Scene {
 
     async create() {
         Logger.system(`BattleScene: Started (${this.stageId})`);
-
-        // [측량 매니저] 월드 및 물리 경계 설정
+        
+        // 라운드 초기화
+        dungeonRoundManager.setCurrentRound(1);
         const world = measurementManager.world;
         this.physics.world.setBounds(0, 0, world.width, world.height);
         this.cameras.main.setBounds(0, 0, world.width, world.height);
@@ -193,6 +199,10 @@ export default class BattleScene extends Phaser.Scene {
         soundManager.init(this);
         ultimateCutsceneManager.init();
 
+        // [신규] 보상 시스템 매니저 초기화 (이벤트 기반 작동 시작)
+        experienceManager.init();
+        lootManager.init(this);
+
         // [신규] 투사체 매니저 초기화 및 클래스 등록 (Router)
         const projectileModule = await import('../systems/combat/ProjectileManager.js');
         const ArrowProjectile = (await import('../entities/projectiles/common/ArrowProjectile.js')).default;
@@ -258,5 +268,56 @@ export default class BattleScene extends Phaser.Scene {
         if (this.movementManager) {
             this.movementManager.update([...this.allies, ...this.enemies], delta);
         }
+
+        // [ROUND CONTROL] 라운드 종료 체크
+        this.checkRoundProgression();
+    }
+
+    /**
+     * 라운드 종료 및 다음 라운드 준비 체크
+     */
+    checkRoundProgression() {
+        if (this.isIntermission) return;
+
+        // 모든 적 처치 시 라운드 클리어
+        if (this.enemies.length === 0) {
+            this.startIntermission();
+        }
+    }
+
+    /**
+     * 라운드 사이 쉬는 시간 (Intermission)
+     */
+    startIntermission() {
+        this.isIntermission = true;
+        const currentRound = dungeonRoundManager.getCurrentRound();
+        
+        Logger.info("BATTLE", `Round ${currentRound} Cleared! Waiting for next round...`);
+        EventBus.emit('ROUND_CLEARED', { round: currentRound });
+
+        // 최고 기록 갱신 체크
+        dungeonRoundManager.updateRecord(this.stageId, currentRound);
+
+        // 3초 후 다음 라운드 시작
+        this.time.delayedCall(3000, () => {
+            this.startNextRound();
+        });
+    }
+
+    /**
+     * 다음 라운드 시작
+     */
+    startNextRound() {
+        const nextRound = dungeonRoundManager.getCurrentRound() + 1;
+        dungeonRoundManager.setCurrentRound(nextRound);
+        
+        Logger.info("BATTLE", `Starting Round ${nextRound}...`);
+        
+        // 새로운 적 스폰
+        const newEnemies = this.spawnManager.spawnEnemies(this, this.stageId, nextRound);
+        this.enemies.push(...newEnemies);
+        
+        this.isIntermission = false;
+        EventBus.emit('ROUND_STARTED', { round: nextRound });
     }
 }

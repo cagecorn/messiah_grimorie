@@ -21,7 +21,7 @@ class StarterPackManager {
     async checkAndAward() {
         try {
             // 이미 지급되었는지 확인
-            const record = await indexDBManager.load('userData', this.packId);
+            const record = await indexDBManager.load('messiahData', this.packId);
             if (record && record.claimed) {
                 Logger.info("STARTER_PACK", "Starter pack already claimed.");
                 return;
@@ -37,7 +37,7 @@ class StarterPackManager {
             }
 
             // 지급 완료 기록 저장
-            await indexDBManager.save('userData', { id: this.packId, claimed: true, claimedAt: Date.now() });
+            await indexDBManager.save('messiahData', { id: this.packId, claimed: true, claimedAt: Date.now() });
             
             Logger.info("STARTER_PACK", "Successfully awarded 6 starter mercenaries.");
             EventBus.emit('STARTER_PACK_AWARDED');

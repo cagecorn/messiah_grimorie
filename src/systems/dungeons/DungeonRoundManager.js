@@ -1,5 +1,6 @@
 import Logger from '../../utils/Logger.js';
 import state from '../../core/GlobalState.js';
+import currencyManager from '../../core/CurrencyManager.js';
 
 /**
  * 던전 라운드 매니저 (Dungeon Round Manager)
@@ -15,16 +16,11 @@ class DungeonRoundManager {
     initialize() {
         if (this.initialized) return;
         
-        // [TODO] SaveManager/GlobalState에서 최고 기록 로드
-        // 임시 더미 데이터 (테스트용)
-        this.records = {
-            'cursed_forest': 0,
-            'undead_graveyard': 2,
-            'swampland': 0
-        };
-
+        // [GOD OBJECT 연동] 전역 상태에서 기록 로드
+        this.records = state.gameState.dungeonRecords || {};
+        
         this.initialized = true;
-        Logger.system("DungeonRoundManager: Records loaded.");
+        Logger.system("DungeonRoundManager: Records synced from GlobalState.");
     }
 
     /**
@@ -40,8 +36,15 @@ class DungeonRoundManager {
     updateRecord(stageId, round) {
         if (!this.records[stageId] || round > this.records[stageId]) {
             this.records[stageId] = round;
+            state.gameState.dungeonRecords[stageId] = round; // GlobalState 동기화
+            
             Logger.info("DUNGEON", `New Record for ${stageId}: Round ${round}!`);
-            // [TODO] Persistence 저장 호출
+            
+            // [자동 저장] CurrencyManager의 저장 로직을 재사용하여 DB에 영구 기록
+            currencyManager.saveToDB();
+            
+            // UI 갱신을 위해 이벤트 발생 (필요시)
+            EventBus.emit('DUNGEON_RECORD_UPDATED', { stageId, round });
         }
     }
 

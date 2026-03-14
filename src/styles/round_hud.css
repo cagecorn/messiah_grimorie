@@ -1,0 +1,47 @@
+/* Round HUD Style */
+.mg-round-display {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 30px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.1);
+    z-index: 1000;
+    pointer-events: none;
+    user-select: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.round-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin-bottom: -5px;
+}
+
+.round-number {
+    font-size: 48px;
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    font-family: 'Outfit', sans-serif;
+}
+
+/* Animations */
+@keyframes pulse-round {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.4); filter: brightness(1.5); }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+.round-number.pulse {
+    animation: pulse-round 0.6s ease-out;
+}

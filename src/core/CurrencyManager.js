@@ -1,13 +1,14 @@
 import Logger from '../utils/Logger.js';
 import state from './GlobalState.js';
 import EventBus from './EventBus.js';
+import indexDBManager from './IndexDBManager.js';
 
 /**
  * 재화 매니저 (CurrencyManager)
  * 역할: [자산 통제관]
  * 
- * 설명: 골드, 메시아 EXP 등 게임 내 모든 경제적 자산을 총괄합니다.
- * 자산의 증감, 잔액 확인, 경제 관련 한계치 체크 등을 담당합니다.
+ * 설명: 골드, 다이아, 유저 경험치 등 게임 내 모든 경제적 자산을 총괄합니다.
+ * 자산의 증감 시 IndexDB에 자동으로 동기화합니다.
  */
 class CurrencyManager {
     constructor() {
@@ -16,7 +17,7 @@ class CurrencyManager {
 
     /**
      * 재화 추가
-     * @param {string} type 'gold', 'messiahExp' 등
+     * @param {string} type 'gold', 'diamond', 'exp' 등
      * @param {number} amount 
      */
     add(type, amount) {
@@ -27,7 +28,7 @@ class CurrencyManager {
         state.economy[type] += amount;
         Logger.info("ECONOMY", `Currency added: [${type}] +${amount} (Total: ${state.economy[type]})`);
         
-        EventBus.emit(`CURRENCY_CHANGED_${type.toUpperCase()}`, { amount: state.economy[type] });
+        this.dispatchChange(type);
     }
 
     /**
@@ -43,8 +44,31 @@ class CurrencyManager {
         state.economy[type] -= amount;
         Logger.info("ECONOMY", `Currency spent: [${type}] -${amount} (Remaining: ${state.economy[type]})`);
         
-        EventBus.emit(`CURRENCY_CHANGED_${type.toUpperCase()}`, { amount: state.economy[type] });
+        this.dispatchChange(type);
         return true;
+    }
+
+    /**
+     * 상태 변경 전파 및 저장
+     */
+    dispatchChange(type) {
+        EventBus.emit(`CURRENCY_CHANGED_${type.toUpperCase()}`, { amount: state.economy[type] });
+        
+        // [자동 저장] 갓 오브젝트 관리 - 데이터 무결성 보장
+        this.saveToDB();
+    }
+
+    async saveToDB() {
+        try {
+            await indexDBManager.save('messiahData', { 
+                id: state.messiah.id, 
+                level: state.messiah.level,
+                economy: state.economy,
+                gameState: state.gameState
+            });
+        } catch (err) {
+            Logger.error("ECONOMY_SAVE", `Failed to persist currency: ${err.message}`);
+        }
     }
 
     /**

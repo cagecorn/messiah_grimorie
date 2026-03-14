@@ -239,6 +239,7 @@ class TopHUDDOMManager {
     setupListeners() {
         EventBus.on(EVENTS.LANGUAGE_CHANGED, () => this.updateTexts());
         EventBus.on('CURRENCY_CHANGED', () => this.updateCurrencies());
+        EventBus.on('DUNGEON_RECORD_UPDATED', () => this.refreshDungeonList());
     }
 
     updateTexts() {

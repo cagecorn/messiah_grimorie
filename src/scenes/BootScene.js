@@ -6,6 +6,7 @@ import sceneManager from '../core/SceneManager.js';
 import uiManager from '../ui/UIManager.js';
 import formationManager from '../systems/FormationManager.js';
 import assetPathManager from '../core/AssetPathManager.js';
+import emojiManager from '../core/EmojiManager.js';
 
 export default class BootScene extends Phaser.Scene {
     constructor() {
@@ -80,6 +81,13 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('siren_sprite', assetPathManager.getSummonPath('siren'));
         this.load.image('guardian_angel_sprite', assetPathManager.getSummonPath('guardian_angel'));
         
+        
+        // [신규] EmojiManager에 등록된 모든 이모지 자산 자동 로드
+        for (const [emoji, fileName] of Object.entries(emojiManager.emojiMap)) {
+            const key = emojiManager.getAssetKey(emoji);
+            this.load.image(key, `assets/emojis/${fileName}`);
+        }
+        
         // 아이콘들을 명시적인 키값으로 로드 (UI 및 HealthBar에서 이 키를 사용함)
         const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music'];
         iconKeys.forEach(key => {
@@ -106,6 +114,10 @@ export default class BootScene extends Phaser.Scene {
         // [SYSTEM] 데이터 컬렉션 및 초기 지급 시스템 (Hardcode-Free)
         const collectionModule = await import('../systems/MercenaryCollectionManager.js');
         await collectionModule.default.initialize();
+        
+        const inventoryManager = (await import('../core/InventoryManager.js')).default;
+        await inventoryManager.initialize();
+
         await formationManager.initialize();
 
         const starterModule = await import('../systems/StarterPackManager.js');

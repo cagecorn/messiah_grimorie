@@ -113,6 +113,10 @@ class SkillManager {
         this.skills.set('goblin', {
             hasSkill: false
         });
+
+        this.skills.set('goblin_shaman', {
+            hasSkill: false
+        });
     }
 
     /**

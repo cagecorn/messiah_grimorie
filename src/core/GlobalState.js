@@ -11,19 +11,25 @@ class GlobalState {
     }
 
     reset() {
-        // [구역 1] 유저 기본 정보
-        this.user = {
-            id: 'dev_player',
-            level: 1,
-            exp: 0,
-            gold: 0, // emoji_coin
-            gem: 0   // emoji_gem
+        // [구역 1] 메시아 기본 정보 (Messiah Base Info)
+        this.messiah = {
+            id: 'dev_messiah',
+            level: 1
+        };
+
+        // [구역 1-1] 경제 및 성장 (Economy & Progression)
+        this.economy = {
+            gold: 0,
+            gem: 0
         };
 
         // [구역 2] 게임 진행 상태
         this.gameState = {
             currentScene: 'Boot',
             unlockedDungeons: ['forest'],
+            dungeonRecords: {
+                'cursed_forest': 0
+            },
             isFocusMode: false
         }
 

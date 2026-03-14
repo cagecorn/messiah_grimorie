@@ -25,8 +25,10 @@ class LevelingManager {
      * 다음 레벨까지 필요한 경험치 계산 (곡선)
      */
     updateMaxExp() {
-        // [HARDCODE-FREE] 공식: 기본 100 * 레벨^1.5 (예시)
-        this.maxExp = Math.floor(100 * Math.pow(this.level, 1.5));
+        // [BALANCE] 레벨당 요구 경험치 공식화
+        // Lv 1: 100, Lv 10: 5,011, Lv 50: 77,508 (대략적 수치)
+        const base = 100;
+        this.maxExp = Math.floor(base * Math.pow(this.level, 1.7));
     }
 
     /**

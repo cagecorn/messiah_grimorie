@@ -10,7 +10,7 @@ import Logger from '../utils/Logger.js';
 class IndexDBManager {
     constructor() {
         this.dbName = 'MessiahGrimoireDB';
-        this.version = 2; // formations 등 신규 스토어 생성을 위해 버전업
+        this.version = 3; // inventory 스토어 추가
         this.db = null;
         
         Logger.system("IndexDBManager Router: Initialized.");
@@ -26,10 +26,11 @@ class IndexDBManager {
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
                 // 하위 스토어(Sub-stores) 라우팅을 위한 공간 생성
-                if (!db.objectStoreNames.contains('userData')) db.createObjectStore('userData', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('messiahData')) db.createObjectStore('messiahData', { keyPath: 'id' });
                 if (!db.objectStoreNames.contains('gameStats')) db.createObjectStore('gameStats', { keyPath: 'id' });
                 if (!db.objectStoreNames.contains('mercenaries')) db.createObjectStore('mercenaries', { keyPath: 'id' });
                 if (!db.objectStoreNames.contains('formations')) db.createObjectStore('formations', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('inventory')) db.createObjectStore('inventory', { keyPath: 'id' });
             };
 
             request.onsuccess = (event) => {

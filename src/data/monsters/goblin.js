@@ -9,6 +9,8 @@ export default {
     description: '어디에나 있는 흔한 고블린. 약하지만 끈질깁니다.',
     level: 1,
     exp: 0,
+    dropTableId: 'goblin_common',
+    baseRewardExp: 15,
     baseStats: {
         [STAT_KEYS.MAX_HP]: 50,    // 저조한 체력
         [STAT_KEYS.ATK]: 5,        // 저조한 공격력

@@ -4,6 +4,7 @@ import formationDOMManager from './formation/FormationDOMManager.js';
 import sceneTransitionDOMManager from './SceneTransitionDOMManager.js';
 import characterInfoDOMManager from './CharacterInfoDOMManager.js';
 import quickActionDOMManager from './QuickActionDOMManager.js';
+import roundHUDDOMManager from './RoundHUDDOMManager.js';
 
 /**
  * UI 매니저 (UI Manager)
@@ -28,6 +29,9 @@ class UIManager {
         this.registerSubModule('formation', formationDOMManager);
         this.registerSubModule('character_info', characterInfoDOMManager);
         this.registerSubModule('quick_action', quickActionDOMManager);
+        this.registerSubModule('round_hud', roundHUDDOMManager);
+        
+        roundHUDDOMManager.initialize();
         
         // 공통 UI 이벤트 리스너 등록
         EventBus.on(EVENTS.SCENE_CHANGED, (scene) => this.routeSceneUI(scene));

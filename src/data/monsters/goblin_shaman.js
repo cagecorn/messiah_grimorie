@@ -5,7 +5,6 @@ export default {
     name: 'Goblin Shaman',
     className: ENTITY_CLASSES.HEALER,
     isSpecial: false,
-    skill: 'PettyHeal',
     description: '주책맞은 목소리로 노래를 불러 동료를 치유하는 고블린 주술사.',
     level: 1,
     exp: 0,

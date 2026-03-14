@@ -53,6 +53,11 @@ export default class BaseEntity {
             this.applyGrowthForLevel(this.leveling.getLevel() - 1);
         }
 
+        // [신규] 레벨업 시 스탯 자동 성장 연동
+        EventBus.on(`ENTITY_LEVEL_UP_${this.id}`, () => {
+            this.applyGrowthForLevel(1);
+        });
+
         Logger.system(`BaseEntity Created: [${this.name}] Level ${this.leveling.getLevel()} ${this.class.getClassName()}`);
     }
 
