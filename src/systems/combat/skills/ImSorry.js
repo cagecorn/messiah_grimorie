@@ -5,6 +5,7 @@ import projectileManager from '../ProjectileManager.js';
 import ultimateCutsceneManager from '../../../ui/UltimateCutsceneManager.js';
 import Invincible from '../effects/Invincible.js';
 import animationManager from '../../graphics/AnimationManager.js';
+import localizationManager from '../../../core/LocalizationManager.js';
 
 /**
  * 실비 궁극기: 죄송합니다!! (Silvi: I'm Sorry!!)
@@ -17,7 +18,7 @@ class ImSorry {
         Logger.info("ULTIMATE", `[Silvi] I'm Sorry!! (죄송합니다!!)`);
 
         // 1. 궁극기 컷씬
-        ultimateCutsceneManager.show('silvi', '죄송합니다!!');
+        ultimateCutsceneManager.show('silvi', localizationManager.t('ult_silvi_name'));
 
         // 2. 초기화 및 무적(Invincible) 부여
         const scene = owner.scene;
