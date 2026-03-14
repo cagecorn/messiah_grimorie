@@ -1,4 +1,6 @@
 import './styles/cutscene.css';
+import './styles/character_info_card.css';
+import './styles/quick_action_menu.css';
 import Phaser from 'phaser';
 
 // Styles Modularization

@@ -7,7 +7,6 @@ export default {
     isSpecial: false,
     skill: 'MassHeal',
     ultimate: 'SummonGuardianAngel',
-    description: '전장의 성녀. 아군의 상처를 누구보다 먼저 발견하고 치유합니다.',
     level: 1,
     exp: 0,
     baseStats: {

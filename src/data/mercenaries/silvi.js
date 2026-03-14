@@ -11,7 +11,6 @@ export default {
     isSpecial: false,
     skill: 'StoneSkin',
     ultimate: 'SilviUltimate',
-    description: '어리숙해 보이지만 단단한 피부를 가진 양인 전사. "죄송합니다!"라며 적을 벤다.',
     level: 1,
     exp: 0,
     baseStats: {

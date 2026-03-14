@@ -15,6 +15,7 @@ class ThreadsOfFate {
         this.id = 'threads_of_fate';
         this.name = 'Threads of Fate';
         this.crossCount = 6;
+        this.scalingStat = 'atk';
     }
 
     execute(owner) {
@@ -74,7 +75,8 @@ class ThreadsOfFate {
         projectileManager.fire('threads_of_fate_projectile', owner, null, {
             startPos: trajectory.start,
             targetPos: trajectory.end,
-            damageMultiplier: 2.5 // 궁극기다운 강력한 데미지
+            damageMultiplier: 3.0, // [USER 요청] 공격력의 3배
+            scalingStat: 'atk'
         });
 
         // 4. 효과음 및 카메라 흔들림

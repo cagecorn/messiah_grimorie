@@ -12,6 +12,9 @@ import localizationManager from '../../../core/LocalizationManager.js';
  * 역할: [방방 뛰기 (Jumping) -> 카메라 쉐이크 -> 사방으로 이모지(😭💦) 폭발]
  */
 class ImSorry {
+    constructor() {
+        this.scalingStat = 'atk';
+    }
     execute(owner, targetPos) {
         if (!owner) return;
 

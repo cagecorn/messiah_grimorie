@@ -15,6 +15,7 @@ import animationManager from '../../graphics/AnimationManager.js';
 class SummonGuardianAngel {
     constructor() {
         this.activeSummons = new Map(); // ownerID -> Angel CombatEntity
+        this.scalingStat = 'mAtk';
     }
 
     /**

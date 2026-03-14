@@ -1,0 +1,286 @@
+/* 
+  ✨ Character Info Window Styles
+  Design Concept: Premium Glassmorphism, Neon Accents, Modular Tabs
+*/
+
+.character-info-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: none; /* Controlled by DOMManager */
+    justify-content: center;
+    align-items: center;
+    z-index: 30000;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.character-info-card {
+    position: relative;
+    width: 900px;
+    height: 650px;
+    background: linear-gradient(135deg, rgba(20, 20, 25, 0.95), rgba(40, 40, 50, 0.95));
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 215, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    font-family: 'Inter', 'Outfit', sans-serif;
+    transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* --- Header Section --- */
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.info-title-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-name {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--mg-gold, #ffd700);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.info-subtitle {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    gap: 15px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 30px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+}
+
+/* --- Body Section --- */
+.info-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Left: Portrait */
+.info-portrait-side {
+    width: 350px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+    position: relative;
+    padding: 20px;
+}
+
+.info-portrait-img {
+    max-width: 100%;
+    max-height: 80%;
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5)) brightness(1.1);
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+/* Right: Content */
+.info-content-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* Tabs */
+.info-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.info-tab {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.info-tab.active {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+}
+
+.info-tab:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.info-tab-icon {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.info-tab-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.info-tab.active .info-tab-label {
+    color: var(--mg-gold, #ffd700);
+}
+
+/* Tab Content Area */
+.info-tab-content {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --- Category Specific Styles --- */
+
+/* Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+}
+
+.stat-value {
+    color: #ffd700;
+    font-weight: 700;
+}
+
+/* Skills */
+.skill-item {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.skill-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.skill-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #4df;
+}
+
+.skill-desc {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+}
+
+/* Scaling Badges */
+.scaling-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.scaling-atk {
+    background: rgba(255, 77, 77, 0.2);
+    color: #ff4d4d;
+    border: 1px solid rgba(255, 77, 77, 0.3);
+}
+
+.scaling-matk {
+    background: rgba(77, 221, 255, 0.2);
+    color: #4df;
+    border: 1px solid rgba(77, 221, 255, 0.3);
+}
+
+/* Story/Narrative */
+.narrative-text {
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    white-space: pre-line;
+}
+
+/* DPS */
+.dps-meter {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+}
+
+.dps-value {
+    font-size: 40px;
+    font-weight: 900;
+    color: #ff4d4d;
+    text-shadow: 0 0 15px rgba(255, 77, 77, 0.3);
+}
+
+.dps-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 5px;
+}

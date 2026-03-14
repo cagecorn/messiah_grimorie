@@ -5,6 +5,7 @@ import formationManager from '../../systems/FormationManager.js';
 import mercenaryManager from '../../systems/entities/MercenaryManager.js';
 import mercenaryCollectionManager from '../../systems/MercenaryCollectionManager.js';
 import assetPathManager from '../../core/AssetPathManager.js';
+import quickActionManager from '../../systems/QuickActionManager.js';
 
 /**
  * 편성 DOM 매니저 (Formation DOM Manager)
@@ -134,11 +135,10 @@ class FormationDOMManager {
                 }
             };
 
-            // 클릭 시 해제 (우클릭 혹은 특정 동작)
+            // 클릭 시 퀵 액션 메뉴 열기
             slot.onclick = () => {
                 if (currentFormation[index]) {
-                    formationManager.removeMercenary(index);
-                    this.refresh();
+                    quickActionManager.requestMenu(mercId, slot);
                 }
             };
 
@@ -184,13 +184,9 @@ class FormationDOMManager {
                     this.draggedMercId = null;
                     card.style.opacity = '1';
                 };
-                // 클릭으로도 배치 가능하게 (자동 빈 슬롯)
+                // 클릭 시 퀵 액션 메뉴 열기
                 card.onclick = () => {
-                    const emptySlot = currentFormation.indexOf(null);
-                    if (emptySlot !== -1) {
-                        formationManager.assignMercenary(emptySlot, id);
-                        this.refresh();
-                    }
+                    quickActionManager.requestMenu(id, card);
                 };
             }
 

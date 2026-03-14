@@ -6,6 +6,9 @@ import projectileManager from '../ProjectileManager.js';
  * 역할: [세이렌 전용 스킬 - 광역 마법 공격]
  */
 class AquaBurst {
+    constructor() {
+        this.scalingStat = 'mAtk';
+    }
     execute(owner, target) {
         if (!owner || !target) return;
 

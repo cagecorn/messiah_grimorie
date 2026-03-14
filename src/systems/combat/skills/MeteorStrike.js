@@ -14,6 +14,7 @@ class MeteorStrike {
         this.name = 'Meteor Strike';
         this.meteorCount = 40; // 30개에서 40개로 증량 (더 화끈하게)
         this.mAtkMultiplier = 3.0; 
+        this.scalingStat = 'mAtk';
     }
 
     execute(owner) {

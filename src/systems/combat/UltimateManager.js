@@ -24,19 +24,18 @@ class UltimateManager {
         // ==========================================
         this.ultimates.set('aren', {
             id: 'aren_ult',
-            name: 'For Messiah!', // Naming update
-            description: '"For Messiah!"',
-            // 궁극기는 쿨다운이 아닌 충전 방식이므로 게이지 최대값을 정의 (또는 1.0 기준)
+            nameKey: 'ult_aren_name',
+            descriptionKey: 'ult_aren_desc',
             chargeMax: 100, 
-            chargeSpeedBase: 1.0, // 기본 충전 배율
+            chargeSpeedBase: 1.0, 
             logic: forMessiah 
         });
 
         // 🌿 [Healer Class] 세라 (Sera)
         this.ultimates.set('sera', {
             id: 'sera_ult',
-            name: 'Summon: Guardian Angel',
-            description: 'Summon and empower a Guardian Angel.',
+            nameKey: 'ult_sera_name',
+            descriptionKey: 'ult_sera_desc',
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: summonGuardianAngel
@@ -45,8 +44,8 @@ class UltimateManager {
         // 엘라 (Ella)
         this.ultimates.set('ella', {
             id: 'ella_ult',
-            name: 'Threads of Fate',
-            description: 'Fires penetrating threads through enemy clusters.',
+            nameKey: 'ult_ella_name',
+            descriptionKey: 'ult_ella_desc',
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: threadsOfFate
@@ -55,8 +54,8 @@ class UltimateManager {
         // 🔮 [Wizard Class] 멀린 (Merlin)
         this.ultimates.set('merlin', {
             id: 'merlin_ult',
-            name: 'Meteor Strike',
-            description: 'Unleashes a devastating rain of 30 meteors.',
+            nameKey: 'ult_merlin_name',
+            descriptionKey: 'ult_merlin_desc',
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: meteorStrike
@@ -65,8 +64,8 @@ class UltimateManager {
         // 루트 (Lute)
         this.ultimates.set('lute', {
             id: 'lute_ult',
-            name: 'Summon: Siren',
-            description: 'Summons a Siren to assist in battle.',
+            nameKey: 'ult_lute_name',
+            descriptionKey: 'ult_lute_desc',
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: summonSiren
@@ -75,8 +74,8 @@ class UltimateManager {
         // 실비 (Silvi)
         this.ultimates.set('silvi', {
             id: 'silvi_ult',
-            name: "I'm Sorry!!",
-            description: '"I\'m Sorry!!"',
+            nameKey: 'ult_silvi_name',
+            descriptionKey: 'ult_silvi_desc',
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: imSorry
@@ -101,6 +100,7 @@ class UltimateManager {
         
         return {
             hasUltimate: true,
+            scalingStat: ult.scalingStat || (ult.logic ? ult.logic.scalingStat : null),
             ...ult
         };
     }

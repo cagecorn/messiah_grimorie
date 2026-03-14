@@ -8,6 +8,9 @@ import { BONUS_STATS } from '../../../core/TechnicalConstants.js';
  * 역할: [시전자 자신에게 일시적으로 데미지 감소 버프 부여]
  */
 class StoneSkin {
+    constructor() {
+        this.scalingStat = false;
+    }
     /**
      * 스킬 실행
      * @param {CombatEntity} owner 시전자
@@ -25,6 +28,7 @@ class StoneSkin {
         if (owner.buffs) {
             owner.buffs.addBuff({
                 id: 'stoneskin',
+                scalingStat: 'atk',
                 key: BONUS_STATS.DR,
                 value: drValue,
                 type: 'add',

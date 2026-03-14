@@ -1,0 +1,38 @@
+export default {
+    en: {
+        'merc_aren_desc': 'A loyal warrior following the Messiah. Loves meat, hates vegetables.',
+        'merc_king_desc': 'A tyrant of a fallen kingdom. Afraid of bugs.',
+        'merc_boon_desc': 'A mercenary former paladin. Creates a healing aura for nearby allies.',
+        'merc_silvi_desc': 'A girl warrior fighting to help her poor parents. Very timid.',
+        'merc_ella_desc': 'An archer who resents his parents for giving him a girl\'s name. Tsundere. Likes knitting.',
+        'merc_nickle_desc': 'A veteran fox beastman. Amplifies normal attack power of self and allies by 50%.',
+        'merc_leona_desc': 'A cold survivalist soldier. Supports with Electric Grenade (1.8x) and Carpet Bombing (3.5x).',
+        'merc_sera_desc': 'A foul-mouthed healer. Loves abandoned animals.',
+        'merc_merlin_desc': 'A gambler wizard. Good at keeping household accounts.',
+        'merc_lute_desc': 'A tone-deaf bard. Generates a shield (5s) for all allies worth 2.5x M.Atk through passionate song.',
+        'merc_bao_desc': 'A bear beastman wizard. Throws rocks with telekinesis to deal 1.6x M.Atk AOE damage.',
+        'merc_nana_desc': 'A dual-personality idol bard. Buffs ally crit, deals magic damage to enemies. Goes berserk on ultimate.',
+        'merc_noah_desc': 'A boy who loves animals. Summons animal friends to help allies and attack enemies.',
+        'merc_noel_desc': 'A boy who tends to plants. Noah\'s brother, uses plant power to heal and strengthen allies.',
+        'merc_aina_desc': 'A cold ice queen. Rational, likes giving advice, and secretly enjoys spicy food.',
+        'merc_wrinkle_desc': 'Messiah from the parallel world \'Black Behemoth\'. Has [Slash of Light] passive and a screen-clearing ultimate.'
+    },
+    ko: {
+        'merc_aren_desc': '메시아를 향한 충직한 전사. 고기를 좋아하고 야채를 못 먹음.',
+        'merc_king_desc': '몰락한 왕국의 폭군. 벌레를 무서워함.',
+        'merc_boon_desc': '성기사 출신 용병. 주변 아군을 치유하는 오라를 생성함.',
+        'merc_silvi_desc': '가난한 부모님을 돕기 위해 싸우는 소녀 전사. 겁이 많음.',
+        'merc_ella_desc': '남자임에도 여자 이름을 지어주신 부모님을 원망하는 아처. 츤데레. 뜨개질 좋아함.',
+        'merc_nickle_desc': '여우 수인 베테랑. 본인과 아군의 평타 위력을 50% 증폭함.',
+        'merc_leona_desc': '냉혹한 생존주의자 병사. 전기 수류탄(1.8x) 및 융단폭격(3.5x) 지원.',
+        'merc_sera_desc': '입담이 거친 힐러. 유기동물을 사랑함.',
+        'merc_merlin_desc': '도박사 마법사. 가계부를 잘 씀.',
+        'merc_lute_desc': '음치 음유시인. 열정적인 노래로 모든 아군에게 마법 공격력의 2.5배 보호막(5초)을 생성함.',
+        'merc_bao_desc': '곰 수인 마법사. 염력으로 바위를 던져 마법 공격력의 1.6배 광역 피해를 입힘.',
+        'merc_nana_desc': '이중인격 아이돌 바드. 아군에게 치명타 버프를 주고 적에게 마법 피해를 입힙니다. 궁극기 시 광폭화합니다.',
+        'merc_noah_desc': '동물을 사랑하는 소년. 동물 친구들을 소환하여 아군을 돕고 적을 공격합니다.',
+        'merc_noel_desc': '식물을 가꾸는 소년. 노아의 형으로, 식물의 힘을 빌려 아군을 치유하고 강화합니다.',
+        'merc_aina_desc': '차가운 얼음 여왕. 합리적이고 조언하기를 좋아하며, 매운 음식을 남몰래 즐깁니다.',
+        'merc_wrinkle_desc': '평행세계 \'블랙 베히모스\'의 메시아. 3스택마다 발동하는 [전광석화] 패시브와 화면 전체를 난도질하는 궁극기 보유.'
+    }
+};

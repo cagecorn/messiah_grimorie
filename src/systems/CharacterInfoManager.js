@@ -1,0 +1,71 @@
+import Logger from '../utils/Logger.js';
+import EventBus from '../core/EventBus.js';
+import mercenaryManager from './entities/MercenaryManager.js';
+
+/**
+ * 캐릭터 인포 매니저 (Character Info Manager)
+ * 역할: [정보창 데이터 조율 및 실시간 정보 공유]
+ * 
+ * 설명: 현재 클릭해서 보고 있는 캐릭터가 누구인지, 
+ * 해당 캐릭터의 출처(컬렉션/전투)가 어디인지 관리합니다.
+ */
+class CharacterInfoManager {
+    constructor() {
+        this.currentTarget = null;
+        this.source = null; // 'collection' | 'combat'
+        
+        Logger.system("CharacterInfoManager: Ready to share real-time data.");
+    }
+
+    /**
+     * 상세 정보창을 띄울 유닛 설정
+     * @param {object} target 유닛 데이터 혹은 CombatEntity
+     * @param {string} source 데이터 출처
+     */
+    setTarget(target, source = 'collection') {
+        this.currentTarget = target;
+        this.source = source;
+        
+        Logger.info("INFO_MANAGER", `Inspecting character: ${this.getName()} (Source: ${source})`);
+        EventBus.emit('UI_OPEN_CHARACTER_INFO', { target, source });
+    }
+
+    clearTarget() {
+        this.currentTarget = null;
+        this.source = null;
+        EventBus.emit('UI_CLOSE_CHARACTER_INFO');
+    }
+
+    /**
+     * UI 표시를 위한 이름 추출
+     */
+    getName() {
+        if (!this.currentTarget) return '';
+        
+        // 1. CombatEntity logic 우선
+        if (this.currentTarget.logic && this.currentTarget.logic.name) {
+            return this.currentTarget.logic.name;
+        }
+        
+        // 2. 직접 name 속성 (PortraitHUDCard 등)
+        if (this.currentTarget.name) return this.currentTarget.name;
+
+        // 3. Roster 데이터 (id만 있는 경우) -> 레지스트리 검색
+        const id = this.getId();
+        const registryData = mercenaryManager.registry[id];
+        return registryData ? registryData.name : 'Unknown';
+    }
+
+    /**
+     * UI 표시를 위한 ID 추출
+     */
+    getId() {
+        if (!this.currentTarget) return '';
+        // CombatEntity면 logic.id, 데이터면 id
+        const fullId = this.currentTarget.logic ? this.currentTarget.logic.id : this.currentTarget.id;
+        return fullId.split('_')[0].toLowerCase();
+    }
+}
+
+const characterInfoManager = new CharacterInfoManager();
+export default characterInfoManager;

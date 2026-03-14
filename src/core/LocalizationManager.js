@@ -3,6 +3,8 @@ import territory from './translations/territory.js';
 import gacha from './translations/gacha.js';
 import skills from './translations/skills.js';
 import dungeons from './translations/dungeons.js';
+import characterInfo from './translations/character_info.js';
+import mercenaries from './translations/mercenaries.js';
 
 /**
  * 로컬라이제이션 매니저 (Localization Manager)
@@ -15,8 +17,8 @@ class LocalizationManager {
         
         // [MODULARIZATION] 도메인별 번역 데이터 병합
         this.translations = {
-            en: { ...common.en, ...territory.en, ...gacha.en, ...skills.en, ...dungeons.en },
-            ko: { ...common.ko, ...territory.ko, ...gacha.ko, ...skills.ko, ...dungeons.ko }
+            en: { ...common.en, ...territory.en, ...gacha.en, ...skills.en, ...dungeons.en, ...characterInfo.en, ...mercenaries.en },
+            ko: { ...common.ko, ...territory.ko, ...gacha.ko, ...skills.ko, ...dungeons.ko, ...characterInfo.ko, ...mercenaries.ko }
         };
     }
 

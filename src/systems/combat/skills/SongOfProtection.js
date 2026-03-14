@@ -8,6 +8,9 @@ import fxManager from '../../graphics/FXManager.js';
  * 설명: 모든 아군에게 마법 공격력의 1.5배 보호막(5초)을 생성합니다.
  */
 class SongOfProtection {
+    constructor() {
+        this.scalingStat = 'mAtk';
+    }
     execute(owner) {
         if (!owner) return;
 

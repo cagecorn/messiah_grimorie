@@ -8,6 +8,7 @@ class MassHeal {
         this.id = 'massheal';
         this.name = 'Mass Heal';
         this.healCoefficient = 1.5; // [USER 요청] 마법 공격력의 1.5배 (하드코딩 방지)
+        this.scalingStat = 'mAtk';
     }
 
     execute(owner) {

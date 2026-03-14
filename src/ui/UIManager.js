@@ -2,6 +2,8 @@ import EventBus, { EVENTS } from '../core/EventBus.js';
 import Logger from '../utils/Logger.js';
 import formationDOMManager from './formation/FormationDOMManager.js';
 import sceneTransitionDOMManager from './SceneTransitionDOMManager.js';
+import characterInfoDOMManager from './CharacterInfoDOMManager.js';
+import quickActionDOMManager from './QuickActionDOMManager.js';
 
 /**
  * UI 매니저 (UI Manager)
@@ -24,6 +26,8 @@ class UIManager {
         
         // 하위 모듈 등록
         this.registerSubModule('formation', formationDOMManager);
+        this.registerSubModule('character_info', characterInfoDOMManager);
+        this.registerSubModule('quick_action', quickActionDOMManager);
         
         // 공통 UI 이벤트 리스너 등록
         EventBus.on(EVENTS.SCENE_CHANGED, (scene) => this.routeSceneUI(scene));

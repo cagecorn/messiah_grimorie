@@ -6,6 +6,9 @@ import projectileManager from '../ProjectileManager.js';
  * 역할: [세이렌 강화 스킬 - 광역 공격 및 수면]
  */
 class SleepingBubble {
+    constructor() {
+        this.scalingStat = 'mAtk';
+    }
     execute(owner, target) {
         if (!owner || !target) return;
 

@@ -10,6 +10,7 @@ class Fireball {
         this.id = 'Fireball';
         this.name = 'Fireball';
         this.mAtkMultiplier = 1.8; // 마법 공격력 계수
+        this.scalingStat = 'mAtk';
     }
 
     /**

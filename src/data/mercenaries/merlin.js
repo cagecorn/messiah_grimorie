@@ -7,7 +7,6 @@ export default {
     isSpecial: false,
     skill: 'Fireball',
     ultimate: 'MeteorStrike',
-    description: '전설적인 위자드. 가계부보다 마법서가 더 두껍습니다.',
     level: 1,
     exp: 0,
     baseStats: {

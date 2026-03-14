@@ -10,6 +10,9 @@ import phaserParticleManager from '../../graphics/PhaserParticleManager.js';
  * 역할: [돌진 -> 범위 피해 -> 에어본 연계]
  */
 class ChargeAttack {
+    constructor() {
+        this.scalingStat = 'atk';
+    }
     /**
      * 스킬 실행
      * @param {CombatEntity} owner 시전자

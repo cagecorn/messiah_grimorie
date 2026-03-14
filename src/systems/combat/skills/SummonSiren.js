@@ -14,6 +14,7 @@ class SummonSiren {
     constructor() {
         this.activeSummons = new Map(); // ownerID -> Siren CombatEntity
         this.upgradeStage = new Map(); // ownerID -> stage level (0: Just summoned, 1: Upgraded)
+        this.scalingStat = 'mAtk';
     }
 
     execute(owner) {
@@ -54,6 +55,8 @@ class SummonSiren {
         
         if (siren) {
             this.activeSummons.set(owner.id, siren);
+            this.sirenStatsMultiplier = 1.0;
+            this.scalingStat = 'mAtk';
             this.upgradeStage.set(owner.id, 0);
             
             // 시각 효과 연출 (HP바 등)

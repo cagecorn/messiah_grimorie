@@ -1,5 +1,6 @@
 import Logger from '../utils/Logger.js';
 import iconManager from '../systems/IconManager.js';
+import characterInfoManager from '../systems/CharacterInfoManager.js';
 
 /**
  * 초상화 허드 카드 (Portrait HUD Card)
@@ -65,6 +66,14 @@ export default class PortraitHUDCard {
                 <div class="mg-buff-list"></div>
             </div>
         `;
+        
+        // [신규] 초상화 프레임 클릭 시 상세 정보창 열기
+        const frame = card.querySelector('.mg-portrait-frame');
+        frame.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // 전투 중이므로 source: combat
+            characterInfoManager.setTarget(this, 'combat');
+        });
 
         this.container = card;
         

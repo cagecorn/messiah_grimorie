@@ -13,6 +13,7 @@ class KnockbackShot {
         this.description = 'Fires a penetrating arrow that knocks back all enemies in its path.';
         this.cooldown = 8000; // 8초
         this.damageMultiplier = 1.5;
+        this.scalingStat = 'atk';
     }
 
     /**

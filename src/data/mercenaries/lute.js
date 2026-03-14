@@ -12,7 +12,6 @@ export default {
     isSpecial: false,
     skill: 'SongOfProtection',
     ultimate: 'SummonSiren',
-    description: '음치 음유시인. 열정적인 노래로 모든 아군에게 마법 공격력의 2.5배 보호막(5초)을 생성함.',
     level: 1,
     exp: 0,
     baseStats: {

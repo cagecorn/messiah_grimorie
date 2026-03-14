@@ -12,6 +12,9 @@ import Invincible from '../effects/Invincible.js';
  * 역할: [화면 밖 점프 -> 강하 충돌 -> 강력한 범위 피해 및 에어본]
  */
 class ForMessiah {
+    constructor() {
+        this.scalingStat = 'atk';
+    }
     /**
      * 궁극기 실행
      * @param {CombatEntity} owner 시전자

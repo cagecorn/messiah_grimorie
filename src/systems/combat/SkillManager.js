@@ -129,6 +129,7 @@ class SkillManager {
         
         return {
             hasSkill: true,
+            scalingStat: skill.scalingStat || (skill.logic ? skill.logic.scalingStat : null),
             ...skill
         };
     }

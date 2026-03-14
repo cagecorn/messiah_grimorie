@@ -6,7 +6,6 @@ export default {
     className: ENTITY_CLASSES.WARRIOR,
     isSpecial: false,
     skill: 'ChargeAttack',
-    description: '메시아를 향한 충직한 전사. 고기를 좋아하고 야채를 못 먹음.',
     level: 1,
     exp: 0,
     baseStats: {
