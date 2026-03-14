@@ -32,13 +32,16 @@ class AssetPathManager {
             burned: `${this.basePath}icon/debuff_burn.png`,
             knockback: `${this.basePath}icon/knockback_icon.png`,
             airborne: `${this.basePath}icon/airborne_icon.png`,
-            invincible: `${this.basePath}icon/invincible_icon.png`
+            invincible: `${this.basePath}icon/invincible_icon.png`,
+            stone_skin_icon: `${this.basePath}icon/stone_skin_icon.png`,
+            stone_skin_effect: `${this.basePath}effect/stone_skin_effect.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)
         this.audio = {
             // 예: bgm_focus: `${this.basePath}audio/bgm/focus_lofi.mp3`
-            explosive_1: `${this.basePath}sfx/explosive-1.mp3`
+            explosive_1: `${this.basePath}sfx/explosive-1.mp3`,
+            stone_skin_sfx: `${this.basePath}sfx/crack-1.mp3`
         };
 
         // [구역 3] 애니메이션 및 데이터 (Data/Atlas)

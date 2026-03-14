@@ -1,6 +1,4 @@
 import Phaser from 'phaser';
-import MassHealAI from './MassHealAI.js';
-import SummonGuardianAngelAI from './SummonGuardianAngelAI.js';
 
 /**
  * 힐러 AI 노드 (Healer AI Node)
@@ -8,7 +6,7 @@ import SummonGuardianAngelAI from './SummonGuardianAngelAI.js';
  */
 class HealerAI {
     /**
-     * @param {CombatEntity} entity AI 주체 (세라)
+     * @param {CombatEntity} entity AI 주체
      * @param {Blackboard} bb 데이터 저장소
      * @param {number} delta 
      */
@@ -18,19 +16,6 @@ class HealerAI {
         const scene = entity.scene;
         const allies = (entity.team === 'mercenary') ? scene.allies : scene.enemies;
         const enemies = (entity.team === 'mercenary') ? scene.enemies : scene.allies;
-
-        // [USER 요청] 궁극기 우선 체크
-        if (SummonGuardianAngelAI.update(entity, allies)) {
-            entity.moveDirection = { x: 0, y: 0 };
-            return;
-        }
-
-        // [USER 요청] 매스 힐 스킬 체크 (쿨타임 시 즉시 시전)
-        // 스킬을 사용했다면 이번 프레임의 다른 행동은 건너뜁니다.
-        if (MassHealAI.execute(entity, bb)) {
-            entity.moveDirection = { x: 0, y: 0 };
-            return;
-        }
 
         // 1. 타겟 결정 (힐이 필요한 아군 vs 공격할 적)
         const healTarget = this.findLowestHPAlly(allies);

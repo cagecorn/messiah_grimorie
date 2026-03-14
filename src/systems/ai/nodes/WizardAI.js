@@ -1,6 +1,4 @@
 import Phaser from 'phaser';
-import SkillFireballAI from './SkillFireballAI.js';
-import MeteorStrikeAI from './MeteorStrikeAI.js';
 
 /**
  * 위자드 AI 노드 (Wizard AI Node)
@@ -17,20 +15,6 @@ class WizardAI {
      * @param {Blackboard} bb 
      */
     static execute(entity, bb) {
-        const enemies = (entity.team === 'mercenary') ? entity.scene.enemies : entity.scene.allies;
-
-        // 1. 궁극기 체크
-        if (MeteorStrikeAI.update(entity)) {
-            entity.moveDirection = { x: 0, y: 0 };
-            return;
-        }
-
-        // 2. 스킬 체크
-        if (SkillFireballAI.tick(entity, enemies)) {
-            entity.moveDirection = { x: 0, y: 0 };
-            return;
-        }
-
         // 3. 거리 유지 및 평타 (RangedAI 로직 재용)
         const target = bb.get('target');
         if (!target) {

@@ -22,7 +22,8 @@ export const STAT_KEYS = {
     RES_FIRE: 'fireRes',
     RES_ICE: 'iceRes',
     RES_LIGHTNING: 'lightningRes',
-    SHIELD: 'shield'
+    SHIELD: 'shield',
+    DR: 'bonusDR'
 };
 
 export const ENTITY_CLASSES = {

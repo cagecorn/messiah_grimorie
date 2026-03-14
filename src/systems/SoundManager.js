@@ -66,6 +66,14 @@ class SoundManager {
         if (!this.scene) return;
         audioManager.playSFX(this.scene, key, volume);
     }
+
+    /**
+     * 실비 스톤 스킨 효과음 재생
+     */
+    playStoneSkin() {
+        if (!this.scene) return;
+        audioManager.playSFX(this.scene, 'stone_skin_sfx', 0.8);
+    }
 }
 
 const soundManager = new SoundManager();

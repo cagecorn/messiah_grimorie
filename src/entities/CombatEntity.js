@@ -116,6 +116,7 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     // 🧩 [컴포넌트 브릿지 - Getters/Setters]
     // ==========================================
     get status() { return this.logic ? this.logic.status : null; }
+    get buffs() { return this.logic ? this.logic.buffs : null; }
     get sprite() { return this.visual ? this.visual.sprite : null; }
     get zHeight() { return this.movement.zHeight; }
     get skillProgress() { return this.skills.skillProgress; }

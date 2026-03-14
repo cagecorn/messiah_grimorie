@@ -7,8 +7,7 @@ import Logger from '../../../utils/Logger.js';
 export const executeWarriorAttack = (attacker, target) => {
     if (!attacker.isAlive || !target.isAlive) return;
 
-    const damage = attacker.getTotalAtk();
-    target.stats.takeDamage(damage);
-    
-    Logger.info("COMBAT", `[Warrior] ${attacker.name} hit ${target.name} for ${damage.toFixed(1)} physical damage.`);
+    const damage = attacker.getTotalAtk() * 1.2;
+    target.takeDamage(damage);
+    Logger.info("COMBAT", `[Warrior] ${attacker.name} attacked ${target.name} for ${damage.toFixed(1)} damage.`);
 };

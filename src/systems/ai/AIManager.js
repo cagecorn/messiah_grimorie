@@ -8,6 +8,12 @@ import HealerAI from './nodes/HealerAI.js';
 import WizardAI from './nodes/WizardAI.js';
 import SirenAI from './nodes/SirenAI.js';
 import BardAI from './nodes/BardAI.js';
+import ArenAI from './nodes/ArenAI.js';
+import SilviAI from './nodes/SilviAI.js';
+import LuteAI from './nodes/LuteAI.js';
+import EllaAI from './nodes/EllaAI.js';
+import MerlinAI from './nodes/MerlinAI.js';
+import SeraAI from './nodes/SeraAI.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -83,9 +89,21 @@ class AIManager {
             
             let node = this.aiNodes[className];
             
-            // [신규] 특정 유닛(소환수 등)에 대한 AI 오버라이드
+            // [신규] 특정 유닛 전용 AI 오버라이드 (모듈화 준수)
             if (id === 'siren') {
                 node = SirenAI;
+            } else if (id === 'aren') {
+                node = ArenAI;
+            } else if (id === 'silvi') {
+                node = SilviAI;
+            } else if (id === 'lute') {
+                node = LuteAI;
+            } else if (id === 'ella') {
+                node = EllaAI;
+            } else if (id === 'merlin') {
+                node = MerlinAI;
+            } else if (id === 'sera') {
+                node = SeraAI;
             }
 
             if (node) {

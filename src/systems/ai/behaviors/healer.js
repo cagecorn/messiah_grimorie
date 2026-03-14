@@ -13,12 +13,12 @@ export const executeHealerAttack = (attacker, target) => {
     if (isAlly) {
         // 1. [힐 모드] 아군에게 힐
         const healAmount = attacker.getTotalMAtk() * 1.0;
-        target.stats.heal(healAmount);
+        target.heal(healAmount);
         Logger.info("COMBAT", `[Healer] ${attacker.name} healed ${target.name} for ${healAmount.toFixed(1)}.`);
     } else {
         // 2. [공격 모드] 적에게 마법 원거리 평타
         const damage = attacker.getTotalMAtk() * 0.8;
-        target.stats.takeDamage(damage);
+        target.takeDamage(damage);
         Logger.info("COMBAT", `[Healer] ${attacker.name} shot ${target.name} for ${damage.toFixed(1)} magic damage.`);
     }
 };

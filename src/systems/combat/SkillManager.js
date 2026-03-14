@@ -6,6 +6,7 @@ import fireball from './skills/Fireball.js';
 import songOfProtection from './skills/SongOfProtection.js';
 import aquaBurst from './skills/AquaBurst.js';
 import sleepingBubble from './skills/SleepingBubble.js';
+import stoneSkin from './skills/StoneSkin.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -95,6 +96,17 @@ class SkillManager {
             descriptionKey: 'skill_sleeping_bubble_desc',
             cooldown: 5000,
             logic: sleepingBubble
+        });
+ 
+        // 실비 (Silvi)
+        this.skills.set('silvi', {
+            id: 'stoneskin',
+            name: 'Stone Skin',
+            nameKey: 'skill_stone_skin_name',
+            description: 'Reduces incoming damage by 25%.',
+            descriptionKey: 'skill_stone_skin_desc',
+            cooldown: 12000, // 12 seconds
+            logic: stoneSkin
         });
 
         // 고블린 (Goblin) - 스킬 없음

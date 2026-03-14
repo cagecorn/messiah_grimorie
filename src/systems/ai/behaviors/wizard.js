@@ -7,8 +7,7 @@ import Logger from '../../../utils/Logger.js';
 export const executeWizardAttack = (attacker, target) => {
     if (!attacker.isAlive || !target.isAlive) return;
 
-    const damage = attacker.getTotalMAtk();
-    target.stats.takeDamage(damage);
-    
-    Logger.info("COMBAT", `[Wizard] ${attacker.name} cast a magic burst at ${target.name} for ${damage.toFixed(1)} magic damage.`);
+    const damage = attacker.getTotalMAtk() * 1.5;
+    target.takeDamage(damage);
+    Logger.info("COMBAT", `[Wizard] ${attacker.name} cast Fireball on ${target.name} for ${damage.toFixed(1)} damage.`);
 };

@@ -179,9 +179,9 @@ class CombatManager {
         if (target.buffs) {
             Logger.info("COMBAT_MANAGER", `Processing INSPIRATION: ${bard.name} -> ${target.name} (+${buffValue.toFixed(1)})`);
             
-            // 공격력 및 마법 공격력 버프 추가
+            // [USER 요청] 공격력 및 마법 공격력 버프 둘 다(Both) 추가
             target.buffs.addBuff({
-                id: 'inspiration',
+                id: 'inspiration_atk',
                 key: 'atk',
                 value: buffValue,
                 type: 'add',

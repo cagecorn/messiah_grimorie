@@ -1,19 +1,16 @@
-import Logger from '../../utils/Logger.js';
-import formationManager from '../FormationManager.js';
-import mercenaryManager from '../entities/MercenaryManager.js';
-import monsterManager from '../entities/MonsterManager.js';
 import collectionManager from '../MercenaryCollectionManager.js';
 import assetPathManager from '../../core/AssetPathManager.js';
 import CombatEntity from '../../entities/CombatEntity.js';
 import measurementManager from '../../core/MeasurementManager.js';
 import poolingManager from '../../core/PoolingManager.js';
+import formationManager from '../FormationManager.js';
+import mercenaryManager from '../entities/MercenaryManager.js';
+import monsterManager from '../entities/MonsterManager.js';
+import Logger from '../../utils/Logger.js';
 
 /**
  * 스폰 매니저 (Spawn Manager)
  * 역할: [유닛 배치 및 초기화]
- * 
- * 설명: 전투 시작 시 아군(편성 정보 기반)과 적군(스테이지 정보 기반)을 
- * 월드에 물리적으로 배치하는 역할을 담당합니다.
  */
 class SpawnManager {
     constructor() {
@@ -27,9 +24,7 @@ class SpawnManager {
         this.scene = scene;
 
         // [USER 요청] 고블린 등 자주 쓰이는 몬스터 풀 등록
-        // 초기 10마리 확보 (부족하면 자동 생성됨)
         poolingManager.registerPool('monster_goblin', () => {
-            // 팩토리 함수에서는 가짜 데이터를 넣어서 생성만 해둠 (실제 초기화는 spawn 시기에 호출)
             const dummyLogic = monsterManager.spawn('goblin', { level: 1 });
             const entity = new CombatEntity(scene, 0, 0, dummyLogic, 'enemy_goblin_sprite');
             entity.poolType = 'monster_goblin';

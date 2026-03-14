@@ -15,6 +15,7 @@ import PooledInspiration from './effects/PooledInspiration.js';
 import PooledSongOfProtection from './effects/PooledSongOfProtection.js';
 import PooledShieldEffect from './effects/PooledShieldEffect.js';
 import PooledAquaExplosion from './effects/PooledAquaExplosion.js';
+import PooledStoneSkinEffect from './effects/PooledStoneSkinEffect.js';
 
 /**
  * 애니메이션 매니저 (Animation Manager)
@@ -48,6 +49,7 @@ class AnimationManager {
         poolingManager.registerPool('song_of_protection_fx', () => new PooledSongOfProtection(this.scene), 5);
         poolingManager.registerPool('shield_overlay_fx', () => new PooledShieldEffect(this.scene), 20);
         poolingManager.registerPool('aqua_explosion_fx', () => new PooledAquaExplosion(this.scene), 10);
+        poolingManager.registerPool('stone_skin_overlay_fx', () => new PooledStoneSkinEffect(this.scene), 5);
 
         Logger.system("AnimationManager: Tactics-style animation system ready.");
     }
@@ -130,6 +132,18 @@ class AnimationManager {
     playShieldOverlay(target, duration) {
         if (!this.scene || !target || !target.active) return;
         const effect = poolingManager.get('shield_overlay_fx');
+        if (effect) {
+            effect.show(target, duration);
+            this.activePersistentEffects.add(effect);
+        }
+    }
+
+    /**
+     * 실비 스톤 스킨 오버레이 이펙트 재생
+     */
+    playStoneSkinOverlay(target, duration) {
+        if (!this.scene || !target || !target.active) return;
+        const effect = poolingManager.get('stone_skin_overlay_fx');
         if (effect) {
             effect.show(target, duration);
             this.activePersistentEffects.add(effect);

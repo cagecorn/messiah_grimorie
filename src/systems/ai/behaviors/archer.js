@@ -7,8 +7,7 @@ import Logger from '../../../utils/Logger.js';
 export const executeArcherAttack = (attacker, target) => {
     if (!attacker.isAlive || !target.isAlive) return;
 
-    const damage = attacker.getTotalAtk();
-    target.stats.takeDamage(damage);
-    
-    Logger.info("COMBAT", `[Archer] ${attacker.name} fired an arrow at ${target.name} for ${damage.toFixed(1)} physical damage.`);
+    const damage = attacker.getTotalAtk() * 1.0;
+    target.takeDamage(damage);
+    Logger.info("COMBAT", `[Archer] ${attacker.name} shot ${target.name} for ${damage.toFixed(1)} damage.`);
 };

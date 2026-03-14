@@ -93,21 +93,6 @@ class StatManager {
     get(key) {
         return this.finalStats[key] || 0;
     }
-
-    // --- 전투 유틸리티 ---
-    
-    takeDamage(amount) {
-        const current = this.finalStats[STAT_KEYS.HP];
-        this.finalStats[STAT_KEYS.HP] = Math.max(0, current - amount);
-        return this.finalStats[STAT_KEYS.HP];
-    }
-
-    heal(amount) {
-        const current = this.finalStats[STAT_KEYS.HP];
-        const max = this.finalStats[STAT_KEYS.MAX_HP];
-        this.finalStats[STAT_KEYS.HP] = Math.min(max, current + amount);
-        return this.finalStats[STAT_KEYS.HP];
-    }
 }
 
 export default StatManager;

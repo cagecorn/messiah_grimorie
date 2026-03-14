@@ -10,15 +10,21 @@ class BuffManager {
     constructor(owner) {
         this.owner = owner; // BaseEntity 인스턴스
         this.activeBuffs = [];
+        this.timers = new Map(); // ID별 타이머 관리 [NEW]
     }
 
     /**
-     * 버프 추가
+     * 버프 추가 (동일 ID 존재 시 리프레시)
      * @param {Object} config { key, value, type: 'add'|'mult', duration, id }
      */
     addBuff(config) {
         const { key, value, type, duration, id } = config;
         
+        // [신규] 리프레시 로직: 동일 ID가 있으면 기존 버프 제거 (타이머 포함)
+        if (id) {
+            this.removeBuff(id, true); // silent=true (로그 중복 방지)
+        }
+
         const buff = {
             id: id || `${key}_${Date.now()}`,
             key,
@@ -35,33 +41,45 @@ class BuffManager {
 
         // 기간 한정 버프라면 타이머 설정
         if (duration && duration !== Infinity) {
-            setTimeout(() => this.removeBuff(buff.id), duration);
+            const timer = setTimeout(() => this.removeBuff(buff.id), duration);
+            this.timers.set(buff.id, timer);
         }
     }
 
     applyBuffEffect(buff) {
         const category = buff.type === 'mult' ? 'mult' : 'bonus';
-        const current = this.owner.stats[category === 'mult' ? 'multipliers' : 'bonusStats'][buff.key] || (category === 'mult' ? 1.0 : 0);
+        const stats = this.owner.stats;
+        const current = stats[category === 'mult' ? 'multipliers' : 'bonusStats'][buff.key] || (category === 'mult' ? 1.0 : 0);
         
-        if (category === 'mult') {
-            this.owner.stats.update(category, buff.key, current + buff.value); // 합연산 방식 (10% + 10% = 1.2배)
-        } else {
-            this.owner.stats.update(category, buff.key, current + buff.value);
-        }
+        stats.update(category, buff.key, current + buff.value);
     }
 
-    removeBuff(buffId) {
+    /**
+     * 버프 제거
+     * @param {string} buffId 
+     * @param {boolean} silent 로그 출력 여부
+     */
+    removeBuff(buffId, silent = false) {
         const index = this.activeBuffs.findIndex(b => b.id === buffId);
         if (index !== -1) {
             const buff = this.activeBuffs[index];
             this.activeBuffs.splice(index, 1);
             
+            // 타이머 제거
+            if (this.timers.has(buffId)) {
+                clearTimeout(this.timers.get(buffId));
+                this.timers.delete(buffId);
+            }
+
             // 효과 되돌리기
             const category = buff.type === 'mult' ? 'mult' : 'bonus';
-            const current = this.owner.stats[category === 'mult' ? 'multipliers' : 'bonusStats'][buff.key];
-            this.owner.stats.update(category, buff.key, current - buff.value);
+            const stats = this.owner.stats;
+            const current = stats[category === 'mult' ? 'multipliers' : 'bonusStats'][buff.key];
+            stats.update(category, buff.key, current - buff.value);
             
-            Logger.info("COMBAT", `Buff expired: ${buffId}`);
+            if (!silent) {
+                Logger.info("COMBAT", `Buff expired: ${buffId}`);
+            }
         }
     }
 

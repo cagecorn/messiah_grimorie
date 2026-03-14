@@ -1,4 +1,5 @@
 import Logger from '../../utils/Logger.js';
+import { STAT_KEYS } from '../../core/EntityConstants.js';
 
 /**
  * 엔티티 전투 컴포넌트 (Entity Combat Component)
@@ -88,11 +89,18 @@ export default class EntityCombatComponent {
 
         // [신규] 보호막 흡수 로직
         const absorbed = this.logic.shields ? this.logic.shields.absorbDamage(amount) : 0;
-        const finalDamage = amount - absorbed;
+        let finalDamage = amount - absorbed;
+
+        // [신규] 데미지 감소(DR) 적용
+        const dr = this.logic.stats.bonusStats[STAT_KEYS.DR] || 0;
+        finalDamage = finalDamage * (1 - Math.min(0.9, dr));
 
         let currentHp = this.logic.hp;
         if (finalDamage > 0) {
-            currentHp = this.logic.stats.takeDamage(finalDamage);
+            // HP 직접 갱신 (BaseEntity에서 로직 이전)
+            const current = this.logic.stats.finalStats[STAT_KEYS.HP];
+            currentHp = Math.max(0, current - finalDamage);
+            this.logic.stats.finalStats[STAT_KEYS.HP] = currentHp;
             
             // [신규] 수면 상태 해제 (공격 당할 시)
             if (this.logic.status && this.logic.status.states.sleep) {
@@ -132,16 +140,11 @@ export default class EntityCombatComponent {
     heal(amount) {
         if (!this.logic.isAlive) return;
         
-        // [수정] BaseEntity의 내장 heal 메서드를 호출하여 스탯 시스템 내부에서 안전하게 처리하도록 위임
-        if (typeof this.logic.stats.heal === 'function') {
-            this.logic.stats.heal(amount);
-        } else {
-            // Fallback (만약 stats.heal이 없다면 수동 계산)
-            const currentHp = this.logic.hp;
-            const maxHp = this.logic.getTotalMaxHp();
-            const newHp = Math.min(maxHp, currentHp + amount);
-            this.logic.stats.update('base', 'hp', newHp);
-        }
+        // [수정] HP 직접 갱신 (BaseEntity에서 로직 이전)
+        const current = this.logic.stats.finalStats[STAT_KEYS.HP];
+        const max = this.logic.getTotalMaxHp();
+        const nextHp = Math.min(max, current + amount);
+        this.logic.stats.finalStats[STAT_KEYS.HP] = nextHp;
 
         if (this.entity.hpBar) this.entity.hpBar.isDirty = true;
     }

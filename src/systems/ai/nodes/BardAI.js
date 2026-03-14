@@ -1,6 +1,4 @@
 import Phaser from 'phaser';
-import { updateSongOfProtectionAI } from '../../combat/skills/SongOfProtectionAI.js';
-import SummonSirenAI from '../../combat/skills/SummonSirenAI.js';
 
 /**
  * 바드 AI 노드 (Bard AI Node)
@@ -8,7 +6,7 @@ import SummonSirenAI from '../../combat/skills/SummonSirenAI.js';
  */
 class BardAI {
     /**
-     * @param {CombatEntity} entity AI 주체 (루트)
+     * @param {CombatEntity} entity AI 주체
      * @param {Blackboard} bb 데이터 저장소
      * @param {number} delta 
      */
@@ -18,13 +16,6 @@ class BardAI {
         const scene = entity.scene;
         const allies = (entity.team === 'mercenary') ? scene.allies : scene.enemies;
         const enemies = (entity.team === 'mercenary') ? scene.enemies : scene.allies;
-
-        // [USER 요청] 기술(수호의 노래) 및 궁극기(소환: 세이렌) 사용 체크
-        updateSongOfProtectionAI(entity);
-        if (SummonSirenAI.update(entity)) {
-            entity.moveDirection = { x: 0, y: 0 };
-            return;
-        }
 
         // 1. 타겟 결정 (버프가 필요한 아군 vs 공격할 적)
         const buffTarget = this.findUninspiredAlly(entity, allies);
