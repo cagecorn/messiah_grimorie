@@ -1,4 +1,5 @@
 import localizationManager from './LocalizationManager.js';
+import emojiManager from './EmojiManager.js';
 
 /**
  * 전역 상태 관리 (Global State Management)
@@ -42,9 +43,19 @@ class GlobalState {
         this.settings.language = lang;
     }
 
-    // 번역 헬퍼
+    /**
+     * 번역 및 이모지 자동 치환 헬퍼 (Smart Translation)
+     */
     t(key) {
-        return localizationManager.t(key);
+        const text = localizationManager.t(key);
+        return emojiManager.parseToHTML(text);
+    }
+
+    /**
+     * 일반 텍스트 내의 이모지를 그래픽으로 치환
+     */
+    p(text) {
+        return emojiManager.parseToHTML(text);
     }
 }
 

@@ -63,8 +63,9 @@ class TopHUDDOMManager {
         const section = document.createElement('div');
         section.className = 'mg-hud-left';
 
-        this.elements.gold = this.createCurrencyItem('🪙', 'gold');
-        this.elements.gem = this.createCurrencyItem('💎', 'gem');
+        // [USER 요청] 이모지를 직접 쓰면 이제 GlobalState.p()를 통해 자동으로 에셋으로 치환됩니다.
+        this.elements.gold = this.createCurrencyItem(state.p('🪙'), 'gold');
+        this.elements.gem = this.createCurrencyItem(state.p('💎'), 'gem');
 
         section.appendChild(this.elements.gold.container);
         section.appendChild(this.elements.gem.container);
@@ -78,7 +79,7 @@ class TopHUDDOMManager {
         
         const icon = document.createElement('span');
         icon.className = 'mg-currency-icon';
-        icon.innerText = emoji;
+        icon.innerHTML = emoji; // HTML(Img 태그) 허용
 
         const value = document.createElement('span');
         value.className = 'mg-currency-value';

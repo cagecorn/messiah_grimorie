@@ -12,7 +12,8 @@ class EmojiManager {
         this.basePath = 'assets/emojis/';
         this.emojiMap = {
             '🪙': 'gold.png',
-            '💎': 'diamond.png'
+            '💎': 'diamond.png',
+            '🛡️': 'shield.png'
         };
         
         Logger.system("EmojiManager: Initialized (Visual mapping ready).");

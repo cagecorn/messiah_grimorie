@@ -1,5 +1,6 @@
 import Logger from '../../utils/Logger.js';
 import EventBus, { EVENTS } from '../../core/EventBus.js';
+import state from '../../core/GlobalState.js';
 import domManager from '../DOMManager.js';
 import formationManager from '../../systems/FormationManager.js';
 import mercenaryManager from '../../systems/entities/MercenaryManager.js';
@@ -47,9 +48,9 @@ class FormationDOMManager {
         this.container = document.createElement('div');
         this.container.className = 'formation-overlay';
         
-        // 상단 타이틀
+        // 상단 타이틀 (이모지 자동 치환 적용)
         const title = document.createElement('h1');
-        title.innerText = '🛡️ TACTICAL FORMATION';
+        title.innerHTML = state.p('🛡️ TACTICAL FORMATION');
         title.style.color = 'var(--mg-gold)';
         title.style.marginBottom = '30px';
         this.container.appendChild(title);

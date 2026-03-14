@@ -198,8 +198,8 @@ class CombatManager {
             // 시각 효과
             fxManager.showInspirationEffect(targetEntity);
             
-            // 효과음
-            soundManager.playSound('magic_hit_1', 0.4);
+            // 효과음 제거 (유저 요청: 너무 자주 발생하여 노이로제 유발)
+            // soundManager.playSound('magic_hit_1', 0.4);
         }
     }
 
