@@ -94,6 +94,26 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         combatManager.addUnit(this);
 
         Logger.info("COMBAT_ENTITY", `Initialized ${this.logic.name} (Modular) at (${Math.round(this.x)}, ${Math.round(this.y)})`);
+
+        // 6. 마우스 인터랙션 설정 (우클릭 정보창 확장)
+        this.setupInteractions();
+    }
+
+    setupInteractions() {
+        // 컨테이너 히트박스 설정 (Phaser Circle 바디 활용)
+        const radius = this.body ? this.body.radius : 20;
+        this.setInteractive(new Phaser.Geom.Circle(0, 0, radius * 2), Phaser.Geom.Circle.Contains);
+
+        this.on('pointerdown', (pointer) => {
+            // 우클릭 (Right Click, Button index 2)
+            if (pointer.button === 2) {
+                console.log(`[CombatEntity] Right-click detected on: ${this.logic.name}`);
+                characterInfoManager.setTarget(this, 'combat');
+            }
+        });
+
+        // 우클릭 시 브라우저 메뉴 출력 방지
+        this.scene.input.mouse.disableContextMenu();
     }
 
     onAcquire() { }

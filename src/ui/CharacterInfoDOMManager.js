@@ -4,11 +4,14 @@ import domManager from './DOMManager.js';
 import localizationManager from '../core/LocalizationManager.js';
 import characterInfoManager from '../systems/CharacterInfoManager.js';
 import mercenaryManager from '../systems/entities/MercenaryManager.js';
+import monsterManager from '../systems/entities/MonsterManager.js';
 import skillManager from '../systems/combat/SkillManager.js';
 import ultimateManager from '../systems/combat/UltimateManager.js';
 import damageCalculationManager from '../systems/combat/DamageCalculationManager.js';
 import characterStatusManager from '../systems/CharacterStatusManager.js';
 import iconManager from '../systems/IconManager.js';
+import statusDescriptionManager from '../systems/StatusDescriptionManager.js';
+import toastMessageManager from './ToastMessageManager.js';
 import { ENTITY_CLASSES, CLASS_GROWTH, SPECIAL_GROWTH, STAT_KEYS } from '../core/EntityConstants.js';
 
 /**
@@ -90,10 +93,31 @@ class CharacterInfoDOMManager {
         if (!target) return;
 
         const id = characterInfoManager.getId();
-        const registryData = mercenaryManager.registry[id] || {};
+        const logic = target.logic || {};
+        const type = logic.type || 'unknown';
+        
+        let registryData = {};
+        let className = type.toUpperCase();
+        let portraitSrc = '';
+
+        if (type === 'mercenary') {
+            registryData = mercenaryManager.registry[id] || {};
+            className = registryData.className || 'Unknown';
+            portraitSrc = iconManager.getPortraitPath(id);
+        } else if (type === 'monster') {
+            registryData = monsterManager.registry[id] || {};
+            className = 'MONSTER';
+            // 몬스터는 전용 초상화가 없으면 스프라이트 키를 직접 사용 가능하도록 경로 생성 로직 우회 필요
+            // 여기서는 일단 iconManager가 'unknown'을 주면 spriteKey를 쓰도록 함.
+            portraitSrc = iconManager.getPortraitPath(id);
+        }
+
         const name = characterInfoManager.getName();
-        const level = target.logic?.leveling?.getLevel() || target.level || 1;
-        const className = registryData.className || 'Unknown';
+        const level = logic.leveling?.getLevel() || target.level || 1;
+
+        // 초상화 폴백 로직: 만약 getPortraitPath 결과가 기본 unknown이면 spriteKey 활용 시도
+        const isDefaultPortrait = portraitSrc.includes('unknown.png');
+        const finalPortraitSrc = (isDefaultPortrait && target.spriteKey) ? `/assets/mercenary/sprite/${target.spriteKey}.png` : portraitSrc;
 
         this.card.innerHTML = `
             <div class="info-header">
@@ -108,7 +132,7 @@ class CharacterInfoDOMManager {
             </div>
             <div class="info-body">
                 <div class="info-portrait-side">
-                    <img src="${iconManager.getPortraitPath(id)}" class="info-portrait-img">
+                    <img src="${finalPortraitSrc}" class="info-portrait-img" style="${isDefaultPortrait ? 'image-rendering: pixelated; object-fit: contain;' : ''}">
                 </div>
                 <div class="info-content-side">
                     <div class="info-tabs">
@@ -133,6 +157,18 @@ class CharacterInfoDOMManager {
             characterInfoManager.clearTarget();
         };
         window.UI_CHARACTER_INFO_TAB = (tab) => this.switchTab(tab);
+        window.UI_SHOW_STATUS_TOAST = (id, fullId) => {
+            const target = characterInfoManager.currentTarget;
+            if (!target) return;
+            const report = characterStatusManager.getStatusReport(target);
+            const iconData = report.activeIcons.find(i => i.fullId === fullId || i.id === id);
+            
+            if (iconData) {
+                const title = statusDescriptionManager.getTitle(id);
+                const desc = statusDescriptionManager.getDescription(id, iconData);
+                toastMessageManager.show(`[${title}] ${desc}`, 'info');
+            }
+        };
 
         this.isDirty = false;
         
@@ -319,7 +355,9 @@ class CharacterInfoDOMManager {
         return `
             <div class="info-status-icons">
                 ${report.activeIcons.map(icon => `
-                    <div class="status-icon-wrapper ${icon.type}">
+                    <div class="status-icon-wrapper ${icon.type}" 
+                         style="cursor: pointer;" 
+                         onclick="UI_SHOW_STATUS_TOAST('${icon.id}', '${icon.fullId || ''}')">
                         <img src="${icon.iconPath}" title="${icon.id}">
                     </div>
                 `).join('')}

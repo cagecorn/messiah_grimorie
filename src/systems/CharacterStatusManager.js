@@ -44,6 +44,7 @@ class CharacterStatusManager {
                 mAtk: logic.getTotalMAtk(),
                 def: logic.getTotalDef(),
                 mDef: logic.getTotalMDef(),
+                speed: logic.getTotalSpeed(),
                 atkSpd: logic.getTotalAtkSpd(),
                 crit: logic.getTotalCrit()
             },
@@ -52,19 +53,28 @@ class CharacterStatusManager {
             activeIcons: []
         };
 
-        // 버프 아이콘 수집
-        if (buffs) {
-            const activeBuffIds = buffs.getActiveBuffIds();
-            activeBuffIds.forEach(id => {
+        // 버프 및 데이터 수집
+        if (buffs && buffs.activeBuffs) {
+            const seenBuffBaseIds = new Set();
+            buffs.activeBuffs.forEach(b => {
+                const baseId = b.id.split('_')[0]; // 'inspiration_atk' -> 'inspiration'
+                
+                // 동일 계열 버프(예: 영감 ATK/MATK)는 아이콘 하나만 표시 (유저 요청: 중첩/중복 방지)
+                if (seenBuffBaseIds.has(baseId)) return;
+                seenBuffBaseIds.add(baseId);
+
                 report.activeIcons.push({
-                    id: id,
+                    id: baseId,
+                    fullId: b.id,
                     type: 'buff',
-                    iconPath: iconManager.getStatusPath(id)
+                    value: b.value,
+                    valueType: b.type, // 'add' | 'mult'
+                    iconPath: iconManager.getStatusPath(baseId)
                 });
             });
         }
 
-        // 상태이상 아이콘 수집
+        // 상태이상 자산 및 데이터 수집
         if (status) {
             const activeStatusIds = status.getActiveEffectIds();
             activeStatusIds.forEach(id => {
@@ -76,12 +86,16 @@ class CharacterStatusManager {
             });
         }
 
-        // 쉴드 아이콘 추가 (보호막 활성 시)
-        if (report.shield > 0) {
-            report.activeIcons.push({
-                id: 'shield',
-                type: 'buff',
-                iconPath: iconManager.getStatusPath('shield')
+        // 개별 쉴드 정보 추가 (유저 요청: 중첩보단 개별)
+        if (shields && shields.activeShields) {
+            shields.activeShields.forEach(s => {
+                report.activeIcons.push({
+                    id: 'shield',
+                    fullId: s.id,
+                    type: 'buff',
+                    value: s.amount,
+                    iconPath: iconManager.getStatusPath('shield')
+                });
             });
         }
 

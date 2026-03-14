@@ -1,6 +1,7 @@
 import Logger from '../utils/Logger.js';
 import EventBus, { EVENTS } from '../core/EventBus.js';
 import mercenaryManager from './entities/MercenaryManager.js';
+import monsterManager from './entities/MonsterManager.js';
 
 /**
  * 캐릭터 인포 매니저 (Character Info Manager)
@@ -49,8 +50,16 @@ class CharacterInfoManager {
         // 2. 직접 name 속성 (PortraitHUDCard 등)
         if (this.currentTarget.name) return this.currentTarget.name;
 
-        // 3. Roster 데이터 (id만 있는 경우) -> 레지스트리 검색
+        // 3. Roster/Registry 데이터 (id만 있는 경우) -> 레지스트리 검색
         const id = this.getId();
+        const logic = this.currentTarget.logic;
+        
+        // 몬스터인 경우 MonsterManager 레지스트리 참조
+        if (logic && logic.type === 'monster') {
+            const monsterData = monsterManager.registry[id];
+            return monsterData ? monsterData.name : 'Unknown Monster';
+        }
+
         const registryData = mercenaryManager.registry[id];
         return registryData ? registryData.name : 'Unknown';
     }
