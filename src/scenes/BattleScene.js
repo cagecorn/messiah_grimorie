@@ -18,6 +18,7 @@ import ultimateCutsceneManager from '../ui/UltimateCutsceneManager.js';
 import portraitHUDManager from '../systems/PortraitHUDManager.js';
 import experienceManager from '../systems/combat/ExperienceManager.js';
 import lootManager from '../systems/combat/LootManager.js';
+import lootInteractionManager from '../systems/combat/LootInteractionManager.js';
 import dungeonRoundManager from '../systems/dungeons/DungeonRoundManager.js';
 
 /**
@@ -268,6 +269,9 @@ export default class BattleScene extends Phaser.Scene {
         if (this.movementManager) {
             this.movementManager.update([...this.allies, ...this.enemies], delta);
         }
+
+        // [신규] 아이템 획득 인터랙션 업데이트
+        lootInteractionManager.update();
 
         // [ROUND CONTROL] 라운드 종료 체크
         this.checkRoundProgression();

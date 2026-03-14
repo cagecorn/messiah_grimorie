@@ -34,9 +34,14 @@ export default class LootEntity extends Phaser.GameObjects.Sprite {
         this.alpha = 1;
         this.setScale(config.scale || 0.4);
 
+        // [인터랙션] 유저가 직접 클릭 가능하도록 설정
+        this.setInteractive({ useHandCursor: true });
+        this.off('pointerdown'); // 기존 리스너 제거
+        this.on('pointerdown', () => this.collect());
+
         // [신규] 텍스처 동적 설정
         if (this.lootType === 'gold') {
-            const key = import('../core/EmojiManager.js').then(m => {
+            import('../core/EmojiManager.js').then(m => {
                 const k = m.default.getAssetKey('🪙');
                 this.setTexture(k);
             });
@@ -91,20 +96,31 @@ export default class LootEntity extends Phaser.GameObjects.Sprite {
     }
 
     /**
-     * 수집 처리 (펫 등에 의해 호출됨)
+     * 수집 처리 (유닛 충돌 or 유저 클릭)
      */
-    collect() {
+    async collect() {
         if (this.isCollected) return;
         this.isCollected = true;
         
-        // 간단한 수집 애니메이션 후 풀 반납
+        // 1. 데이터 베이스 / 매니저에 반영
+        if (this.lootType === 'gold') {
+            const currencyManager = (await import('../core/CurrencyManager.js')).default;
+            currencyManager.add('gold', this.amount);
+        } else if (this.itemId) {
+            const messiahInventoryManager = (await import('../systems/MessiahInventoryManager.js')).default;
+            await messiahInventoryManager.acquireItem(this.itemId, 1);
+        }
+
+        Logger.info("LOOT", `Collected: ${this.lootType === 'gold' ? this.amount + ' Gold' : this.itemId}`);
+
+        // 2. 수집 애니메이션 (HUD로 날아가는 대신 위로 사라짐)
         this.scene.tweens.add({
             targets: this,
-            y: this.y - 50,
+            y: this.y - 100,
             alpha: 0,
-            scale: 0.1,
-            duration: 300,
-            ease: 'Power2',
+            scale: 0.2,
+            duration: 400,
+            ease: 'Back.in',
             onComplete: () => {
                 this.release();
             }

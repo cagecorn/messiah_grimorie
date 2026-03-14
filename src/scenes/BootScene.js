@@ -132,6 +132,10 @@ export default class BootScene extends Phaser.Scene {
             module.default.initialize();
         });
 
+        import('../ui/MessiahInventoryDOMManager.js').then(module => {
+            module.default.initialize();
+        });
+
         // 영지 씬으로 진입
         this.scene.start('TerritoryScene');
     }

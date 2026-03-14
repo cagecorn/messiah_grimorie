@@ -1,7 +1,5 @@
-import Logger from '../../utils/Logger.js';
-import EventBus, { EVENTS } from '../../core/EventBus.js';
-import lootTableManager from './LootTableManager.js';
 import itemPoolingManager from './ItemPoolingManager.js';
+import lootInteractionManager from './LootInteractionManager.js';
 
 /**
  * 루트 매니저 (Loot Manager)
@@ -19,6 +17,9 @@ class LootManager {
 
         // 아이템 풀링 매니저 초기화
         itemPoolingManager.init(scene);
+        
+        // 인터랙션 매니저 초기화 (풀링된 그룹 전달)
+        lootInteractionManager.init(scene, itemPoolingManager.getLootGroup());
 
         // 사망 이벤트 구독
         EventBus.on(EVENTS.ENTITY_DIED, (entity) => this.handleEntityDeath(entity));
@@ -44,7 +45,7 @@ class LootManager {
             this.spawnGoldLoot(entity.x, entity.y, loot.gold);
         }
 
-        // 3. 아이템 드랍 연출
+        // 3. 아이템 드랍 연출 (물리적 드랍 - 이제 LootInteractionManager에서 수집 담당)
         if (loot.items && loot.items.length > 0) {
             loot.items.forEach(itemId => {
                 itemPoolingManager.spawnItem(entity.x, entity.y, itemId);

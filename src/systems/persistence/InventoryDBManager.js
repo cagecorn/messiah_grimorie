@@ -1,4 +1,4 @@
-import Logger from '../../core/Logger.js';
+import Logger from '../../utils/Logger.js';
 import indexDBManager from '../../core/IndexDBManager.js';
 
 /**

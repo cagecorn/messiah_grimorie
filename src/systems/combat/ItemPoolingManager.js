@@ -31,6 +31,16 @@ class ItemPoolingManager {
     }
 
     /**
+     * 인터랙션 매니저를 위한 그룹 반환
+     */
+    getLootGroup() {
+        // PoolingManager에 의해 내부적으로 관리되는 물리 그룹이 있다면 그것을 반환하거나,
+        // 여기서는 PoolingManager.getGroup() 등을 활용 (구현에 따라 다름)
+        // [STABLE] PoolingManager가 내부적으로 그룹을 관리하므로 해당 그룹을 가져옵니다.
+        return poolingManager.getGroup('loot_gold'); // 아이템과 골드 물리 그룹이 분리되어 있다면 둘 다 체크 필요
+    }
+
+    /**
      * 골드 드랍 개체 생성
      */
     spawnGold(x, y, amount) {
