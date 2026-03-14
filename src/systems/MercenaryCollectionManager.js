@@ -2,6 +2,13 @@ import Logger from '../utils/Logger.js';
 import EventBus from '../core/EventBus.js';
 import indexDBManager from '../core/IndexDBManager.js';
 
+import arenDB from './persistence/ArenIndexDBManager.js';
+import seraDB from './persistence/SeraIndexDBManager.js';
+import ellaDB from './persistence/EllaIndexDBManager.js';
+import merlinDB from './persistence/MerlinIndexDBManager.js';
+import luteDB from './persistence/LuteIndexDBManager.js';
+import silviDB from './persistence/SilviIndexDBManager.js';
+
 /**
  * 용병 수집 매니저 (Mercenary Collection Manager)
  * 역할: [소유권 및 컬렉션 데이터 관리]
@@ -13,6 +20,16 @@ class MercenaryCollectionManager {
     constructor() {
         this.ownedMercenaries = new Map(); // key: id, value: { id, level, stars, count, ... }
         this.isInitialized = false;
+
+        // [신규] 개별 DB 매니저 라우팅 맵
+        this.dbManagers = {
+            aren: arenDB,
+            sera: seraDB,
+            ella: ellaDB,
+            merlin: merlinDB,
+            lute: luteDB,
+            silvi: silviDB
+        };
     }
 
     /**
@@ -80,6 +97,28 @@ class MercenaryCollectionManager {
      */
     getMercenaryData(mercId) {
         return this.ownedMercenaries.get(mercId.toLowerCase());
+    }
+
+    /**
+     * [신규] 전투 중 획득한 경험치/레벨 실시간 동기화
+     */
+    async updateMercenaryProgress(mercId, level, exp) {
+        const id = mercId.toLowerCase();
+        const merc = this.ownedMercenaries.get(id);
+        
+        if (!merc) return;
+
+        merc.level = level;
+        merc.exp = exp;
+
+        // [STABLE] 개별 전용 DB 매니저로 라우팅하여 저장
+        const dbManager = this.dbManagers[id];
+        if (dbManager) {
+            await dbManager.saveData(merc);
+        } else {
+            // 특수 유닛이나 임시 유닛의 경우 기존 공용 저장소 활용 가능
+            await indexDBManager.save('mercenaries', merc);
+        }
     }
 }
 

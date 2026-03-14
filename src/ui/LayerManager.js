@@ -33,6 +33,7 @@ class LayerManager {
             world_ui: 500, // #npc-hud, #messiah-hud
             fx: 800,
             hud: 1000,
+            ui: 15000, // [신규] 인벤토리 등 대형 UI 레이어
             popup: 15000,
             graphics_fx: 19000, // [신규] 화면 전체 그래픽 효과 레이어
             tooltip: 18000,

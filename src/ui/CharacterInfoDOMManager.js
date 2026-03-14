@@ -56,7 +56,7 @@ class CharacterInfoDOMManager {
     }
 
     show() {
-        console.log(`[CharacterInfoDOMManager] show() called. Target: ${characterInfoManager.currentTarget?.name}`);
+        console.log(`[CharacterInfoDOMManager] show() called. Target: ${characterInfoManager.getName()}`);
         if (!this.container) {
             this.createUI();
         }
@@ -93,6 +93,12 @@ class CharacterInfoDOMManager {
                             <span id="ci-class"></span>
                             <span id="ci-level"></span>
                         </div>
+                        <div class="info-exp-container">
+                            <div class="info-exp-bar">
+                                <div id="ci-exp-fill" class="info-exp-fill"></div>
+                            </div>
+                            <span id="ci-exp-text" class="info-exp-text"></span>
+                        </div>
                     </div>
                     <button class="close-btn" onclick="UI_CHARACTER_INFO_CLOSE()">×</button>
                 </div>
@@ -121,6 +127,8 @@ class CharacterInfoDOMManager {
             name: this.container.querySelector('#ci-name'),
             class: this.container.querySelector('#ci-class'),
             level: this.container.querySelector('#ci-level'),
+            expFill: this.container.querySelector('#ci-exp-fill'),
+            expText: this.container.querySelector('#ci-exp-text'),
             portrait: this.container.querySelector('#ci-portrait'),
             tabContent: this.container.querySelector('#ci-tab-content'),
             statusIcons: this.container.querySelector('#ci-status-icons'),
@@ -159,8 +167,8 @@ class CharacterInfoDOMManager {
         if (!target) return;
 
         const id = characterInfoManager.getId();
-        const logic = target.logic || {};
-        const type = logic.type || 'unknown';
+        const logic = target.logic || target; // [FIX] logic이 없으면 target 자체를 데이터 소스로 활용
+        const type = logic.type || target.type || 'unknown';
         const newHash = this.generateReportHash(target);
 
         // 1. 타겟 변경 시에만 헤더/초상화 갱신
@@ -188,26 +196,40 @@ class CharacterInfoDOMManager {
 
     updateHeaderAndPortrait(target, id, type) {
         const name = characterInfoManager.getName();
-        const level = target.logic?.leveling?.getLevel() || target.level || 1;
+        const derivedType = characterInfoManager.getType(); // [NEW] 명시적 타입 추출
+        const leveling = characterInfoManager.getLeveling();
+        const level = leveling ? (leveling.getLevel ? leveling.getLevel() : (leveling.level || 1)) : (target.level || 1);
         
         let className = 'UNKNOWN';
-        if (type === 'mercenary') {
+        if (derivedType === 'mercenary') {
             const registryData = mercenaryManager.registry[id] || {};
             className = registryData.className || 'Unknown';
-        } else if (type === 'monster') {
+        } else if (derivedType === 'monster') {
             className = 'MONSTER';
-        } else if (type === 'summon') {
+        } else if (derivedType === 'summon') {
             className = 'SUMMON';
         }
 
         this.els.name.textContent = name;
-        this.els.class.textContent = className.toUpperCase();
+        this.els.class.textContent = (localizationManager.t('ui_class_' + className.toLowerCase())).toUpperCase();
         this.els.level.textContent = `LV. ${level}`;
 
-        let portraitSrc = iconManager.getEntityPortraitPath(id, type);
+        // EXP 업데이트
+        if (leveling) {
+            const exp = Math.floor(leveling.exp || 0);
+            const maxExp = Math.floor(leveling.maxExp || 100);
+            const progress = (exp / maxExp) * 100;
+            this.els.expFill.style.width = `${progress}%`;
+            this.els.expText.textContent = `${exp} / ${maxExp} XP`;
+        } else {
+            this.els.expFill.style.width = '0%';
+            this.els.expText.textContent = '';
+        }
+
+        let portraitSrc = iconManager.getEntityPortraitPath(id, derivedType);
         if ((!portraitSrc || portraitSrc.includes('unknown.png')) && target.spriteKey) {
             const cleanKey = target.spriteKey.split('_')[0].split('.')[0];
-            const fallbackPath = assetPathManager.getUniversalEntityPath(cleanKey, type, 'sprite');
+            const fallbackPath = assetPathManager.getUniversalEntityPath(cleanKey, derivedType, 'sprite');
             if (fallbackPath) portraitSrc = fallbackPath;
         }
         if (portraitSrc && portraitSrc.startsWith('/')) portraitSrc = portraitSrc.substring(1);

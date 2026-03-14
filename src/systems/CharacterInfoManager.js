@@ -24,10 +24,10 @@ class CharacterInfoManager {
      * @param {string} source 데이터 출처
      */
     setTarget(character, source = 'collection') {
-        const name = character?.logic?.name || character?.name || 'Unknown';
-        console.log(`[CharacterInfoManager] Setting target: ${name}, Source: ${source}`);
         this.currentTarget = character;
         this.source = source;
+        const name = this.getName(); // 이제 currentTarget이 설정되었으므로 이름 추출 가능
+        console.log(`[CharacterInfoManager] Setting target: ${name}, Source: ${source}`);
         EventBus.emit(EVENTS.CHARACTER_INFO_OPEN, character);
     }
 
@@ -82,6 +82,53 @@ class CharacterInfoManager {
         // [수정] 언더바 뒤에 '숫자'가 오는 경우만 인스턴스 접미사로 간주하여 제거
         // 예: aren_1 -> aren, guardian_angel -> guardian_angel
         return fullId.replace(/_\d+$/, '').toLowerCase();
+    }
+
+    /**
+     * UI 표시를 위한 타입 추출
+     */
+    getType() {
+        if (!this.currentTarget) return 'unknown';
+        const logic = this.currentTarget.logic || this.currentTarget;
+        if (logic.type) return logic.type;
+
+        // 타입이 명시되지 않은 경우 ID로 추론 (레지스트리 우선)
+        const id = this.getId();
+        if (mercenaryManager.registry[id]) return 'mercenary';
+        if (monsterManager.registry[id]) return 'monster';
+
+        return 'unknown';
+    }
+
+    /**
+     * 레벨링 데이터 추출 (CombatEntity 혹은 Collection 데이터)
+     */
+    getLeveling() {
+        if (!this.currentTarget) return null;
+        
+        // 1. 전투 중인 유닛 (logic.leveling 존재)
+        if (this.currentTarget.logic?.leveling) return this.currentTarget.logic.leveling;
+
+        // 2. 컬렉션 데이터 (자체적으로 level, exp 보유)
+        // Note: ownedMercenaries에서 가져온 데이터는 name/type이 없을 수 있음
+        const level = this.currentTarget.level;
+        if (level !== undefined) {
+            return {
+                exp: this.currentTarget.exp || 0,
+                maxExp: this.calculateMaxExp(level),
+                getLevel: () => level
+            };
+        }
+
+        return null;
+    }
+
+    /**
+     * 레벨별 최대 경험치 계산 (LevelingManager와 동일한 공식 유지)
+     */
+    calculateMaxExp(level) {
+        const base = 100;
+        return Math.floor(base * Math.pow(level, 1.7));
     }
 }
 

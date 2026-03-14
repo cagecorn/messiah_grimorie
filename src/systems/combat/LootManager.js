@@ -1,5 +1,8 @@
 import itemPoolingManager from './ItemPoolingManager.js';
 import lootInteractionManager from './LootInteractionManager.js';
+import lootTableManager from './LootTableManager.js';
+import Logger from '../../utils/Logger.js';
+import EventBus, { EVENTS } from '../../core/EventBus.js';
 
 /**
  * 루트 매니저 (Loot Manager)
@@ -34,11 +37,11 @@ class LootManager {
     handleEntityDeath(entity) {
         if (entity.team === 'mercenary' || entity.team === 'summon') return;
 
-        const monsterId = entity.logic.id;
+        const dropTableId = entity.logic.dropTableId;
         const monsterLevel = entity.leveling ? entity.leveling.getLevel() : 1;
         
         // 1. 보상 확정 (데이터 기반)
-        const loot = lootTableManager.roll(monsterId, monsterLevel);
+        const loot = lootTableManager.roll(dropTableId, monsterLevel);
 
         // 2. 골드 드랍 연출 (물리적 드랍)
         if (loot.gold > 0) {
@@ -63,8 +66,14 @@ class LootManager {
         const coinCount = Math.min(8, Math.ceil(amount / 5)); // 최대 8개
 
         for (let i = 0; i < coinCount; i++) {
+            // [FIX] 정수 단위로 골드 분배하여 소수점 버그 방지
+            const isLast = (i === coinCount - 1);
+            const coinAmount = isLast ? 
+                (amount - Math.floor(amount / coinCount) * (coinCount - 1)) : 
+                Math.floor(amount / coinCount);
+
             this.scene.time.delayedCall(i * 30, () => {
-                itemPoolingManager.spawnGold(x, y, amount / coinCount);
+                itemPoolingManager.spawnGold(x, y, coinAmount);
             });
         }
         

@@ -18,6 +18,9 @@ class ItemManager {
     /**
      * 기본 아이템 공식 등록
      */
+    /**
+     * 기본 아이템 공식 등록 (절대 변하지 않는 시스템 재화 등)
+     */
     initDefaultItems() {
         this.registerItem('gold', {
             name: 'Gold',
@@ -32,13 +35,8 @@ class ItemManager {
             icon: '💎',
             type: 'CURRENCY'
         });
-
-        this.registerItem('log', {
-            name: 'Log',
-            description: 'A basic wood material for crafting.',
-            icon: '🪵',
-            type: 'MATERIAL'
-        });
+        
+        // 'log' 등은 MaterialManager에서 등록하도록 유도함 (Hardcode-Free)
     }
 
     /**
@@ -48,12 +46,12 @@ class ItemManager {
      */
     registerItem(id, config) {
         // 이미 등록된 아이템인지 확인 (중복 방지)
-        if (Registry.get('items', id)) {
+        if (Registry.items.has(id)) {
             Logger.warn("ITEM_ROUTER", `Item ID '${id}' is already registered. Skipping.`);
             return;
         }
         
-        Registry.register('items', id, config);
+        Registry.items.register(id, config);
         Logger.info("ITEM_ROUTER", `Item officially registered: ${id}`);
     }
 }

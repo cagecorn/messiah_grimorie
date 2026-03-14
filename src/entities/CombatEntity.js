@@ -98,6 +98,11 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
 
         // 6. 마우스 인터랙션 설정 (우클릭 정보창 확장)
         this.setupInteractions();
+
+        // 7. [신규] 엔티티 매니저 등록 (아이템 수집 및 타겟팅 최적화)
+        import('../core/EntityManager.js').then(m => {
+            m.default.register(this, this.team);
+        });
     }
 
     setupInteractions() {
@@ -148,6 +153,10 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     onRelease() {
         // [신규] 풀에 반납될 때 매니저에서 제거
         combatManager.removeUnit(this);
+        
+        import('../core/EntityManager.js').then(m => {
+            m.default.unregister(this, this.team);
+        });
 
         this.setActive(false);
         this.setVisible(false);

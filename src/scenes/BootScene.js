@@ -115,6 +115,9 @@ export default class BootScene extends Phaser.Scene {
         const collectionModule = await import('../systems/MercenaryCollectionManager.js');
         await collectionModule.default.initialize();
         
+        const materialModule = await import('../systems/MaterialManager.js');
+        await materialModule.default.initialize();
+        
         const inventoryManager = (await import('../core/InventoryManager.js')).default;
         await inventoryManager.initialize();
 

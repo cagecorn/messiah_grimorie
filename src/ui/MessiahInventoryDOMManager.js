@@ -12,6 +12,8 @@ class MessiahInventoryDOMManager {
     constructor() {
         this.overlay = null;
         this.grid = null;
+        this.tabs = null;
+        this.currentCategory = 'ALL'; // [NEW] 현재 선택된 카테고리
         this.isOpened = false;
         
         // [DIRTY FLAG]
@@ -21,8 +23,8 @@ class MessiahInventoryDOMManager {
 
     initialize() {
         if (this.overlay) return;
+        Logger.info("INV_UI", "Initializing MessiahInventoryDOMManager...");
 
-        // CSS 로드 (동적 로드 루틴이 있다면 활용, 여기서는 수동 생성)
         this.createUI();
         this.setupListeners();
         
@@ -46,11 +48,30 @@ class MessiahInventoryDOMManager {
         
         header.querySelector('.mg-inventory-close').onclick = () => this.toggle();
         
+        // [NEW] 탭바 추가
+        this.tabs = document.createElement('div');
+        this.tabs.className = 'mg-inventory-tabs';
+        const categories = [
+            { id: 'ALL', label: 'All' },
+            { id: 'CURRENCY', label: 'Currency' },
+            { id: 'MATERIAL', label: 'Materials' }
+        ];
+
+        categories.forEach(cat => {
+            const tab = document.createElement('div');
+            tab.className = `mg-inventory-tab ${cat.id === this.currentCategory ? 'active' : ''}`;
+            tab.innerText = cat.label;
+            tab.dataset.id = cat.id;
+            tab.onclick = () => this.setCategory(cat.id);
+            this.tabs.appendChild(tab);
+        });
+
         // 그리드
         this.grid = document.createElement('div');
         this.grid.className = 'mg-inventory-grid';
         
         window.appendChild(header);
+        window.appendChild(this.tabs);
         window.appendChild(this.grid);
         this.overlay.appendChild(window);
         
@@ -63,6 +84,25 @@ class MessiahInventoryDOMManager {
         };
     }
 
+    /**
+     * 카테고리 변경 처리
+     */
+    setCategory(catId) {
+        if (this.currentCategory === catId) return;
+        
+        this.currentCategory = catId;
+        
+        // 탭 UI 업데이트
+        const tabElements = this.tabs.querySelectorAll('.mg-inventory-tab');
+        tabElements.forEach(t => {
+            t.classList.toggle('active', t.dataset.id === catId);
+        });
+
+        // 필터링 시에는 강제로 리랜더링 (Dirty Flag 무시하고 즉시 반영)
+        this.isDirty = true;
+        this.render();
+    }
+
     setupListeners() {
         EventBus.on('INVENTORY_UPDATED', (data) => {
             if (data.ownerId === 'messiah') {
@@ -73,12 +113,21 @@ class MessiahInventoryDOMManager {
         });
 
         // HUD 가방 버튼 연동
-        EventBus.on('UI_OPEN_INVENTORY', () => this.toggle());
+        EventBus.on('UI_OPEN_INVENTORY', () => {
+            Logger.info("INV_UI", "Event received: UI_OPEN_INVENTORY");
+            this.toggle();
+        });
     }
 
     toggle() {
         this.isOpened = !this.isOpened;
-        this.overlay.classList.toggle('active', this.isOpened);
+        Logger.info("INV_UI", `Inventory Toggle: isOpened=${this.isOpened}`);
+        
+        if (this.overlay) {
+            this.overlay.classList.toggle('active', this.isOpened);
+        } else {
+            Logger.error("INV_UI", "Inventory Overlay is missing during toggle!");
+        }
         
         if (this.isOpened && this.isDirty) {
             this.render();
@@ -88,22 +137,31 @@ class MessiahInventoryDOMManager {
     /**
      * 더티 플래그 기반 렌더링
      */
-    render() {
+    async render() {
         if (!this.isDirty) return;
         
-        Logger.info("INV_UI", "Inventory is dirty. Re-rendering...");
+        Logger.info("INV_UI", `Re-rendering inventory. Category: ${this.currentCategory}`);
         this.grid.innerHTML = '';
         
-        const slots = messiahInventoryManager.getSlots();
+        const Registry = (await import('../core/Registry.js')).default;
+        const allSlots = messiahInventoryManager.getSlots();
         
-        slots.forEach((item, index) => {
+        // [FILTER] 카테고리에 맞춰 필터링
+        let displaySlots = allSlots;
+        if (this.currentCategory !== 'ALL') {
+            displaySlots = allSlots.filter(item => {
+                if (!item) return false;
+                const def = Registry.get('items', item.id);
+                return def && def.type === this.currentCategory;
+            });
+        }
+        
+        displaySlots.forEach((item, index) => {
             const slot = document.createElement('div');
             slot.className = 'mg-inventory-slot';
             
             if (item) {
-                // 아이템 아이콘 처리 (EmojiManager 활용)
-                const textureKey = emojiManager.getAssetKey(item.id) || item.id;
-                // [FIX] DOM이므로 EmojiManager.emojiMap에서 실제 파일 경로를 가져옴
+                // [FIX] Registry에서 타입에 맞는 아이콘 정보를 가져올 수도 있음
                 const fileName = emojiManager.emojiMap[item.id] || 'default_item.png';
                 
                 const icon = document.createElement('img');
@@ -122,6 +180,16 @@ class MessiahInventoryDOMManager {
             
             this.grid.appendChild(slot);
         });
+        
+        // 만약 필터링된 결과가 적더라도 그리드 모양을 유지하고 싶다면 빈 슬롯을 채워줄 수 있음
+        const minSlots = 20;
+        if (displaySlots.length < minSlots) {
+            for (let i = displaySlots.length; i < minSlots; i++) {
+                const emptySlot = document.createElement('div');
+                emptySlot.className = 'mg-inventory-slot empty';
+                this.grid.appendChild(emptySlot);
+            }
+        }
         
         this.isDirty = false;
     }

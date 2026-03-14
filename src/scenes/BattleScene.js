@@ -260,9 +260,11 @@ export default class BattleScene extends Phaser.Scene {
             e.updateAttackCooldown(delta); 
         });
 
-        // AI 업데이트
+        // 2. AI 업데이트 (살아있는 엔티티만 전달하여 유령 타겟팅 및 혼란스러운 로그 방지)
+        const activeAlliesForAI = this.allies.filter(a => a.active && a.logic?.isAlive);
+        const activeEnemiesForAI = this.enemies.filter(e => e.active && e.logic?.isAlive);
         if (this.aiManager) {
-            this.aiManager.update(this.allies, this.enemies, delta);
+            this.aiManager.update(activeAlliesForAI, activeEnemiesForAI, delta);
         }
 
         // 이동 및 물리 업데이트
@@ -283,9 +285,22 @@ export default class BattleScene extends Phaser.Scene {
     checkRoundProgression() {
         if (this.isIntermission) return;
 
-        // 모든 적 처치 시 라운드 클리어
-        if (this.enemies.length === 0) {
+        // 모든 적 처치 시 라운드 클리어 (logic이 없거나, 죽었거나, HP가 0인 적들은 제외)
+        const activeEnemies = this.enemies.filter(e => {
+            if (!e.active) return false;
+            if (!e.logic) return false; // 논리 데이터가 없으면 유동적 타겟으로 간주하지 않음
+            return !e.logic.isDead && e.logic.hp > 0;
+        });
+        
+        if (activeEnemies.length === 0) {
+            Logger.info("ROUND_DEBUG", "No active enemies found. Starting intermission.");
             this.startIntermission();
+        } else {
+            // [DEBUG] 왜 라운드가 안 끝나는지 체크
+            const firstActive = activeEnemies[0];
+            if (this.time.now % 1000 < 50) { // 로그 폭발 방지 (약 1초마다 출력)
+                Logger.info("ROUND_DEBUG", `Active Enemies: ${activeEnemies.length}. Example: ${firstActive.logic?.name} (HP: ${firstActive.logic?.hp}, isDead: ${firstActive.logic?.isDead})`);
+            }
         }
     }
 
@@ -294,18 +309,31 @@ export default class BattleScene extends Phaser.Scene {
      */
     startIntermission() {
         this.isIntermission = true;
-        const currentRound = dungeonRoundManager.getCurrentRound();
+        Logger.info("ROUND_DEBUG", "startIntermission entered.");
         
-        Logger.info("BATTLE", `Round ${currentRound} Cleared! Waiting for next round...`);
-        EventBus.emit('ROUND_CLEARED', { round: currentRound });
+        try {
+            const currentRound = dungeonRoundManager.getCurrentRound();
+            Logger.info("ROUND_DEBUG", `Current Round: ${currentRound}`);
+            
+            Logger.info("BATTLE", `Round ${currentRound} Cleared! Waiting for next round...`);
+            EventBus.emit('ROUND_CLEARED', { round: currentRound });
 
-        // 최고 기록 갱신 체크
-        dungeonRoundManager.updateRecord(this.stageId, currentRound);
+            Logger.info("ROUND_DEBUG", "Event ROUND_CLEARED emitted.");
 
-        // 3초 후 다음 라운드 시작
-        this.time.delayedCall(3000, () => {
-            this.startNextRound();
-        });
+            // 최고 기록 갱신 체크
+            dungeonRoundManager.updateRecord(this.stageId, currentRound);
+            Logger.info("ROUND_DEBUG", "Record updated.");
+
+            // 3초 후 다음 라운드 시작
+            Logger.info("ROUND_DEBUG", "Starting timer for next round...");
+            this.time.delayedCall(3000, () => {
+                Logger.info("ROUND_DEBUG", "Timer finished, calling startNextRound.");
+                this.startNextRound();
+            });
+        } catch (err) {
+            Logger.error("ROUND_ERROR", `Failed during intermission: ${err.message}`);
+            console.error(err);
+        }
     }
 
     /**

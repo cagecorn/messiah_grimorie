@@ -69,6 +69,40 @@
     color: rgba(255, 255, 255, 0.5);
     display: flex;
     gap: 15px;
+    margin-bottom: 8px;
+}
+
+.info-exp-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 250px;
+}
+
+.info-exp-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.info-exp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4df, #70f);
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(68, 221, 255, 0.5);
+}
+
+.info-exp-text {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+    min-width: 80px;
+    text-align: right;
+    font-family: 'Inter', sans-serif;
 }
 
 .close-btn {

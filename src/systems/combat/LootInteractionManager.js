@@ -35,7 +35,8 @@ class LootInteractionManager {
     update() {
         if (!this.isInitialized || !this.lootGroup) return;
 
-        const collectors = entityManager.getEntitiesByTeams(['mercenary', 'summon']);
+        // [STABLE] 등록된 용병들을 수집가로 활용 (Set을 Array로 변환)
+        const collectors = Array.from(entityManager.getCategory('mercenary'));
         if (collectors.length === 0) return;
 
         // [STABLE] 물리 중첩 확인 (Overlap)

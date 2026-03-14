@@ -1,6 +1,7 @@
 import Logger from '../../utils/Logger.js';
 import state from '../../core/GlobalState.js';
 import currencyManager from '../../core/CurrencyManager.js';
+import EventBus from '../../core/EventBus.js';
 
 /**
  * 던전 라운드 매니저 (Dungeon Round Manager)
@@ -17,7 +18,10 @@ class DungeonRoundManager {
         if (this.initialized) return;
         
         // [GOD OBJECT 연동] 전역 상태에서 기록 로드
-        this.records = state.gameState.dungeonRecords || {};
+        if (!state.gameState.dungeonRecords) {
+            state.gameState.dungeonRecords = {};
+        }
+        this.records = state.gameState.dungeonRecords;
         
         this.initialized = true;
         Logger.system("DungeonRoundManager: Records synced from GlobalState.");

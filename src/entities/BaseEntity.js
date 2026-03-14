@@ -1,4 +1,5 @@
 import Logger from '../utils/Logger.js';
+import EventBus from '../core/EventBus.js';
 import StatManager from '../systems/entities/StatManager.js';
 import ClassManager from '../systems/entities/ClassManager.js';
 import LevelingManager from '../systems/entities/LevelingManager.js';
@@ -16,28 +17,29 @@ import ShieldManager from '../systems/combat/ShieldManager.js';
  */
 export default class BaseEntity {
     constructor(config) {
+        // [FIX] 모든 설정 값을 인스턴스에 복사하여 데이터 누락 방지 (dropTableId, baseRewardExp 등)
+        Object.assign(this, config);
+        this.config = config; // 백업용 저장
+
         const { id, baseId, name, type, className, isSpecial, level, exp, stars, baseStats } = config;
 
         this.id = id;
-        
-        // [BUG FIX] baseId가 명시되지 않은 경우 id에서 숫자를 떼어내어 유추 (aren_1 -> aren)
-        // 만약 id도 없다면 기존처럼 type을 활용
         this.baseId = baseId || (id ? id.split('_')[0] : type);
         this.name = name;
-        this.type = type; // 'mercenary', 'monster', etc.
+        this.type = type; 
+        this._isDead = false; // 플래그 확실히 초기화
 
-        // 시스템 컴포넌트 초기화
+        // 시스템 컴포넌트 초기화 [RESTORED]
         this.stats = new StatManager();
         this.class = new ClassManager();
         this.leveling = new LevelingManager();
         this.grade = new StarGradeManager();
 
-        // 전투 시스템 컴포넌트 [NEW]
+        // 전투 시스템 컴포넌트 [RESTORED]
         this.buffs = new BuffManager(this);
         this.status = new StatusEffectManager(this);
         this.elements = new ElementalManager(this);
         this.shields = new ShieldManager(this);
-        this._isDead = false; // [신규] 상태 제어용 플래그
 
         // 초기화 시퀀스
         this.class.init(className, isSpecial);

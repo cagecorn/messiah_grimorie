@@ -63,7 +63,12 @@ class QuickActionDOMManager {
 
         if (action === 'info') {
             // 상세 정보창 열기 (Source: collection)
-            const ownedData = mercenaryCollectionManager.getMercenaryData(mercId) || { id: mercId }; 
+            const registryData = mercenaryManager.registry[mercId.toLowerCase()] || {};
+            const ownedData = mercenaryCollectionManager.getMercenaryData(mercId) || { 
+                id: mercId, 
+                name: registryData.name || mercId,
+                type: 'mercenary' // 기본적으로 용병으로 간주
+            }; 
             characterInfoManager.setTarget(ownedData, 'collection');
         } else if (action === 'assign') {
             // 파티 편성 (자동 빈 슬롯 찾기)

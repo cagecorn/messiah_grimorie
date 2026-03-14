@@ -14,11 +14,15 @@ class ItemPoolingManager {
     init(scene) {
         this.scene = scene;
         
+        // [STABLE] 물리 중첩 기능을 위해 통합 루팅 그룹 생성
+        this.lootGroup = scene.physics.add.group();
+
         // 골드용 풀 등록 (EmojiManager에서 키 가져옴)
         const goldKey = emojiManager.getAssetKey('🪙');
         poolingManager.registerPool('loot_gold', () => {
             const entity = new LootEntity(scene, 0, 0, goldKey);
             entity.poolType = 'loot_gold';
+            this.lootGroup.add(entity); // 그룹에 포함
             return entity;
         }, 30); // 대규모 드랍 대비 초기 사이즈 30
 
@@ -26,6 +30,7 @@ class ItemPoolingManager {
         poolingManager.registerPool('loot_item', () => {
             const entity = new LootEntity(scene, 0, 0, 'emoji_shield'); // 임시 텍스처
             entity.poolType = 'loot_item';
+            this.lootGroup.add(entity); // 그룹에 포함
             return entity;
         }, 10);
     }
@@ -34,10 +39,7 @@ class ItemPoolingManager {
      * 인터랙션 매니저를 위한 그룹 반환
      */
     getLootGroup() {
-        // PoolingManager에 의해 내부적으로 관리되는 물리 그룹이 있다면 그것을 반환하거나,
-        // 여기서는 PoolingManager.getGroup() 등을 활용 (구현에 따라 다름)
-        // [STABLE] PoolingManager가 내부적으로 그룹을 관리하므로 해당 그룹을 가져옵니다.
-        return poolingManager.getGroup('loot_gold'); // 아이템과 골드 물리 그룹이 분리되어 있다면 둘 다 체크 필요
+        return this.lootGroup;
     }
 
     /**

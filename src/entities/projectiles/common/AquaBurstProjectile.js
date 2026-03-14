@@ -26,7 +26,7 @@ export default class AquaBurstProjectile extends Phaser.GameObjects.Container {
         this.config = {};
     }
 
-    fire(attacker, target, config = {}) {
+    launch(attacker, target, config = {}) {
         this.attacker = attacker;
         this.target = target;
         this.config = config; // { isSleeping: false, damageMultiplier: 1.0 }
@@ -37,22 +37,31 @@ export default class AquaBurstProjectile extends Phaser.GameObjects.Container {
         this.setPosition(attacker.x, attacker.y - 40);
 
         // 타겟 방향으로 회전 및 플립
-        const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y - 40);
+        const targetX = target.x || (config.targetPos ? config.targetPos.x : this.x);
+        const targetY = (target.y || (config.targetPos ? config.targetPos.y : this.y)) - 40;
+        
+        const angle = Phaser.Math.Angle.Between(this.x, this.y, targetX, targetY);
         this.setRotation(angle);
         
         // 원본 이미지가 왼쪽을 보고 있으므로, 오른쪽으로 쏠 때는 Y축 반전 등이 필요할 수 있음
-        // 보통 Angle.Between은 오른쪽(0)을 기준으로 하므로, 왼쪽(-PI) 기준인 이미지는 180도 보정 필요
-        this.sprite.setRotation(Math.PI); // 이미지 자체를 180도 돌려서 오른쪽을 보게 만든 후 컨테이너 회전 적용
+        this.sprite.setRotation(Math.PI); 
         
         // 물리 엔진 활성화
         if (!this.body) {
             this.scene.physics.add.existing(this);
         }
-        this.scene.physics.moveToObject(this, { x: target.x, y: target.y - 40 }, this.speed);
+        this.scene.physics.moveTo(this, targetX, targetY, this.speed);
     }
 
     update() {
         if (!this.active) return;
+
+        // [BUG FIX] 타겟이 소멸되었는지 체크
+        if (!this.target || !this.target.active || (this.target.logic && !this.target.logic.isAlive)) {
+            // 타겟을 잃으면 그냥 그 자리에서 폭발시키거나 소멸시킴 (여기서는 관대하게 폭발 유도)
+            this.onHit();
+            return;
+        }
 
         // 타겟 근접 체크
         const dist = Phaser.Math.Distance.Between(this.x, this.y, this.target.x, this.target.y - 40);

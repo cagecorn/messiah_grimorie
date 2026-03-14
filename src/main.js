@@ -16,6 +16,7 @@ import './styles/gacha_card.css';
 import './styles/formation.css';
 import './styles/graphics.css';
 import './styles/scene_transition.css';
+import './ui/styles/MessiahInventory.css';
 
 import displayManager from './core/DisplayManager.js';
 import measurementManager from './core/MeasurementManager.js';
@@ -80,5 +81,8 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+
+// [신규] 전역 접근성 확보 (ExperienceManager 등에서 씬 조회를 위해 필요)
+window.game = game;
 
 export default game;

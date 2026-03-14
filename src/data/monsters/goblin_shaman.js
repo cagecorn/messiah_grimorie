@@ -8,6 +8,8 @@ export default {
     description: '주책맞은 목소리로 노래를 불러 동료를 치유하는 고블린 주술사.',
     level: 1,
     exp: 0,
+    dropTableId: 'goblin_shaman',
+    baseRewardExp: 35,
     baseStats: {
         [STAT_KEYS.MAX_HP]: 40,
         [STAT_KEYS.ATK]: 2,

@@ -19,6 +19,13 @@ export default {
         'ui_info_scaling_atk': 'PHY',
         'ui_info_scaling_matk': 'MAG',
         
+        'ui_class_warrior': 'Warrior',
+        'ui_class_archer': 'Archer',
+        'ui_class_healer': 'Healer',
+        'ui_class_wizard': 'Wizard',
+        'ui_class_bard': 'Bard',
+        'ui_class_unknown': 'Unknown',
+        
         'ui_info_no_equip': 'No equipment information available.',
         'ui_info_no_perks': 'No perks information available.',
         'ui_info_no_data': 'No data available.',
@@ -53,6 +60,13 @@ export default {
         'ui_info_stat_crit': '크리티컬',
         'ui_info_scaling_atk': '물리',
         'ui_info_scaling_matk': '마법',
+        
+        'ui_class_warrior': '전사',
+        'ui_class_archer': '궁수',
+        'ui_class_healer': '치유사',
+        'ui_class_wizard': '마법사',
+        'ui_class_bard': '음유시인',
+        'ui_class_unknown': '미확인',
         
         'ui_info_no_equip': '장착 정보가 없습니다.',
         'ui_info_no_perks': '보유한 퍽이 없습니다.',

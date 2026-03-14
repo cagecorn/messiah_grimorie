@@ -226,7 +226,7 @@ class TopHUDDOMManager {
             }
 
             btn.onclick = () => {
-                Logger.info("UI", `System button clicked: ${conf.id}`);
+                Logger.info("UI_HUD", `System button clicked: ${conf.id} (Emitting UI_OPEN_${conf.id.toUpperCase()})`);
                 EventBus.emit(`UI_OPEN_${conf.id.toUpperCase()}`);
             };
             
