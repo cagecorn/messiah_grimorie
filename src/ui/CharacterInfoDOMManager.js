@@ -12,6 +12,7 @@ import characterStatusManager from '../systems/CharacterStatusManager.js';
 import iconManager from '../systems/IconManager.js';
 import statusDescriptionManager from '../systems/StatusDescriptionManager.js';
 import toastMessageManager from './ToastMessageManager.js';
+import statisticsManager from '../systems/StatisticsManager.js';
 import { ENTITY_CLASSES, CLASS_GROWTH, SPECIAL_GROWTH, STAT_KEYS } from '../core/EntityConstants.js';
 
 /**
@@ -40,6 +41,17 @@ class CharacterInfoDOMManager {
 
         EventBus.on(EVENTS.CHARACTER_INFO_CLOSE, () => {
             this.hide();
+        });
+
+        // [신규] 워커로부터 통계 데이터 수집 완료 시 UI 갱신 부하 최소화하며 실행
+        EventBus.on('STATS_UPDATED', (data) => {
+            const target = characterInfoManager.currentTarget;
+            if (target && target.logic && target.logic.id === data.id) {
+                if (this.activeTab === 'dps') {
+                    this.isDirty = true;
+                    this.update();
+                }
+            }
         });
     }
 
@@ -71,101 +83,57 @@ class CharacterInfoDOMManager {
         this.container = document.createElement('div');
         this.container.className = 'character-info-overlay';
         
-        const card = document.createElement('div');
-        card.className = 'character-info-card';
-        card.onclick = (e) => e.stopPropagation(); // 배경 클릭 닫기 보호
-        this.container.onclick = () => characterInfoManager.clearTarget();
-
-        this.container.appendChild(card);
-        domManager.addToLayer('overlay', this.container);
-        
-        // 초기 뼈대만 생성, 내용은 update()에서 처리
-        this.card = card;
-    }
-
-    /**
-     * 전체 UI 갱신 (Dirty Flag 기반)
-     */
-    update() {
-        if (!this.isDirty || !this.container) return;
-        
-        const target = characterInfoManager.currentTarget;
-        if (!target) return;
-
-        const id = characterInfoManager.getId();
-        const logic = target.logic || {};
-        const type = logic.type || 'unknown';
-        
-        let registryData = {};
-        let className = type.toUpperCase();
-        let portraitSrc = '';
-
-        if (type === 'mercenary') {
-            registryData = mercenaryManager.registry[id] || {};
-            className = registryData.className || 'Unknown';
-        } else if (type === 'monster') {
-            registryData = monsterManager.registry[id] || {};
-            className = 'MONSTER';
-        }
-
-        portraitSrc = iconManager.getEntityPortraitPath(id, type);
-
-        // 초상화 폴백: 만약 위 로직에서 unknown이 떴거나 에셋을 못 찾은 경우
-        // target.spriteKey를 기반으로 다시 질의합니다.
-        if ((!portraitSrc || portraitSrc.includes('unknown.png')) && target.spriteKey) {
-            const cleanKey = target.spriteKey.split('_')[0].split('.')[0];
-            const fallbackPath = assetPathManager.getUniversalEntityPath(cleanKey, type, 'sprite');
-            if (fallbackPath) portraitSrc = fallbackPath;
-        }
-        
-        // 최종 점검: 상대경로 보정
-        if (portraitSrc && portraitSrc.startsWith('/')) {
-            portraitSrc = portraitSrc.substring(1);
-        }
-
-        // [USER RULE #4] 중요한 패치(엔티티 ID 해상도 수정) 결과 로그 출력
-        console.log(`[PATCH] CharacterInfo portrait resolved for ${id} (${type}): ${portraitSrc}`);
-
-        const name = characterInfoManager.getName();
-        const level = logic.leveling?.getLevel() || target.level || 1;
-
-        this.card.innerHTML = `
-            <div class="info-header">
-                <div class="info-title-group">
-                    <span class="info-name">${name}</span>
-                    <div class="info-subtitle">
-                        <span>${className.toUpperCase()}</span>
-                        <span>LV. ${level}</span>
+        // 카드 뼈대 생성
+        this.container.innerHTML = `
+            <div class="character-info-card">
+                <div class="info-header">
+                    <div class="info-title-group">
+                        <span class="info-name" id="ci-name"></span>
+                        <div class="info-subtitle">
+                            <span id="ci-class"></span>
+                            <span id="ci-level"></span>
+                        </div>
+                    </div>
+                    <button class="close-btn" onclick="UI_CHARACTER_INFO_CLOSE()">×</button>
+                </div>
+                <div class="info-body">
+                    <div class="info-portrait-side">
+                        <img id="ci-portrait" class="info-portrait-img" style="object-fit: contain;">
+                    </div>
+                    <div class="info-content-side">
+                        <div class="info-tabs">
+                            ${this.renderTabButton('stats', '📊', 'ui_info_tab_stats')}
+                            ${this.renderTabButton('skills', '💫', 'ui_info_tab_skills')}
+                            ${this.renderTabButton('equip', '⚔️', 'ui_info_tab_equip')}
+                            ${this.renderTabButton('perks', '⭐', 'ui_info_tab_perks')}
+                            ${this.renderTabButton('narrative', '📚', 'ui_info_tab_narrative')}
+                            ${this.renderTabButton('dps', '📈', 'ui_info_tab_dps')}
+                        </div>
+                        <div class="info-tab-content" id="ci-tab-content"></div>
                     </div>
                 </div>
-                <button class="close-btn" onclick="UI_CHARACTER_INFO_CLOSE()">×</button>
+                <div id="ci-status-icons"></div>
             </div>
-            <div class="info-body">
-                <div class="info-portrait-side">
-                    <img src="${portraitSrc}" class="info-portrait-img" style="object-fit: contain;">
-                </div>
-                <div class="info-content-side">
-                    <div class="info-tabs">
-                        ${this.renderTabButton('stats', '📊', 'ui_info_tab_stats')}
-                        ${this.renderTabButton('skills', '💫', 'ui_info_tab_skills')}
-                        ${this.renderTabButton('equip', '⚔️', 'ui_info_tab_equip')}
-                        ${this.renderTabButton('perks', '⭐', 'ui_info_tab_perks')}
-                        ${this.renderTabButton('narrative', '📚', 'ui_info_tab_narrative')}
-                        ${this.renderTabButton('dps', '📈', 'ui_info_tab_dps')}
-                    </div>
-                    <div class="info-tab-content">
-                        ${this.renderTabContent()}
-                    </div>
-                </div>
-            </div>
-            ${this.renderStatusIcons()}
         `;
 
-        // 전역 함수 등록 (HTML onclick 용)
-        window.UI_CHARACTER_INFO_CLOSE = () => {
-            console.log("[CharacterInfoDOMManager] Global Close called");
-            characterInfoManager.clearTarget();
+        this.card = this.container.querySelector('.character-info-card');
+        this.els = {
+            name: this.container.querySelector('#ci-name'),
+            class: this.container.querySelector('#ci-class'),
+            level: this.container.querySelector('#ci-level'),
+            portrait: this.container.querySelector('#ci-portrait'),
+            tabContent: this.container.querySelector('#ci-tab-content'),
+            statusIcons: this.container.querySelector('#ci-status-icons'),
+            tabs: Array.from(this.container.querySelectorAll('.info-tab'))
         };
+
+        this.container.onclick = () => characterInfoManager.clearTarget();
+        this.card.onclick = (e) => e.stopPropagation();
+
+        domManager.addToLayer('overlay', this.container);
+
+        // 전역 함수 등록
+        window.UI_CHARACTER_INFO_CLOSE = () => characterInfoManager.clearTarget();
         window.UI_CHARACTER_INFO_TAB = (tab) => this.switchTab(tab);
         window.UI_SHOW_STATUS_TOAST = (id, fullId) => {
             const target = characterInfoManager.currentTarget;
@@ -179,17 +147,147 @@ class CharacterInfoDOMManager {
                 toastMessageManager.show(`[${title}] ${desc}`, 'info');
             }
         };
+    }
+
+    /**
+     * [리전 수정] 부분 갱신 로직 (Granular Update)
+     */
+    update() {
+        if (!this.container || !this.isDirty) return;
+        
+        const target = characterInfoManager.currentTarget;
+        if (!target) return;
+
+        const id = characterInfoManager.getId();
+        const logic = target.logic || {};
+        const type = logic.type || 'unknown';
+        const newHash = this.generateReportHash(target);
+
+        // 1. 타겟 변경 시에만 헤더/초상화 갱신
+        if (this.lastTargetId !== id) {
+            this.updateHeaderAndPortrait(target, id, type);
+            this.lastTargetId = id;
+            this.lastTab = null; // 탭 내용도 강제 갱신
+        }
+
+        // 2. 탭 전환 시에만 탭 내용 뼈대 갱신
+        if (this.lastTab !== this.activeTab) {
+            this.els.tabContent.innerHTML = this.renderTabContent();
+            this.updateTabButtons();
+            this.lastTab = this.activeTab;
+        }
+
+        // 3. 데이터 변경 시에만 세부 수치/그래프/아이콘 갱신
+        if (newHash !== this.lastReportHash) {
+            this.updateDynamicContent(target);
+            this.lastReportHash = newHash;
+        }
 
         this.isDirty = false;
+    }
+
+    updateHeaderAndPortrait(target, id, type) {
+        const name = characterInfoManager.getName();
+        const level = target.logic?.leveling?.getLevel() || target.level || 1;
         
-        // 마지막 렌더링 시점의 데이터 상태 저장 (최적화용) - 얕은 복사
-        this.lastReportHash = this.generateReportHash(target);
+        let className = 'UNKNOWN';
+        if (type === 'mercenary') {
+            const registryData = mercenaryManager.registry[id] || {};
+            className = registryData.className || 'Unknown';
+        } else if (type === 'monster') {
+            className = 'MONSTER';
+        } else if (type === 'summon') {
+            className = 'SUMMON';
+        }
+
+        this.els.name.textContent = name;
+        this.els.class.textContent = className.toUpperCase();
+        this.els.level.textContent = `LV. ${level}`;
+
+        let portraitSrc = iconManager.getEntityPortraitPath(id, type);
+        if ((!portraitSrc || portraitSrc.includes('unknown.png')) && target.spriteKey) {
+            const cleanKey = target.spriteKey.split('_')[0].split('.')[0];
+            const fallbackPath = assetPathManager.getUniversalEntityPath(cleanKey, type, 'sprite');
+            if (fallbackPath) portraitSrc = fallbackPath;
+        }
+        if (portraitSrc && portraitSrc.startsWith('/')) portraitSrc = portraitSrc.substring(1);
+
+        this.els.portrait.src = portraitSrc;
+    }
+
+    updateTabButtons() {
+        this.els.tabs.forEach(tab => {
+            const tabId = tab.getAttribute('onclick').match(/'([^']+)'/)[1];
+            if (tabId === this.activeTab) tab.classList.add('active');
+            else tab.classList.remove('active');
+        });
+    }
+
+    updateDynamicContent(target) {
+        // 탭별 부분 업데이트
+        if (this.activeTab === 'stats') {
+            this.updateStatsValues(target);
+        } else if (this.activeTab === 'dps') {
+            this.updateDPSValues(target);
+        }
+
+        // 상태 아이콘은 전용 영역 갱신 (비교 로직 짜기엔 너무 잘 바뀌므로 덮어쓰기)
+        this.els.statusIcons.innerHTML = this.renderStatusIcons();
+    }
+
+    updateStatsValues(target) {
+        const report = characterStatusManager.getStatusReport(target);
+        if (!report) return;
+
+        const currentStats = report.finalStats;
+        const statsLogic = target.stats; // CombatEntity.stats
+        
+        const list = [
+            STAT_KEYS.MAX_HP, STAT_KEYS.ATK, STAT_KEYS.M_ATK, STAT_KEYS.DEF, 
+            STAT_KEYS.M_DEF, STAT_KEYS.SPEED, STAT_KEYS.ATK_SPD, STAT_KEYS.CRIT
+        ];
+
+        list.forEach(key => {
+            const el = this.els.tabContent.querySelector(`[data-stat="${key}"]`);
+            if (!el) return;
+
+            const finalVal = currentStats[key];
+            const baseVal = statsLogic ? statsLogic.get(key) : finalVal;
+
+            let displayVal = this.formatStatValue(key, finalVal);
+            if (key === STAT_KEYS.MAX_HP) {
+                displayVal = `${Math.floor(currentStats.hp)} / ${Math.floor(finalVal)}${currentStats.shield > 0 ? ` (+${Math.floor(currentStats.shield)})` : ''}`;
+            }
+
+            el.textContent = displayVal;
+            el.classList.toggle('buffed', Math.floor(finalVal) > Math.floor(baseVal));
+            el.classList.toggle('debuffed', Math.floor(finalVal) < Math.floor(baseVal));
+        });
+    }
+
+    updateDPSValues(target) {
+        const stats = statisticsManager.getCachedStats(target.logic.id);
+        if (!stats) return;
+
+        const dpsVal = this.els.tabContent.querySelector('.dps-value');
+        if (dpsVal) dpsVal.textContent = Math.floor(stats.dps);
+
+        // 기타 스탯 그리드 수치들
+        const rows = this.els.tabContent.querySelectorAll('.dps-stat-row .value');
+        if (rows.length >= 4) {
+            rows[0].textContent = Math.floor(stats.totalDealt);
+            rows[1].textContent = Math.floor(stats.totalReceived);
+            rows[2].textContent = Math.floor(stats.totalHealed);
+            rows[3].textContent = Math.floor(stats.totalMitigated);
+        }
+
+        // 그래프 그리기
+        this.drawDPSGraph(stats);
     }
 
     renderTabButton(id, icon, labelKey) {
-        const isActive = this.activeTab === id;
         return `
-            <div class="info-tab ${isActive ? 'active' : ''}" onclick="UI_CHARACTER_INFO_TAB('${id}')">
+            <div class="info-tab" onclick="UI_CHARACTER_INFO_TAB('${id}')">
                 <span class="info-tab-icon">${icon}</span>
                 <span class="info-tab-label">${localizationManager.t(labelKey)}</span>
             </div>
@@ -197,6 +295,7 @@ class CharacterInfoDOMManager {
     }
 
     switchTab(tab) {
+        if (this.activeTab === tab) return;
         this.activeTab = tab;
         this.isDirty = true;
         this.update();
@@ -265,7 +364,7 @@ class CharacterInfoDOMManager {
                     return `
                         <div class="stat-row">
                             <span class="stat-label">${localizationManager.t(s.label)}</span>
-                            <span class="stat-value ${isBuffed ? 'buffed' : ''} ${isDebuffed ? 'debuffed' : ''}">
+                            <span class="stat-value ${isBuffed ? 'buffed' : ''} ${isDebuffed ? 'debuffed' : ''}" data-stat="${s.key}">
                                 ${displayVal}
                             </span>
                         </div>
@@ -336,20 +435,103 @@ class CharacterInfoDOMManager {
             return `<div class="info-no-data">DPS tracking only available during battle.</div>`;
         }
         
-        const dps = damageCalculationManager.calculateDPS(target.logic.id);
-        const stats = damageCalculationManager.getStats(target.logic.id);
+        const stats = statisticsManager.getCachedStats(target.logic.id) || {
+            dps: 0, totalDealt: 0, totalReceived: 0, totalHealed: 0, totalMitigated: 0, dpsHistory: []
+        };
 
         return `
             <div class="dps-meter">
-                <div class="dps-value">${Math.floor(dps)}</div>
+                <div class="dps-value" id="dps-value-total">${Math.floor(stats.dps)}</div>
                 <div class="dps-label">REAL-TIME DPS</div>
-                <div style="margin-top: 20px; text-align: left; font-size: 13px; color: rgba(255,255,255,0.5);">
-                    <div>Total Dealt: ${Math.floor(stats.dealt)}</div>
-                    <div>Total Received: ${Math.floor(stats.received)}</div>
-                    <div>Total Healed: ${Math.floor(stats.healed)}</div>
+                
+                <div class="dps-graph-container">
+                    <canvas id="dps-graph-canvas" class="dps-canvas"></canvas>
+                </div>
+
+                <div class="dps-stats-grid">
+                    <div class="dps-stat-row">
+                        <span class="label">Total Dealt</span>
+                        <span class="value dealt">${Math.floor(stats.totalDealt)}</span>
+                    </div>
+                    <div class="dps-stat-row">
+                        <span class="label">Total Received</span>
+                        <span class="value received">${Math.floor(stats.totalReceived)}</span>
+                    </div>
+                    <div class="dps-stat-row">
+                        <span class="label">Total Healed</span>
+                        <span class="value healed">${Math.floor(stats.totalHealed)}</span>
+                    </div>
+                    <div class="dps-stat-row">
+                        <span class="label">Total Mitigated</span>
+                        <span class="value mitigated">${Math.floor(stats.totalMitigated)}</span>
+                    </div>
                 </div>
             </div>
         `;
+    }
+
+    /**
+     * [신규] DPS 히스토리 그래프 그리기 (Canvas)
+     */
+    drawDPSGraph(stats) {
+        const canvas = document.getElementById('dps-graph-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const history = stats.dpsHistory || [];
+        
+        // 캔버스 크기 동기화
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+
+        const w = rect.width;
+        const h = rect.height;
+
+        ctx.clearRect(0, 0, w, h);
+        if (history.length < 2) return;
+
+        // 최댓값 계산 (최소 100)
+        const max = Math.max(100, ...history) * 1.2;
+
+        ctx.beginPath();
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#ff4d4d';
+
+        // 그림자/글로우 효과
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = 'rgba(255, 77, 77, 0.5)';
+
+        const points = history.map((val, i) => ({
+            x: (i / 29) * w,
+            y: h - (val / max) * h
+        }));
+
+        // 부드러운 곡선 그리기 (Catmull-Rom approximation)
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 0; i < points.length - 1; i++) {
+            const xc = (points[i].x + points[i + 1].x) / 2;
+            const yc = (points[i].y + points[i + 1].y) / 2;
+            ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+        }
+
+        ctx.stroke();
+
+        // 영역 채우기 (그라데이션)
+        ctx.shadowBlur = 0; // 채우기에는 그림자 제거
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, 'rgba(255, 77, 77, 0.2)');
+        grad.addColorStop(1, 'rgba(255, 77, 77, 0)');
+        
+        ctx.lineTo(points[points.length - 1].x, h);
+        ctx.lineTo(0, h);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
     }
 
     /**
@@ -385,6 +567,10 @@ class CharacterInfoDOMManager {
                 const target = characterInfoManager.currentTarget;
                 if (!target) return;
 
+                if (this.activeTab === 'dps') {
+                    statisticsManager.requestUnitStats(target.logic.id);
+                }
+
                 // [최적화] 데이터가 변했을 때만 Dirty 설정
                 const newHash = this.generateReportHash(target);
                 if (newHash !== this.lastReportHash) {
@@ -405,10 +591,13 @@ class CharacterInfoDOMManager {
         const report = characterStatusManager.getStatusReport(target);
         if (!report) return '';
 
-        // 주요 변동 수치들만 조합하여 문자열 생성 (쉴드 추가)
+        // 주요 변동 수치들만 조합하여 문자열 생성 (쉴드 및 DPS 정보 추가)
         const s = report.finalStats;
         const iconIds = report.activeIcons.map(i => i.id).join(',');
-        return `${report.hp}/${report.maxHp}/${s.shield}/${s.atk}/${s.mAtk}/${s.def}/${s.mDef}/${s.speed}/${s.atkSpd}/${s.crit}/${iconIds}/${this.activeTab}`;
+        const dpsStats = statisticsManager.getCachedStats(target.logic.id) || {};
+        const dpsHash = this.activeTab === 'dps' ? `${dpsStats.totalDealt}/${dpsStats.totalHealed}/${(dpsStats.dpsHistory || []).length}` : '';
+        
+        return `${report.hp}/${report.maxHp}/${s.shield}/${s.atk}/${s.mAtk}/${s.def}/${s.mDef}/${s.speed}/${s.atkSpd}/${s.crit}/${iconIds}/${this.activeTab}/${dpsHash}`;
     }
 
     stopUpdateLoop() {

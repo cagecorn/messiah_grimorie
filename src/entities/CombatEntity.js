@@ -204,6 +204,9 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
             }
         } else if (this.logic.type === 'pet') {
             displayScale = entityData.pet[this.logic.id] || 0.5;
+        } else if (this.logic.type === 'summon') {
+            displayScale = entityData.summon.scale;
+            bodyRadius = entityData.summon.bodyRadius;
         }
 
         return { displayScale, bodyRadius };

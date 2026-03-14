@@ -54,10 +54,12 @@ class CharacterInfoManager {
         const id = this.getId();
         const logic = this.currentTarget.logic;
         
-        // 몬스터인 경우 MonsterManager 레지스트리 참조
+        // [신규] 소환수/몬스터 타입 핸들링 강화
         if (logic && logic.type === 'monster') {
             const monsterData = monsterManager.registry[id];
-            return monsterData ? monsterData.name : 'Unknown Monster';
+            return monsterData ? monsterData.name : (logic.name || 'Unknown Monster');
+        } else if (logic && logic.type === 'summon') {
+            return logic.name || 'Unknown Summon';
         }
 
         const registryData = mercenaryManager.registry[id];
@@ -69,10 +71,17 @@ class CharacterInfoManager {
      */
     getId() {
         if (!this.currentTarget) return '';
-        // CombatEntity면 logic.baseId(aren) 혹은 logic.id(aren_1), 데이터면 id
         const logic = this.currentTarget.logic;
-        const fullId = logic ? (logic.baseId || logic.id) : this.currentTarget.id;
-        return fullId.split('_')[0].toLowerCase();
+        
+        // [수정] baseId가 있으면 '가공된 ID'이므로 그대로 반환 (guardian_angel 등 보존)
+        if (logic && logic.baseId) return logic.baseId.toLowerCase();
+
+        const fullId = logic ? logic.id : this.currentTarget.id;
+        if (!fullId) return '';
+
+        // [수정] 언더바 뒤에 '숫자'가 오는 경우만 인스턴스 접미사로 간주하여 제거
+        // 예: aren_1 -> aren, guardian_angel -> guardian_angel
+        return fullId.replace(/_\d+$/, '').toLowerCase();
     }
 }
 

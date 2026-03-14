@@ -25,6 +25,10 @@ class MeasurementManager {
             },
             pet: {
                 default: 0.25      // 128px -> 32px
+            },
+            summon: {
+                scale: 0.5,        // 128px -> 64px
+                bodyRadius: 20
             }
         };
 

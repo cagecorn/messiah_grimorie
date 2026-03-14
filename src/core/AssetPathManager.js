@@ -131,7 +131,7 @@ class AssetPathManager {
      * @param {string} subType 'sprite' | 'cutscene'
      */
     getUniversalEntityPath(id, type = 'mercenary', subType = 'sprite') {
-        const lowerId = id.split('_')[0].toLowerCase();
+        const lowerId = id.toLowerCase();
         
         switch (type) {
             case 'monster':

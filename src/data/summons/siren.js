@@ -16,7 +16,7 @@ class SirenEntity extends BaseEntity {
             id: 'siren',
             baseId: 'siren', // [FIX] 명시적 베이스 ID 추가
             name: 'Siren',
-            type: 'mercenary', // 시스템상 아군으로 취급
+            type: 'summon', // 시스템상 소환수로 취급
             className: 'wizard',
             baseStats: {
                 [STAT_KEYS.MAX_HP]: masterMAtk * 5, // 체력은 마스터 마공의 5배

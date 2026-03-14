@@ -1,5 +1,6 @@
 import Logger from '../../utils/Logger.js';
 import { STAT_KEYS } from '../../core/EntityConstants.js';
+import EventBus, { EVENTS } from '../../core/EventBus.js';
 
 /**
  * 엔티티 전투 컴포넌트 (Entity Combat Component)
@@ -132,6 +133,15 @@ export default class EntityCombatComponent {
         } else {
             Logger.info("COMBAT", `${this.logic.name} took ${amount} damage. Current HP: ${currentHp}`);
         }
+
+        // [신규] 통계 데이터 방송
+        EventBus.emit(EVENTS.COMBAT_DATA, {
+            attackerId: attacker ? attacker.id : null,
+            targetId: this.entity.id,
+            damage: finalDamage,
+            mitigated: amount - finalDamage, // DR + Shield 합산
+            healed: 0
+        });
     }
 
     /**
@@ -147,6 +157,15 @@ export default class EntityCombatComponent {
         this.logic.stats.finalStats[STAT_KEYS.HP] = nextHp;
 
         if (this.entity.hpBar) this.entity.hpBar.isDirty = true;
+
+        // [신규] 힐 데이터 방송
+        EventBus.emit(EVENTS.COMBAT_DATA, {
+            attackerId: null, // 추후 힐러 정보 추가 시 연동 가능
+            targetId: this.entity.id,
+            damage: 0,
+            mitigated: 0,
+            healed: amount
+        });
     }
 
     /**
