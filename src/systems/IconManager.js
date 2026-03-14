@@ -20,7 +20,8 @@ class IconManager {
             'invincible': 'invincible',
             'sleep': 'sleep_icon',
             'shield': 'shield_icon',
-            'inspiration': 'inspiration_icon'
+            'inspiration': 'inspiration_icon',
+            'stoneskin': 'stone_skin_icon'
         };
         
         this.defaultIcon = '/assets/icon/unknown.png';

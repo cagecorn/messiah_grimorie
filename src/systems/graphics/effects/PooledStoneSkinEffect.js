@@ -25,9 +25,9 @@ export default class PooledStoneSkinEffect {
         if (!this.scene || !target || !target.active) return;
 
         this.target = target;
-        this.sprite.setPosition(target.x, target.y);
+        this.sprite.setPosition(target.x, target.y - 45);
         
-        // 타겟의 크기에 맞춤
+        // 타켓의 크기에 맞춤
         const targetScale = target.getEntityConfig().displayScale || 1.0;
         this.sprite.setScale(targetScale * 1.1);
         this.sprite.setAlpha(0);
@@ -64,7 +64,7 @@ export default class PooledStoneSkinEffect {
         }
 
         // 대상 위치 추적
-        this.sprite.setPosition(this.target.x, this.target.y);
+        this.sprite.setPosition(this.target.x, this.target.y - 45);
         this.sprite.setDepth(this.target.depth + 1);
     }
 

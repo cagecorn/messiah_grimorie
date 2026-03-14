@@ -4,6 +4,7 @@ import combatManager from '../../CombatManager.js';
 import summonManager from '../../entities/SummonManager.js';
 import skillManager from '../SkillManager.js';
 import ultimateManager from '../UltimateManager.js';
+import ultimateCutsceneManager from '../../../ui/UltimateCutsceneManager.js';
 
 /**
  * 소환: 세이렌 (Summon: Siren)
@@ -21,7 +22,10 @@ class SummonSiren {
         const ownerId = owner.logic.id;
         let siren = this.activeSummons.get(ownerId);
 
-        // 게이지 초기화
+        // 컷씬 연출
+        ultimateCutsceneManager.show('lute', 'Summon: Siren');
+
+        // 게이지 초기화 (AI에서 useUltimate를 쓸 경우 중복되지만, 직접 호출을 대비해 유지)
         owner.ultimateProgress = 0;
         if (owner.hpBar) owner.hpBar.isDirty = true;
 

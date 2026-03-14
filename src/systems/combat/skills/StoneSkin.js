@@ -24,7 +24,7 @@ class StoneSkin {
 
         if (owner.buffs) {
             owner.buffs.addBuff({
-                id: 'stone_skin',
+                id: 'stoneskin',
                 key: BONUS_STATS.DR,
                 value: drValue,
                 type: 'add',

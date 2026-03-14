@@ -82,6 +82,8 @@ class BardAI {
 
     static findUninspiredAlly(owner, allies) {
         let candidate = null;
+        let minDist = Infinity;
+        
         allies.forEach(ally => {
             if (!ally.active || !ally.logic.isAlive) return;
             // 본인 제외
@@ -89,10 +91,14 @@ class BardAI {
             
             // 이미 영감 버프가 활성화되어 있는지 체크
             const hasInspiration = ally.logic.buffs && 
-                                  ally.logic.buffs.activeBuffs.some(b => b.id === 'inspiration');
+                                  ally.logic.buffs.activeBuffs.some(b => b.id.startsWith('inspiration'));
             
             if (!hasInspiration) {
-                candidate = ally;
+                const dist = Phaser.Math.Distance.Between(owner.x, owner.y, ally.x, ally.y);
+                if (dist < minDist) {
+                    minDist = dist;
+                    candidate = ally;
+                }
             }
         });
         return candidate;

@@ -232,8 +232,7 @@ export default class BattleScene extends Phaser.Scene {
 
         // [신규] 투사체 매니저 업데이트
         if (this.projectileManager) {
-            // 투사체 업데이트는 그룹 내 runChildUpdate가 true이면 자동 실행되지만, 
-            // 명시적으로 순서 관리가 필요할 수도 있음.
+            this.projectileManager.update(time, delta);
         }
 
         // [신규] 활성 유닛 필터링 (사망하여 풀로 돌아간 유닛 제외)

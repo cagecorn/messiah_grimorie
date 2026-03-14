@@ -13,7 +13,8 @@ class SummonSirenAI {
 
         // 궁극기 게이지가 100% (1.0) 이상인 경우 실행
         if (owner.ultimateProgress >= 1.0) {
-            summonSiren.execute(owner);
+            // 표준 궁극기 발동 방식 사용 (컷씬 연동 및 게이지 리셋 자동화)
+            owner.skills.useUltimate();
             return true;
         }
 

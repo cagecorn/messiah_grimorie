@@ -1,5 +1,6 @@
 import MeleeAI from './MeleeAI.js';
 import StoneSkinAI from './StoneSkinAI.js';
+import ImSorryAI from './ImSorryAI.js';
 
 /**
  * 실비 전용 AI 노드 (Silvi Specialized AI)
@@ -8,6 +9,11 @@ import StoneSkinAI from './StoneSkinAI.js';
 class SilviAI {
     static execute(entity, bb, delta) {
         if (!entity.logic.isAlive) return;
+
+        // 0. 궁극기 체크
+        if (ImSorryAI.update(entity)) {
+            return;
+        }
 
         // 1. 고유 스킬 (Stone Skin) 체크
         if (StoneSkinAI.update(entity)) {

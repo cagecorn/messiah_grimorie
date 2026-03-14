@@ -121,10 +121,10 @@ class SummonGuardianAngel {
         });
         
         // 현재 체력도 비율에 맞춰 상향
-        const currentHp = angel.logic.hp;
+        const currentHp = summon.logic.hp;
         stats.update('base', 'hp', currentHp * mult);
         
-        if (angel.hpBar) angel.hpBar.isDirty = true;
+        if (summon.hpBar) summon.hpBar.isDirty = true;
     }
 
     playSummonEffect(scene, x, y) {
@@ -132,9 +132,9 @@ class SummonGuardianAngel {
         animationManager.playGuardianAngelSummonVFX(x, y);
     }
 
-    playUpgradeEffect(scene, angel, tint) {
+    playUpgradeEffect(scene, summon, tint) {
         // [USER 요청] 애니메이션 매니저를 통해 4병렬 시차 중첩 연출
-        animationManager.playGuardianAngelUpgradeVFX(angel, tint);
+        animationManager.playGuardianAngelUpgradeVFX(summon, tint);
     }
 }
 

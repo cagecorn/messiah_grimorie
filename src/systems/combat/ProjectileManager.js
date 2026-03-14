@@ -5,6 +5,7 @@ import WizardProjectile from '../../entities/projectiles/skills/WizardProjectile
 import MeteorProjectile from '../../entities/projectiles/skills/MeteorProjectile.js';
 import BardProjectile from '../../entities/projectiles/common/BardProjectile.js';
 import AquaBurstProjectile from '../../entities/projectiles/common/AquaBurstProjectile.js';
+import ImSorryProjectile from '../../entities/projectiles/skills/ImSorryProjectile.js';
 
 /**
  * 투사체 매니저 (Projectile Manager)
@@ -36,6 +37,7 @@ class ProjectileManager {
         this.registerProjectile('meteor', MeteorProjectile);
         this.registerProjectile('bard', BardProjectile);
         this.registerProjectile('aqua_burst', AquaBurstProjectile);
+        this.registerProjectile('im_sorry_emoji', ImSorryProjectile);
 
         Logger.system("ProjectileManager: Initialized for scene.");
     }
@@ -108,6 +110,23 @@ class ProjectileManager {
         
         // Phaser Group의 killAndHide 처리와 유사하지만 명시적으로 관리
         // (pool.get()은 isActive(false)인 객체를 우선적으로 가져옴)
+    }
+
+    /**
+     * 활성 투사체 업데이트 루프
+     */
+    update(time, delta) {
+        if (this.activeProjectiles.size === 0) return;
+
+        this.activeProjectiles.forEach(projectile => {
+            if (projectile.active) {
+                if (projectile.update) {
+                    projectile.update(time, delta);
+                }
+            } else {
+                this.activeProjectiles.delete(projectile);
+            }
+        });
     }
 
     /**

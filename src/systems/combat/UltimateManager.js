@@ -3,7 +3,7 @@ import threadsOfFate from './skills/ThreadsOfFate.js';
 import summonGuardianAngel from './skills/SummonGuardianAngel.js';
 import meteorStrike from './skills/MeteorStrike.js';
 import summonSiren from './skills/SummonSiren.js';
-import silviUltimate from './skills/SilviUltimate.js';
+import imSorry from './skills/ImSorry.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -79,7 +79,7 @@ class UltimateManager {
             description: '"I\'m Sorry!!"',
             chargeMax: 100,
             chargeSpeedBase: 1.0,
-            logic: silviUltimate
+            logic: imSorry
         });
 
         // 고블린(몬스터)은 궁극기 없음
