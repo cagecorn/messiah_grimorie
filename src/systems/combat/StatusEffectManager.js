@@ -14,7 +14,8 @@ class StatusEffectManager {
             silenced: false,
             airborne: false,
             knockback: false,
-            invincible: false
+            invincible: false,
+            sleep: false
         };
         this.timers = {};
     }
@@ -27,6 +28,11 @@ class StatusEffectManager {
             this.states[type] = true;
             const targetName = this.owner.logic ? this.owner.logic.name : this.owner.name;
             Logger.info("COMBAT", `${targetName} is now ${type}!`);
+
+            // [신규] 시각 효과 연동
+            if (type === 'sleep' && this.owner.scene && this.owner.scene.fxManager) {
+                this.owner.scene.fxManager.showSleepEffect(this.owner, duration);
+            }
 
             this.timers[type] = setTimeout(() => {
                 this.states[type] = false;
@@ -49,7 +55,7 @@ class StatusEffectManager {
     }
 
     isUnableToAct() {
-        return this.states.stunned || this.states.frozen || this.states.airborne || this.states.knockback || this.states.invincible;
+        return this.states.stunned || this.states.frozen || this.states.airborne || this.states.knockback || this.states.invincible || this.states.sleep;
     }
 
     /**

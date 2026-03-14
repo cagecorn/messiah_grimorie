@@ -2,8 +2,9 @@ import Phaser from 'phaser';
 import Logger from '../../../utils/Logger.js';
 import ultimateCutsceneManager from '../../../ui/UltimateCutsceneManager.js';
 import GuardianAngelConfig from '../../../data/summons/GuardianAngel.js';
-import CombatEntity from '../../../entities/CombatEntity.js';
+import summonManager from '../../entities/SummonManager.js';
 import BaseEntity from '../../../entities/BaseEntity.js';
+import skillManager from '../SkillManager.js';
 import ultimateManager from '../UltimateManager.js';
 import animationManager from '../../graphics/AnimationManager.js';
 
@@ -13,7 +14,7 @@ import animationManager from '../../graphics/AnimationManager.js';
  */
 class SummonGuardianAngel {
     constructor() {
-        this.angelInstances = new Map(); // 시전자별 소환된 천사 관리
+        this.activeSummons = new Map(); // ownerID -> Angel CombatEntity
     }
 
     /**
@@ -24,17 +25,17 @@ class SummonGuardianAngel {
         if (!owner) return;
 
         const ownerId = owner.logic.id;
-        let angel = this.angelInstances.get(ownerId);
+        let summon = this.activeSummons.get(ownerId);
 
         // 컷씬 출력
         ultimateCutsceneManager.show('sera', 'Summon: Guardian Angel');
 
         // [USER 요청] 수호천사가 없거나 죽었다면 소환
-        if (!angel || !angel.active || !angel.logic.isAlive) {
-            this.summonAngel(owner);
+        if (!summon || !summon.active || !summon.logic.isAlive) {
+            this.summon(owner);
         } else {
             // 이미 존재한다면 강화 단계 진행
-            this.upgradeAngel(owner, angel);
+            this.upgrade(owner, summon);
         }
 
         // 게이지 리셋
@@ -45,7 +46,7 @@ class SummonGuardianAngel {
     /**
      * 수호천사 소환 로직
      */
-    summonAngel(owner) {
+    summon(owner) {
         const scene = owner.scene;
         Logger.info("ULTIMATE", `[Sera] Summoning Guardian Angel!`);
 
@@ -60,8 +61,8 @@ class SummonGuardianAngel {
         scaledStats.def = Math.floor(mAtk * 1.2);
         scaledStats.mDef = Math.floor(mAtk * 1.5);
 
-        // 2. BaseEntity를 사용하여 논리 객체 생성 (TypeError: stats.update 해결책)
-        const angelLogic = new BaseEntity({
+        // 2. BaseEntity를 사용하여 논리 객체 생성
+        const summonLogic = new BaseEntity({
             id: `summon_angel_${owner.logic.id}_${Date.now()}`,
             name: 'Guardian Angel',
             type: owner.team, // 시전자 소속 팀 (mercenary / monster)
@@ -71,53 +72,49 @@ class SummonGuardianAngel {
             baseStats: scaledStats
         });
 
-        // 3. 물리 엔티티 생성
+        // 3. 물리 엔티티 생성 (SummonManager 중앙화)
         const spawnX = owner.x + (owner.team === 'mercenary' ? 100 : -100);
         const spawnY = owner.y;
+        const spriteKey = GuardianAngelConfig.spriteKey || 'guardian_angel_sprite';
 
-        const angelEntity = new CombatEntity(scene, spawnX, spawnY, angelLogic, GuardianAngelConfig.spriteKey || 'guardian_angel_sprite');
-        angelEntity.upgradeStage = 0; 
-
-        // 4. 소환 이펙트
-        this.playSummonEffect(scene, spawnX, spawnY);
-
-        // 5. 관리 목록에 등록
-        this.angelInstances.set(owner.logic.id, angelEntity);
+        const summon = summonManager.spawnSummon(scene, summonLogic, owner.team, spawnX, spawnY, spriteKey);
         
-        if (owner.team === 'mercenary') {
-            scene.allies.push(angelEntity);
-        } else {
-            scene.enemies.push(angelEntity);
+        if (summon) {
+            summon.upgradeStage = 0; 
+            // 4. 소환 이펙트
+            this.playSummonEffect(scene, spawnX, spawnY);
+            // 5. 관리 목록에 등록
+            this.activeSummons.set(owner.logic.id, summon);
         }
     }
 
     /**
      * 수호천사 강화 로직
      */
-    upgradeAngel(owner, angel) {
-        angel.upgradeStage++;
-        Logger.info("ULTIMATE", `[Sera] Upgrading Guardian Angel to Stage ${angel.upgradeStage}`);
+    upgrade(owner, summon) {
+        summon.upgradeStage++;
+        Logger.info("ULTIMATE", `[Sera] Upgrading Guardian Angel to Stage ${summon.upgradeStage}`);
 
         const scene = owner.scene;
 
-        if (angel.upgradeStage === 1) {
+        if (summon.upgradeStage === 1) {
             // 1단계: 1.2배 강화
-            this.applyMultiplier(angel, 1.2);
-            this.playUpgradeEffect(scene, angel, 0x00ff00); 
-        } else if (angel.upgradeStage === 2) {
+            this.applyMultiplier(summon, 1.2);
+            this.playUpgradeEffect(scene, summon, 0x00ff00); 
+        } else if (summon.upgradeStage === 2) {
             // 2단계: 1.5배 강화
-            this.applyMultiplier(angel, 1.5);
-            this.playUpgradeEffect(scene, angel, 0xffff00); 
+            this.applyMultiplier(summon, 1.5);
+            this.playUpgradeEffect(scene, summon, 0xffff00); 
         } else {
             // 3단계 이후: 100% 힐
-            angel.heal(angel.logic.getTotalMaxHp()); // CombatEntity.heal 호출
-            this.playUpgradeEffect(scene, angel, 0xffffff); 
+            summon.heal(summon.logic.getTotalMaxHp()); // CombatEntity.heal 호출
+            this.playUpgradeEffect(scene, summon, 0xffffff); 
             Logger.info("ULTIMATE", `[Sera] Guardian Angel Healed to Full!`);
         }
     }
 
-    applyMultiplier(angel, mult) {
-        const stats = angel.logic.stats;
+    applyMultiplier(summon, mult) {
+        const stats = summon.logic.stats;
         // StatManager의 mult 카테고리를 사용하여 공격력, 체력 등 강화
         ['atk', 'maxHp', 'def', 'mDef'].forEach(key => {
             stats.update('mult', key, mult);

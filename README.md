@@ -41,83 +41,87 @@
 - **HealthBarManager (HP바 매니저)**: 고해상도 오프스크린 렌더링을 사용하여 유닛의 체력 상태를 선명하고 유려하게 표시하는 시스템. "더티 플래그(Dirty Flag)" 기술을 적용하여 불필요한 재렌더링을 방지합니다.
 - **CanvasOffscreenManager (캔버스 오프스크린 매니저)**: 텍스트나 UI의 선명도를 위해 백그라운드에서 2배 해상도로 렌더링한 후 정밀하게 출력하는 슈퍼 샘플링 엔진.
 - **Mass Heal (매스 힐) 🌿**: 세라의 전용 스킬. 마법 공격력의 1.5배만큼 모든 아군의 체력을 즉시 회복시키며, 시전 시 화려한 녹색 마법진 연출이 발생함.
+- **펫 시스템 (Pet System):**
+  * 도그펫(dog_pet): 기본 지급되는 펫. 빠른 속도로 자원을 자동 수집합니다.
+  * 뽈뽈뽈: 펫의 귀여운 뒤뚱뒤뚱 이동 애니메이션 상태.
+  * [아이들 밥]: 자원 수집 중이 아닐 때의 상하 바운싱 대기 애니메이션.
 
 이 프로젝트는 기존에 진행하던 게임의 아이디어를 일부 계승하여 새롭게 시작하는 2D RPG 게임 프로젝트입니다.
 
 ## 핵심 컨셉
 
-1. **장르 혼합 (Genre Mashup):**
-   * **아이작의 번제(The Binding of Isaac) 스타일:** 탑다운 뷰 기반의 던전 탐험 및 로그라이크 요소.
-   * **6인 파티 & 오토 배틀 (순수 방치형 지향):** 플레이어가 직접 모든 캐릭터를 조작하는 대신, AI(행동 트리)로 작동하는 6인 파티가 자동으로 적과 전투를 수행합니다. **최종적으로 플레이어의 직접적인 이동/조작(`WASD`)은 게임에서 완전히 배제될 예정**입니다.
-   * **영지 개발:** 던전에서 얻은 재화(이모지)를 통해 파티를 정비하고 업그레이드할 수 있는 마을(Territory) 시스템.
-   * **롤플레잉:** 캐릭터 성장 및 파티 조합 시너지.
+1.  **장르 혼합 (Genre Mashup):**
+    *   **아이작의 번제(The Binding of Isaac) 스타일:** 탑다운 뷰 기반의 던전 탐험 및 로그라이크 요소.
+    *   **6인 파티 & 오토 배틀 (순수 방치형 지향):** 플레이어가 직접 모든 캐릭터를 조작하는 대신, AI(행동 트리)로 작동하는 6인 파티가 자동으로 적과 전투를 수행합니다. **최종적으로 플레이어의 직접적인 이동/조작(`WASD`)은 게임에서 완전히 배제될 예정**입니다.
+    *   **영지 개발:** 던전에서 얻은 재화(이모지)를 통해 파티를 정비하고 업그레이드할 수 있는 마을(Territory) 시스템.
+    *   **롤플레잉:** 캐릭터 성장 및 파티 조합 시너지.
 
-2. **독특한 재화 시스템:**
-   * **이모지 화폐 (Emoji Currency):** 게임 내에서 드랍되는 모든 채집물 및 화폐 기호는 **트위터 이모지(Twemoji SVG)**로 시각화됩니다. 수많은 종류의 이모지들이 게임 세계의 경제와 재료 시스템을 구축합니다.
-   * **공식 골드 재화 키값**: `emoji_coin` 🪙
+2.  **독특한 재화 시스템:**
+    *   **이모지 화폐 (Emoji Currency):** 게임 내에서 드랍되는 모든 채집물 및 화폐 기호는 **트위터 이모지(Twemoji SVG)**로 시각화됩니다. 수많은 종류의 이모지들이 게임 세계의 경제와 재료 시스템을 구축합니다.
+    *   **공식 골드 재화 키값**: `emoji_coin` 🪙
 
-3. **온디바이스 AI (On-Device AI):**
-   * **지능적 대사 선택**: 외부 서버 없이도 캐릭터의 성격(`Persona`)과 현재 전황을 고려하여 가장 적절한 대사를 선택하여 출력합니다.
+3.  **온디바이스 AI (On-Device AI):**
+    *   **지능적 대사 선택**: 외부 서버 없이도 캐릭터의 성격(`Persona`)과 현재 전황을 고려하여 가장 적절한 대사를 선택하여 출력합니다.
 
 ## 개발 원칙
 
-* **모듈화 최우선 (Modularity First):** 
-  * 모든 시스템 (AI, 던전 생성, 렌더링, 인벤토리 등)은 서로 강하게 결합되지 않도록 독립적인 모듈로 개발합니다. 
-  * 하드코딩을 지양하고 외부 라이브러리 의존도를 낮춰(예: 자체 행동 트리 구현, 자체 절차적 던전 생성) 유연성과 유지보수성을 극대화합니다.
-* **조작 개입 최소화:** 
-  * 게임의 본질을 'AI 파티 관리 및 경제(이모지) 운영'에 맞추기 위해, 전투 및 던전 탐험 과정에서의 물리적인 수동 조작을 점진적으로 모두 제거합니다.
-* **기술 용어 표준화 (Technical Terminology):**
-  * 코드 내부에서 사용하는 엔티티 스탯 명칭은 아래와 같이 통일합니다. (환각 및 버그 방지)
-  * `hp`: 현재 체력
-  * `maxHp`: 최대 체력
-  * `atk`: 공격력 (기존 `attackDamage` 사용 금지)
-  * `mAtk`: 마법 공격력
-  * `def`: 방어력
-  * `mDef`: 마법 방어력
-  * `speed`: 이동 속도
-  * `atkSpd`: 공격 속도 (또는 `attackDelay`로 보완 가능)
-  * `atkRange`: 공격 사거리
-  * `rangeMin`: 최소 유지 거리 (원거리용)
-  * `rangeMax`: 최대 유지 거리 (원거리용)
-  * `castSpd`: 시전 속도
-  * `acc`: 정확도 (물리 공격 시)
-  * `eva`: 회피도 (물리 공격 시)
-  * `crit`: 치명타율
-  * `ultChargeSpeed`: 궁극기 충전 속도 배율 (기본 1.0)
-  * `fireRes`: 불 저항력 (%)
-  * `iceRes`: 얼음 저항력 (%)
-  * `lightningRes`: 번개 저항력 (%)
-  * `id`: 엔티티 고유 식별자
-  * **공식 재화 키값 (Official Currency Keys)**:
-    * 골드(Gold): `emoji_coin` 🪙 [반드시 `emoji_gold`와 혼동 금지]
-    * 다이아(Diamond): `emoji_gem` 💎
-  * **주의**: 신규 몬스터/용병 추가 시 위 명칭을 제외한 임의의 명칭(예: `attackDamage`) 사용을 엄격히 금지합니다.
+*   **모듈화 최우선 (Modularity First):**
+    *   모든 시스템 (AI, 던전 생성, 렌더링, 인벤토리 등)은 서로 강하게 결합되지 않도록 독립적인 모듈로 개발합니다.
+    *   하드코딩을 지양하고 외부 라이브러리 의존도를 낮춰(예: 자체 행동 트리 구현, 자체 절차적 던전 생성) 유연성과 유지보수성을 극대화합니다.
+*   **조작 개입 최소화:**
+    *   게임의 본질을 'AI 파티 관리 및 경제(이모지) 운영'에 맞추기 위해, 전투 및 던전 탐험 과정에서의 물리적인 수동 조작을 점진적으로 모두 제거합니다.
+*   **기술 용어 표준화 (Technical Terminology):**
+    *   코드 내부에서 사용하는 엔티티 스탯 명칭은 아래와 같이 통일합니다. (환각 및 버그 방지)
+    *   `hp`: 현재 체력
+    *   `maxHp`: 최대 체력
+    *   `atk`: 공격력 (기존 `attackDamage` 사용 금지)
+    *   `mAtk`: 마법 공격력
+    *   `def`: 방어력
+    *   `mDef`: 마법 방어력
+    *   `speed`: 이동 속도
+    *   `atkSpd`: 공격 속도 (또는 `attackDelay`로 보완 가능)
+    *   `atkRange`: 공격 사거리
+    *   `rangeMin`: 최소 유지 거리 (원거리용)
+    *   `rangeMax`: 최대 유지 거리 (원거리용)
+    *   `castSpd`: 시전 속도
+    *   `acc`: 정확도 (물리 공격 시)
+    *   `eva`: 회피도 (물리 공격 시)
+    *   `crit`: 치명타율
+    *   `ultChargeSpeed`: 궁극기 충전 속도 배율 (기본 1.0)
+    *   `fireRes`: 불 저항력 (%)
+    *   `iceRes`: 얼음 저항력 (%)
+    *   `lightningRes`: 번개 저항력 (%)
+    *   `id`: 엔티티 고유 식별자
+    *   **공식 재화 키값 (Official Currency Keys)**:
+        *   골드(Gold): `emoji_coin` 🪙 [반드시 `emoji_gold`와 혼동 금지]
+        *   다이아(Diamond): `emoji_gem` 💎
+    *   **주의**: 신규 몬스터/용병 추가 시 위 명칭을 제외한 임의의 명칭(예: `attackDamage`) 사용을 엄격히 금지합니다.
 
-* **UI/버그 해결 원칙 (UI & Bug Prevention Rules):**
-  * **`!important` 남용 금지 및 CSS 스코프 엄수**: CSS에서 `!important`를 사용해 강제로 상태를 덮어씌우는 방식은 치명적인 렌더링 버그를 만듭니다. UI 요소를 제어할 때는 `#popup-inner #sidebar-right` 처럼 반드시 부모 위치가 명확할 때만 스타일이 적용되도록(스코프 제한) 개발합니다.
-  * **시각적 구조 확인(Border 디버깅) 우선**: UI 버그 발생 시, 복잡한 JS 코드를 뒤지기 전에 요소들에 강제로 `border: 1px solid red; background: rgba(255,0,0,0.2);` 같은 시각적 테두리를 씌워보는 디버깅 과정을 먼저 거칩니다. 이를 통해 투명한 컨테이너의 실제 렌더링 범위와 겹침 현상을 직관적으로 파악합니다.
-  * **가장 단순한 상위 원인부터 의심**: 요소가 화면에 잘못 나타날 때 요소 자체의 생성 로직(JS DOM 조작)만 집중해서 의심하지 않고, **그 요소를 담고 있는 최상위 부모 컨테이너의 상태(CSS 가시성, z-index, display 속성)**를 가장 먼저 체크하는 매뉴얼을 최우선으로 준수합니다.
+*   **UI/버그 해결 원칙 (UI & Bug Prevention Rules):**
+    *   **`!important` 남용 금지 및 CSS 스코프 엄수**: CSS에서 `!important`를 사용해 강제로 상태를 덮어씌우는 방식은 치명적인 렌더링 버그를 만듭니다. UI 요소를 제어할 때는 `#popup-inner #sidebar-right` 처럼 반드시 부모 위치가 명확할 때만 스타일이 적용되도록(스코프 제한) 개발합니다.
+    *   **시각적 구조 확인(Border 디버깅) 우선**: UI 버그 발생 시, 복잡한 JS 코드를 뒤지기 전에 요소들에 강제로 `border: 1px solid red; background: rgba(255,0,0,0.2);` 같은 시각적 테두리를 씌워보는 디버깅 과정을 먼저 거칩니다. 이를 통해 투명한 컨테이너의 실제 렌더링 범위와 겹침 현상을 직관적으로 파악합니다.
+    *   **가장 단순한 상위 원인부터 의심**: 요소가 화면에 잘못 나타날 때 요소 자체의 생성 로직(JS DOM 조작)만 집중해서 의심하지 않고, **그 요소를 담고 있는 최상위 부모 컨테이너의 상태(CSS 가시성, z-index, display 속성)**를 가장 먼저 체크하는 매뉴얼을 최우선으로 준수합니다.
 
-* **빌드 및 배포 주의사항 (Build & Deployment Caveats):**
-  * **Vite Minification 이슈**: 프로덕션 빌드(Vite build) 시 자바스크립트 클래스 이름이 `a`, `b` 처럼 임의로 압축(Minify)됩니다. 
-  * 따라서 `MonsterClass.name` 처럼 클래스 이름에 의존하여 스탯을 조회하는 로직은 빌드 후 반드시 오작동합니다. 
-  * 모든 객체 생성 시에는 클래스 이름 대신 **명시적인 ID나 Config 객체**를 직접 넘겨주어야 합니다.
+*   **빌드 및 배포 주의사항 (Build & Deployment Caveats):**
+    *   **Vite Minification 이슈**: 프로덕션 빌드(Vite build) 시 자바스크립트 클래스 이름이 `a`, `b` 처럼 임의로 압축(Minify)됩니다.
+    *   따라서 `MonsterClass.name` 처럼 클래스 이름에 의존하여 스탯을 조회하는 로직은 빌드 후 반드시 오작동합니다.
+    *   모든 객체 생성 시에는 클래스 이름 대신 **명시적인 ID나 Config 객체**를 직접 넘겨주어야 합니다.
 
 ## 성장 장비 랜덤 옵션 (Growth Equipment Random Options)
 장비 레벨 10단위(10, 20, 30, 40, 50)마다 아래 풀에서 중복되지 않은 옵션이 하나씩 개방됩니다.
 
 ### ⚔️ 무기 옵션 풀 (Weapon Option Pool)
-- **속성 인챈트 (Element)**: 개방 시 무기에 속성 Prefix 부여 (한 종류만 가능)
-  - 불 🔥 (`fire`), 얼음 ❄️ (`ice`), 번개 ⚡ (`lightning`)
-- **스탯 배율 (Multipliers)**: 기본 스탯에 합산 곱연산 적용
-  - `atkMult`: 물리 공격력 +10~40%
-  - `mAtkMult`: 마법 공격력 +10~40%
-  - `atkSpdMult`: 공격 속도 +5~30%
-  - `castSpdMult`: 시전 속도 +5~30%
-  - `atkRangeMult`: 공격 사거리 +5~15%
-  - `accMult`: 정확도 +10~50%
-  - `critMult`: 치명타율 +5~20%
-  - `ultChargeSpeedMult`: 궁극기 충전 속도 +1~5%
+-   **속성 인챈트 (Element)**: 개방 시 무기에 속성 Prefix 부여 (한 종류만 가능)
+    -   불 🔥 (`fire`), 얼음 ❄️ (`ice`), 번개 ⚡ (`lightning`)
+-   **스탯 배율 (Multipliers)**: 기본 스탯에 합산 곱연산 적용
+    -   `atkMult`: 물리 공격력 +10~40%
+    -   `mAtkMult`: 마법 공격력 +10~40%
+    -   `atkSpdMult`: 공격 속도 +5~30%
+    -   `castSpdMult`: 시전 속도 +5~30%
+    -   `atkRangeMult`: 공격 사거리 +5~15%
+    -   `accMult`: 정확도 +10~50%
+    -   `critMult`: 치명타율 +5~20%
+    -   `ultChargeSpeedMult`: 궁극기 충전 속도 +1~5%
 
 ### 🛡️ 방어구 옵션 풀 (Armor Option Pool)
 - **스탯 배율 (Multipliers)**: 기본 스탯에 합산 곱연산 적용
@@ -131,15 +135,16 @@
   - `iceRes`: 얼음 저항력 +10~30%
   - `lightningRes`: 번개 저항력 +10~30%
 
-* **UI 레이어 아키텍처 (UI Layer Architecture):**
-  * 여러 레이어가 겹치는 모바일 UI의 특성상, 아래의 `z-index` 표준을 반드시 준수하여 요소 간 가림 현상을 방지합니다.
-  * **[구조적 제약]**: `#npc-hud` 및 `#messiah-hud`는 반드시 `#mobile-hud` **외부**(`app-container`의 직계 자식)에 위치해야 독립적인 레이어 순서가 보장됩니다.
-  * **표준 z-index 계층:**
-    * `20001`: **내비게이션 바 (`#mobile-hud`)** - 최상위 메뉴.
-    * `18000`: **상세 툴팁 (`.status-popup-tab`)** - 버프/디버프 상세 정보.
-    * `15000`: **팝업 레이어 (`#popup-overlay`)** - 용병 상세창, 설정 등.
-    * `1000`: **라운드 표시 (`#hud-round-display`)** - 배경 알림성 HUD.
-    * `500`: **전투 HUD (`#npc-hud`, `#messiah-hud`)** - 월드 내 유닛 정보 표시.
+## 🏗️ UI 레이어 아키텍처 (UI Layer Architecture)
+여러 레이어가 겹치는 모바일 UI의 특성상, 아래의 `z-index` 표준을 반드시 준수하여 요소 간 가림 현상을 방지합니다.
+
+*   **[구조적 제약]**: `#npc-hud` 및 `#messiah-hud`는 반드시 `#mobile-hud` **외부**(`app-container`의 직계 자식)에 위치해야 독립적인 레이어 순서가 보장됩니다.
+*   **표준 z-index 계층:**
+    *   `20001`: **내비게이션 바 (`#mobile-hud`)** - 최상위 메뉴.
+    *   `18000`: **상세 툴팁 (`.status-popup-tab`)** - 버프/디버프 상세 정보.
+    *   `15000`: **팝업 레이어 (`#popup-overlay`)** - 용병 상세창, 설정 등.
+    *   `1000`: **라운드 표시 (`#hud-round-display`)**, **하단 허드 (`#hud-bottom`)**
+    *   `500`: **전투 HUD (`#npc-hud`, `#messiah-hud`)** - 월드 내 유닛 정보 표시.
 
 ## 🏗️ UI 모듈화 리팩토링 (UI Modularization Refactoring)
 `UIManager.js`의 거대화를 막고 유지보수성을 높이기 위해 기능별로 UI 모듈을 분리하는 프로젝트를 진행 중입니다.
@@ -152,15 +157,10 @@
 5. **Kitchen UI (`KitchenUI.js`) [예정]**: 요리 및 버프 제작 UI 분리.
 6. **Gacha UI (`GachaUI.js`) [예정]**: 용병 뽑기 UI 분리.
 
-### 🛡️ 모듈화 원칙
-- **Event-Driven**: 각 UI 모듈은 `UIManager`에 직접 의존하기보다 `EventBus`를 통해 통신하며 독립성을 유지합니다.
-- **Visual Consistency**: 모든 모듈은 `index.css`에 정의된 레트로 디자인 시스템을 따릅니다.
-- **Prefix Naming**: 모듈 내 변수와 함수에는 고유의 접두사를 붙여 충돌을 방지합니다.
-
-* **펫 시스템 (Pet System):**
-  * 도그펫(dog_pet): 기본 지급되는 펫. 빠른 속도로 자원을 자동 수집합니다.
-  * 뽈뽈뽈: 펫의 귀여운 뒤뚱뒤뚱 이동 애니메이션 상태.
-  * [아이들 밥]: 자원 수집 중이 아닐 때의 상하 바운싱 대기 애니메이션.
+### 📈 레벨업 스탯 성장 규칙 (Level-up Stat Scaling)
+모든 용병은 레벨업 시 클래스의 특색에 가중치를 두어 스탯이 자동으로 성장합니다.
+- **기공(Base Increase)**: 모든 클래스 공통 기본 성장치 존재. (`hp`, `maxHp`, `atk`, `mAtk`, `def`, `mDef`, `speed` 기본 상승)
+- **특화(Specialization)**: 위에서 정의된 각 클래스별 주요 능력치에 가분수 가중치 적용.
 
 * **직업 명칭 및 성장 특색 (Class Names & Scaling Traits):**
   * `warrior`: 전사 - 물리 공격력(`atk`), 방어력(`def`), 최대 체력(`maxHp`)이 많이 상승함.
@@ -169,11 +169,6 @@
   * `healer`: 힐러 - 마법 공격력(`mAtk`), 마법 방어력(`mDef`)이 많이 상승함.
   * `wizard`: 마법사 - 마법 공격력(`mAtk`), 마법 방어력(`mDef`), 정확도(`acc`)가 많이 상승함.
   * `bard`: 바드 - 체력, 공격력, 마법력, 방어력, 마법 저향력이 균등하게 상승하나, 전문 클래스에 비해 상승폭이 약간 낮음.
-
-### 📈 레벨업 스탯 성장 규칙 (Level-up Stat Scaling)
-모든 용병은 레벨업 시 클래스의 특색에 가중치를 두어 스탯이 자동으로 성장합니다.
-- **기공(Base Increase)**: 모든 클래스 공통 기본 성장치 존재.
-- **특화(Specialization)**: 위에서 정의된 각 클래스별 주요 능력치에 가분수 가중치 적용.
 - **예외 처리**: 특정 요건(예: 성기사 컨셉의 분)에 따라 클래스 기본값 대신 고유 성장 테이블을 따를 수 있음.
 
 ## ⚔️ Combat Development Rules (신규 필독!)
@@ -191,6 +186,22 @@
 - **BAD**: `this.atk *= 1.5;` / `this.speed += 50;`
 - **GOOD**: `this.bonusAtk += amount;` / `this.bonusSpeed += 50;`
 - **표준 보너스 속성**: `bonusAtk`, `bonusMAtk`, `bonusCrit`, `bonusEva`, `bonusSpeed`, `bonusDef`, `bonusMDef`, `bonusAtkSpd`, `bonusAcc`, `bonusDR`, `bonusCastSpd`, `bonusUltChargeSpeed`, `bonusMaxHp`, `bonusMaxHpMult`
+
+### 3. 데미지 및 힐 공식 (Stacking Logic)
+- **물리 데미지**: `attacker.getTotalAtk() * Multiplier`
+- **마법 데미지/힐**: `attacker.getTotalMAtk() * Multiplier`
+- **중첩 규칙**: 퍼센트 보너스 계산 시, `(Base + Equipment)`를 기준으로 계산하여 지수적으로 수치가 치솟는 현상을 방지합니다.
+
+### 4. 속성 시너지 (Elemental Synergy)
+- **Prefix 연동**: 무기 속성은 `getWeaponPrefix().element`를 통해 참조합니다.
+- **Synergy Hit**: 
+  - 스킬에 속성이 없는 경우: 무기 속성을 상속받아 공격합니다.
+  - 스킬에 속성이 있는 경우: 무기 속성이 **추가 타격(Secondary Hit)**으로 발생합니다.
+  - 추가 타격 데미지: 공격자 위력의 **30% (Base) + 10~50% (Bonus)**로 설계되어 중첩 시너지를 보장합니다.
+
+### 5. 소환 및 복제물 (Summons & Clones)
+소환물의 초기 스탯은 소생(Master)의 `getTotal...()` 값을 기반으로 스케일링 되어야 합니다.
+- **예시**: `GuardianAngel`은 소환 시점 세라의 `getTotalMAtk()`를 기준으로 최대 체력과 공격력을 결정합니다.
 
 ### 6. 장비 및 성장 시스템 (Equipment & Growth)
 
@@ -221,64 +232,6 @@
 - **전용 필터**: 장비 인벤토리는 `this.equipFilter`(`ALL`, `WEAPON`, `ARMOR` 등)를 통해 분류됩니다.
 - **중복 장착 방지**: 특정 용병이 이미 장착 중인 인스턴스는 다른 용병의 인벤토리 목록에서 제외(또는 비활성화)되어야 합니다.
 
-### 🖥️ UI 레이어 아키텍처 (UI Layer Architecture)
-
-여러 레이어가 겹치는 모바일 UI의 특성상, 아래의 `z-index` 표준을 반드시 준수하여 요소 간 가림 현상을 방지합니다.
-
-*   **[구조적 제약]**: `#npc-hud` 및 `#messiah-hud`는 반드시 `#mobile-hud` **외부**(`app-container`의 직계 자식)에 위치해야 독립적인 레이어 순서가 보장됩니다.
-*   **표준 z-index 계층:**
-    *   `20001`: **내비게이션 바 (`#mobile-hud`)** - 최상위 메뉴.
-    *   `18000`: **상세 툴팁 (`.status-popup-tab`)** - 버프/디버프 상세 정보.
-    *   `15000`: **팝업 레이어 (`#popup-overlay`)** - 용병 상세창, 설정 등.
-    *   `1000`: **라운드 표시 (`#hud-round-display`)**, **하단 허드 (`#hud-bottom`)**
-    *   `500`: **전투 HUD (`#npc-hud`, `#messiah-hud`)** - 월드 내 유닛 정보 표시.
-
-### 3. 데미지 및 힐 공식 (Stacking Logic)
-- **물리 데미지**: `attacker.getTotalAtk() * Multiplier`
-- **마법 데미지/힐**: `attacker.getTotalMAtk() * Multiplier`
-- **중첩 규칙**: 퍼센트 보너스 계산 시, `(Base + Equipment)`를 기준으로 계산하여 지수적으로 수치가 치솟는 현상을 방지합니다.
-
-### 4. 속성 시너지 (Elemental Synergy)
-- **Prefix 연동**: 무기 속성은 `getWeaponPrefix().element`를 통해 참조합니다.
-- **Synergy Hit**: 
-  - 스킬에 속성이 없는 경우: 무기 속성을 상속받아 공격합니다.
-  - 스킬에 속성이 있는 경우: 무기 속성이 **추가 타격(Secondary Hit)**으로 발생합니다.
-  - 추가 타격 데미지: 공격자 위력의 **30% (Base) + 10~50% (Bonus)**로 설계되어 중첩 시너지를 보장합니다.
-
-### 5. 소환 및 복제물 (Summons & Clones)
-소환물의 초기 스탯은 소생(Master)의 `getTotal...()` 값을 기반으로 스케일링 되어야 합니다.
-- **예시**: `GuardianAngel`은 소환 시점 세라의 `getTotalMAtk()`를 기준으로 최대 체력과 공격력을 결정합니다.
-
----
-
-### 6. AI & 스탯 스케일링 표준화 (AI & Stat Scaling Standardization - 2026.03.09)
-*   **거리 계산 표준화**: 모든 AI 스크립트(`RangedAI.js`, `HealerAI.js`, `BardAI.js`, `MeleeAI.js`)에서 거리 계산을 중심점 간 거리(`Phaser.Math.Distance.Between`)로 통일하여 일관된 카이팅 동작을 보장합니다.
-*   **스탯 상속 버그 수정 (`scaleStats`)**: 캐릭터 성장 시 클래스 기본 사거리(`rangeMin`, `atkRange`)가 누락되어 0(근접)으로 초기화되던 치명적인 버그를 수정했습니다. 이제 캐릭터 설정에 값이 없더라도 `MercenaryClasses`의 기본값을 상속받음으로써 정상적인 카이팅 동작을 수행하도록 보장합니다.
-*   **관성 이동 수정 (Momentum Drift)**: 원거리 유닛이 적정 사거리에 도달하면 즉시 속도를 리셋(`setVelocity(0, 0)`)하여 물리적 관성으로 적에게 근접하는 현상을 방지합니다.
-*   **타겟 활성화 체크**: `Wizard.js` 및 `Archer.js` 등 타겟 탐색 로직에서 `!enemy.active` 또는 `hp <= 0`인 대상을 무시하도록 보완하여 AI 안정성을 높였습니다.
-
----
-
-### 🛡️ Core System Persistence & Scaling (실수 방지 가이드)
-
-다음은 과거 세션에서 발생했던 **"치명적인 스탯 증발/누락"** 실수를 되풀이하지 않기 위한 강력한 지침입니다.
-
-#### 1. 스탯 스케일링 (`scaleStats`) 호출 엄수
-- **현상**: 플레이어 캐릭터가 소환될 때 `scaleStats`를 거치지 않아 레벨 50인데 레벨 1의 스탯으로 싸우는 참사가 있었습니다.
-- **해결**: Dungeon, Raid, Arena 등 **모든 전투 씬**에서 유닛을 `new Class()`로 생성할 때 반드시 `scaleStats(baseConfig, level)`를 거친 `scaledConfig`를 전달해야 합니다.
-- **별 등급(Star)**: 별 등급은 `scaleStats` 내부에서 계산되므로, `scaleStats({ ...base, star: star }, level)` 처럼 별 등급 정보를 반드시 포함해 넘기세요.
-
-#### 2. 스탯 영속성 (Persistence) 관리
-- **현상**: 새로운 스탯을 추가해도 `Mercenary.js`의 `getState`나 `constructor`에서 누락되어, 세이브 파일을 불러올 때마다 스탯이 초기화되는 버그가 있었습니다.
-- **해결**:
-    - **저장**: `Mercenary.js`의 `getState()` 메서드에 신규 스탯을 반드시 추가하세요.
-    - **로드**: `Mercenary.js`의 `constructor`에서 `savedState`를 읽어올 때, `this.atk = savedState.atk || config.atk` 처럼 명시적으로 할당하십시오.
-
-#### 3. 유틸리티 스탯 성장 억제 (Static Utility)
-- **현상**: 공격 속도나 사거리가 레벨에 따라 무한히 성장하여 밸런스가 파괴될 뻔했습니다.
-- **해결**: `fireRes`, `iceRes`, `lightningRes`, `atkRange`, `speed`, `atkSpd` 등 유틸리티/속도 관련 14종 스탯은 **성장치(growth)를 0**으로 유지하세요. 오직 장비와 버프로만 올리는 것이 현재 게임의 기조입니다.
-
----
 
 ## 캐릭터 로스터 (Characters)
 각 용병 캐릭터는 고유한 성격과 스킬을 보유하고 있으며, LLM 바크 시스템을 통해 각자의 페르소나를 표현합니다.

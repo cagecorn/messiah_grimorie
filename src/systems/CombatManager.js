@@ -6,6 +6,8 @@ import soundManager from './SoundManager.js';
 import damageCalculationManager from './combat/DamageCalculationManager.js';
 import projectileManager from './combat/ProjectileManager.js';
 import ArrowProjectile from '../entities/projectiles/common/ArrowProjectile.js';
+import BardProjectile from '../entities/projectiles/common/BardProjectile.js';
+import AquaBurstProjectile from '../entities/projectiles/common/AquaBurstProjectile.js';
 import fxManager from './graphics/FXManager.js';
 
 /**
@@ -18,8 +20,13 @@ class CombatManager {
     constructor() {
         this.units = new Set(); // 현재 전장에 존재하는 모든 유닛 (용병+몬스터)
         this.grid = null;       // 공간 분할 격자 (Spatial Partitioning Grid)
+        this.scene = null;      // 씬 참조
         
-        Logger.system("CombatManager: Initialized (Large-scale optimization ready).");
+        Logger.system("CombatManager: Initialized.");
+    }
+
+    init(scene) {
+        this.scene = scene;
     }
 
     /**
@@ -48,6 +55,14 @@ class CombatManager {
             });
         } else if (type === 'meteor') {
             projectileManager.fire('meteor', attacker, target, {
+                damageMultiplier: multiplier
+            });
+        } else if (type === 'bard') {
+            projectileManager.fire('bard', attacker, target, {
+                damageMultiplier: multiplier
+            });
+        } else if (type === 'aqua_burst') {
+            projectileManager.fire('aqua_burst', attacker, target, {
                 damageMultiplier: multiplier
             });
         }
@@ -90,6 +105,9 @@ class CombatManager {
 
             if (type === 'physical') {
                 soundManager.playPhysicalHit();
+            } else if (projectileId && projectileId.includes('bard')) {
+                // 바드 음표 타격음
+                soundManager.playMusicHit();
             }
 
             if (!isUltimate && attackerEntity.gainUltimateCharge) {
@@ -114,6 +132,8 @@ class CombatManager {
 
         if (isAlly && className === 'healer') {
             this.processHeal(attackerEntity, targetEntity, 1.0);
+        } else if (isAlly && className === 'bard') {
+            this.processInspiration(attackerEntity, targetEntity, 1.0);
         } else if (!isAlly) {
             // [USER 요청] 힐러는 빛의 투사체(light) 발사
             if (className === 'healer') {
@@ -146,9 +166,96 @@ class CombatManager {
         }
     }
 
+    /**
+     * 바드 영감(Inspiration) 버프 발생 라우팅
+     */
+    processInspiration(bardEntity, targetEntity, multiplier = 1.0) {
+        const bard = bardEntity.logic;
+        const target = targetEntity.logic;
+
+        const buffValue = bard.getTotalMAtk() * multiplier;
+        const duration = 5000; // 5초 지속
+
+        if (target.buffs) {
+            Logger.info("COMBAT_MANAGER", `Processing INSPIRATION: ${bard.name} -> ${target.name} (+${buffValue.toFixed(1)})`);
+            
+            // 공격력 및 마법 공격력 버프 추가
+            target.buffs.addBuff({
+                id: 'inspiration',
+                key: 'atk',
+                value: buffValue,
+                type: 'add',
+                duration: duration
+            });
+            target.buffs.addBuff({
+                id: 'inspiration_matk',
+                key: 'mAtk',
+                value: buffValue,
+                type: 'add',
+                duration: duration
+            });
+
+            // 시각 효과
+            fxManager.showInspirationEffect(targetEntity);
+            
+            // 효과음
+            soundManager.playSound('magic_hit_1', 0.4);
+        }
+    }
+
+    /**
+     * 바드 보호의 노래(Song of Protection) 스킬 처리
+     */
+    processSongOfProtection(owner, shieldAmount) {
+        let count = 0;
+        
+        // 1. 일차적으로 등록된 유닛들 검색
+        let targets = Array.from(this.units);
+        
+        // [Fallback] 만약 등록된 유닛이 없다면 씬의 리스트를 직접 참조 (MassHeal 방식)
+        if (targets.length === 0 && owner.scene) {
+            Logger.warn("COMBAT_MANAGER", "Units set is empty. Falling back to scene.allies/enemies.");
+            targets = (owner.team === 'mercenary') ? owner.scene.allies : owner.scene.enemies;
+        }
+
+        Logger.info("COMBAT_MANAGER", `Searching targets for Song of Protection. Pool size: ${targets.length}`);
+
+        targets.forEach(unit => {
+            if (unit.active && unit.logic && unit.logic.isAlive && unit.team === owner.team) {
+                // 보호막 부여
+                if (unit.logic.shields) {
+                    unit.logic.shields.addShield({
+                        id: `song_of_protection_${owner.id}_${Date.now()}`,
+                        amount: shieldAmount,
+                        duration: 5000 // 5초
+                    });
+                }
+
+                // [시각 효과] 개별 유닛 보호막 오버레이
+                if (fxManager.showShieldOverlay) {
+                    fxManager.showShieldOverlay(unit, 5000);
+                }
+
+                // HP바 즉시 갱신 유도
+                if (unit.hpBar) {
+                    unit.hpBar.isDirty = true;
+                }
+                count++;
+            }
+        });
+
+        Logger.info("COMBAT", `Song of Protection applied shield (+${shieldAmount.toFixed(1)}) to ${count} allies.`);
+    }
+
     refreshSpatialGrid() { /* Spatial Partitioning Placeholder */ }
-    addUnit(unit) { this.units.add(unit); }
-    removeUnit(unit) { this.units.delete(unit); }
+    addUnit(unit) { 
+        this.units.add(unit); 
+        Logger.system(`CombatManager: Unit Registered -> [${unit.logic.name}] (Team: ${unit.team}) Total: ${this.units.size}`);
+    }
+    removeUnit(unit) { 
+        this.units.delete(unit); 
+        Logger.info("COMBAT_MANAGER", `Unit Deregistered: ${unit.logic.name}`);
+    }
 }
 
 const combatManager = new CombatManager();

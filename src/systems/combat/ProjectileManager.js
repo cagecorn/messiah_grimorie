@@ -3,6 +3,8 @@ import ThreadsOfFateProjectile from '../../entities/projectiles/skills/ThreadsOf
 import LightProjectile from '../../entities/projectiles/skills/LightProjectile.js';
 import WizardProjectile from '../../entities/projectiles/skills/WizardProjectile.js';
 import MeteorProjectile from '../../entities/projectiles/skills/MeteorProjectile.js';
+import BardProjectile from '../../entities/projectiles/common/BardProjectile.js';
+import AquaBurstProjectile from '../../entities/projectiles/common/AquaBurstProjectile.js';
 
 /**
  * 투사체 매니저 (Projectile Manager)
@@ -32,6 +34,8 @@ class ProjectileManager {
         this.registerProjectile('light', LightProjectile);
         this.registerProjectile('wizard', WizardProjectile);
         this.registerProjectile('meteor', MeteorProjectile);
+        this.registerProjectile('bard', BardProjectile);
+        this.registerProjectile('aqua_burst', AquaBurstProjectile);
 
         Logger.system("ProjectileManager: Initialized for scene.");
     }

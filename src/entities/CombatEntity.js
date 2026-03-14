@@ -90,12 +90,18 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         // 5. 모든 컴포넌트 준비 완료 후 외부 매니저(HUD, 그림자 등) 연결
         this.visual.attachManagers();
 
+        // [신규] 컴뱃 매니저에 유닛 등록 (AOE 스킬 등이 탐색할 수 있도록)
+        combatManager.addUnit(this);
+
         Logger.info("COMBAT_ENTITY", `Initialized ${this.logic.name} (Modular) at (${Math.round(this.x)}, ${Math.round(this.y)})`);
     }
 
     onAcquire() { }
 
     onRelease() {
+        // [신규] 풀에 반납될 때 매니저에서 제거
+        combatManager.removeUnit(this);
+
         this.setActive(false);
         this.setVisible(false);
         if (this.body) this.body.setEnable(false);
@@ -188,6 +194,7 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     useUltimate(target) { return this.skills.useUltimate(target); }
 
     preDestroy() {
+        combatManager.removeUnit(this);
         if (this.visual) this.visual.cleanup();
         super.preDestroy();
     }

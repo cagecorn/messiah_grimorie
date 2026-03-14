@@ -45,7 +45,39 @@ class PhaserParticleManager {
         this.createPurpleMagicPool();
         this.createExplosionPool();
         this.createRedMagicPool();
-        Logger.system("PhaserParticleManager: Particle systems initialized with Glow, Thread, and Heal textures.");
+        this.createSleepPool();
+        Logger.system("PhaserParticleManager: Particle systems initialized with Glow, Thread, Heal, and Sleep textures.");
+    }
+
+    /**
+     * 수면(Sleep) 파티클 풀 생성: "Z" 혹은 "ZZZ" 글자 파티클
+     */
+    createSleepPool() {
+        if (!this.scene) return;
+
+        // [텍스처 생성] "Z" 글자 텍스처
+        const text = this.scene.make.text({ 
+            text: 'Z', 
+            style: { font: '24px Arial', fill: '#ffffff', stroke: '#000000', strokeThickness: 2 },
+            add: false 
+        });
+        text.updateText(); // 캔버스 업데이트 강제
+        this.scene.textures.addCanvas('particle_z', text.canvas);
+
+        const emitter = this.scene.add.particles(0, 0, 'particle_z', {
+            color: [ 0xffffff, 0xaaaaff ], 
+            speedY: { min: -40, max: -80 }, // 천천히 상승
+            speedX: { min: -10, max: 20 },
+            scale: { start: 0.5, end: 1.2 },
+            alpha: { start: 1.0, end: 0 },
+            lifespan: 2000,
+            blendMode: 'NORMAL',
+            rotate: { min: -20, max: 20 },
+            frequency: 500, // 일정한 간격으로 발생
+            emitting: false
+        });
+
+        this.emitters.set('sleep', emitter);
     }
 
     /**
@@ -301,6 +333,21 @@ class PhaserParticleManager {
         if (!emitter) return;
 
         emitter.explode(count, x, y);
+    }
+
+    /**
+     * 수면 상태 시 지속적으로 Z 파티클 발생
+     */
+    startSleepEffect(x, y, duration) {
+        const emitter = this.emitters.get('sleep');
+        if (!emitter) return;
+
+        emitter.setPosition(x, y);
+        emitter.start();
+
+        this.scene.time.delayedCall(duration, () => {
+            emitter.stop();
+        });
     }
 }
 

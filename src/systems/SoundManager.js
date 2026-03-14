@@ -51,6 +51,17 @@ class SoundManager {
     /**
      * 특정 키의 효과음 재생
      */
+    /**
+     * 바드 음표 타격 효과음 재생
+     */
+    playMusicHit() {
+        if (!this.scene) return;
+        audioManager.playSFX(this.scene, 'music_hit', 0.5);
+    }
+
+    /**
+     * 특정 키의 효과음 재생
+     */
     playSound(key, volume = 1.0) {
         if (!this.scene) return;
         audioManager.playSFX(this.scene, key, volume);

@@ -6,6 +6,7 @@ import StarGradeManager from '../systems/entities/StarGradeManager.js';
 import BuffManager from '../systems/combat/BuffManager.js';
 import StatusEffectManager from '../systems/combat/StatusEffectManager.js';
 import ElementalManager from '../systems/combat/ElementalManager.js';
+import ShieldManager from '../systems/combat/ShieldManager.js';
 
 /**
  * 기본 엔티티 (Base Entity)
@@ -32,6 +33,7 @@ export default class BaseEntity {
         this.buffs = new BuffManager(this);
         this.status = new StatusEffectManager(this);
         this.elements = new ElementalManager(this);
+        this.shields = new ShieldManager(this);
         this._isDead = false; // [신규] 상태 제어용 플래그
 
         // 초기화 시퀀스
@@ -95,6 +97,7 @@ export default class BaseEntity {
     // 단축 속성 (기존 코드 호환용 및 편의성)
     get hp() { return this.stats.get('hp'); }
     get atk() { return this.getTotalAtk(); }
+    get shield() { return this.shields.getTotalShield(); }
     get isAlive() { return this.hp > 0 && !this._isDead; }
 
     get isDead() { return this._isDead; }

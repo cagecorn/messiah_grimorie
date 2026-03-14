@@ -78,12 +78,12 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('meteor_sprite', assetPathManager.getPath('images', 'meteor_sprite'));
         this.load.image('explosion_effect', assetPathManager.getPath('images', 'explosion_effect'));
 
-        // [신규] 상태 이상 아이콘 프리로드
-        this.load.image('/assets/icon/knockback_icon.png', '/assets/icon/knockback_icon.png');
-        this.load.image('/assets/icon/airborne_icon.png', '/assets/icon/airborne_icon.png');
-        this.load.image('/assets/icon/debuff_stun.png', '/assets/icon/debuff_stun.png');
-        this.load.image('/assets/icon/debuff_burn.png', '/assets/icon/debuff_burn.png');
-        this.load.image('/assets/icon/invincible_icon.png', '/assets/icon/invincible_icon.png');
+        // [신규] 상태 이상 아이콘 프리로드 (키값을 텍스처 키로 사용)
+        const statusIcons = ['knockback', 'airborne', 'stunned', 'burned', 'invincible'];
+        statusIcons.forEach(id => {
+            const path = assetPathManager.getPath('images', id);
+            if (path) this.load.image(id, path);
+        });
 
         Logger.info("BATTLE_LOADER", "Preloading physical impact effects, skill assets, projectiles, and status icons.");
 
@@ -93,9 +93,17 @@ export default class BattleScene extends Phaser.Scene {
         this.load.audio('hit_phys_3', 'assets/sfx/hitting-3.mp3');
         this.load.audio('unit_fallen', 'assets/sfx/fallen-1.mp3');
         this.load.audio('arrow_1', 'assets/sfx/arrow_1.mp3');
+        this.load.audio('music_hit', 'assets/sfx/music_hit.mp3');
         this.load.audio('magic_hit_1', 'assets/sfx/magic-hit-1.mp3');
         this.load.audio('explosive_1', 'assets/sfx/explosive-1.mp3');
         Logger.info("BATTLE_LOADER", "Preloading hitting sound effects and death sfx.");
+
+        // [신규] 버프 아이콘 프리로드 (키값을 텍스처 키로 사용)
+        const buffIcons = ['shield_icon', 'inspiration_icon', 'sleep_icon'];
+        buffIcons.forEach(key => {
+            const path = assetPathManager.getPath('images', key);
+            if (path) this.load.image(key, path);
+        });
     }
 
     async create() {

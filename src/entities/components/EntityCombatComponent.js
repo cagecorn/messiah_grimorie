@@ -86,7 +86,24 @@ export default class EntityCombatComponent {
             return;
         }
 
-        const currentHp = this.logic.stats.takeDamage(amount);
+        // [신규] 보호막 흡수 로직
+        const absorbed = this.logic.shields ? this.logic.shields.absorbDamage(amount) : 0;
+        const finalDamage = amount - absorbed;
+
+        let currentHp = this.logic.hp;
+        if (finalDamage > 0) {
+            currentHp = this.logic.stats.takeDamage(finalDamage);
+            
+            // [신규] 수면 상태 해제 (공격 당할 시)
+            if (this.logic.status && this.logic.status.states.sleep) {
+                this.logic.status.states.sleep = false;
+                if (this.logic.status.timers.sleep) {
+                    clearTimeout(this.logic.status.timers.sleep);
+                    this.logic.status.timers.sleep = null;
+                }
+                Logger.info("COMBAT", `${this.logic.name} woke up from damage!`);
+            }
+        }
 
         // HP바 갱신 알림
         if (this.entity.hpBar) {
@@ -102,7 +119,11 @@ export default class EntityCombatComponent {
             this.handleDeath();
         }
 
-        Logger.info("COMBAT", `${this.logic.name} took ${amount} damage. Current HP: ${currentHp}`);
+        if (absorbed > 0) {
+            Logger.info("COMBAT", `${this.logic.name} absorbed ${absorbed.toFixed(1)} damage. Final Damage: ${finalDamage.toFixed(1)}`);
+        } else {
+            Logger.info("COMBAT", `${this.logic.name} took ${amount} damage. Current HP: ${currentHp}`);
+        }
     }
 
     /**

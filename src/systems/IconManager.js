@@ -10,14 +10,17 @@ import assetPathManager from '../core/AssetPathManager.js';
 class IconManager {
     constructor() {
         this.buffIcons = {
-            'atk_up': '/assets/icon/buff_atk.png',
-            'def_up': '/assets/icon/buff_def.png',
-            'speed_up': '/assets/icon/buff_speed.png',
-            'stunned': '/assets/icon/debuff_stun.png',
-            'burned': '/assets/icon/debuff_burn.png',
-            'knockback': '/assets/icon/knockback_icon.png',
-            'airborne': '/assets/icon/airborne_icon.png',
-            'invincible': '/assets/icon/invincible_icon.png'
+            'atk_up': 'atk_up',
+            'def_up': 'def_up',
+            'speed_up': 'speed_up',
+            'stunned': 'stunned',
+            'burned': 'burned',
+            'knockback': 'knockback',
+            'airborne': 'airborne',
+            'invincible': 'invincible',
+            'sleep': 'sleep_icon',
+            'shield': 'shield_icon',
+            'inspiration': 'inspiration_icon'
         };
         
         this.defaultIcon = '/assets/icon/unknown.png';

@@ -64,6 +64,14 @@ class BuffManager {
             Logger.info("COMBAT", `Buff expired: ${buffId}`);
         }
     }
+
+    /**
+     * 현재 활성화된 버프의 ID 목록(중복 제거)을 반환합니다.
+     */
+    getActiveBuffIds() {
+        const ids = this.activeBuffs.map(b => b.id.split('_')[0]); // 'inspiration_matk' -> 'inspiration'
+        return [...new Set(ids)];
+    }
 }
 
 export default BuffManager;

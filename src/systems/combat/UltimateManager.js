@@ -2,6 +2,7 @@ import forMessiah from './skills/ForMessiah.js';
 import threadsOfFate from './skills/ThreadsOfFate.js';
 import summonGuardianAngel from './skills/SummonGuardianAngel.js';
 import meteorStrike from './skills/MeteorStrike.js';
+import summonSiren from './skills/SummonSiren.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -58,6 +59,16 @@ class UltimateManager {
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: meteorStrike
+        });
+
+        // 루트 (Lute)
+        this.ultimates.set('lute', {
+            id: 'lute_ult',
+            name: 'Summon: Siren',
+            description: 'Summons a Siren to assist in battle.',
+            chargeMax: 100,
+            chargeSpeedBase: 1.0,
+            logic: summonSiren
         });
 
         // 고블린(몬스터)은 궁극기 없음

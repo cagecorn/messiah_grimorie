@@ -3,36 +3,70 @@
  * 모든 엔티티와 전투 시스템에서 이 상수를 참조하여 데이터 일관성을 유지합니다.
  */
 
-// ==========================================
-// ⚔️ [구역 1] 엔티티 스탯 명칭 (Standardized Stats)
-// ==========================================
+//#region ⚔️ [구역 1] 엔티티 스탯 명칭 (Technical Terminology)
+// 코드 내부에서 사용하는 엔티티 스탯 명칭 통일 (환각 및 버그 방지)
 export const STATS = {
-    HP: 'hp',
-    MAX_HP: 'maxHp',
-    ATK: 'atk',                // 물리 공격력
-    MATK: 'mAtk',              // 마법 공격력
-    DEF: 'def',                // 물리 방어력
-    MDEF: 'mDef',              // 마법 방어력
-    SPEED: 'speed',            // 이동 속도
-    ATK_SPD: 'atkSpd',         // 공격 속도
-    ATK_RANGE: 'atkRange',     // 공격 사거리
-    RANGE_MIN: 'rangeMin',     // 최소 유지 거리
-    RANGE_MAX: 'rangeMax',     // 최대 유지 거리
-    CAST_SPD: 'castSpd',       // 시전 속도
-    ACC: 'acc',                // 정확도
-    EVA: 'eva',                // 회피도
-    CRIT: 'crit',              // 치명타율
-    ULT_CHARGE: 'ultChargeSpeed', // 궁극기 충전 속도 배율
-    FIRE_RES: 'fireRes',       // 불 저항력
-    ICE_RES: 'iceRes',         // 얼음 저항력
-    LIGHTNING_RES: 'lightningRes', // 번개 저항력
-    ID: 'id'                   // 고유 식별자
+    HP: 'hp',                      // 현재 체력
+    MAX_HP: 'maxHp',               // 최대 체력
+    ATK: 'atk',                    // 공격력 (attackDamage 사용 금지)
+    MATK: 'mAtk',                  // 마법 공격력
+    DEF: 'def',                    // 방어력
+    MDEF: 'mDef',                  // 마법 방어력
+    SPEED: 'speed',                // 이동 속도
+    ATK_SPD: 'atkSpd',             // 공격 속도 (또는 attackDelay)
+    ATK_RANGE: 'atkRange',         // 공격 사거리
+    RANGE_MIN: 'rangeMin',         // 최소 유지 거리 (원거리용)
+    RANGE_MAX: 'rangeMax',         // 최대 유지 거리 (원거리용)
+    CAST_SPD: 'castSpd',           // 시전 속도
+    ACC: 'acc',                    // 정확도 (물리 공격 시)
+    EVA: 'eva',                    // 회피도 (물리 공격 시)
+    CRIT: 'crit',                  // 치명타율
+    ULT_CHARGE: 'ultChargeSpeed',  // 궁극기 충전 속도 배율 (기본 1.0)
+    FIRE_RES: 'fireRes',           // 불 저항력 (%)
+    ICE_RES: 'iceRes',             // 얼음 저항력 (%)
+    LIGHTNING_RES: 'lightningRes', // 번개 저항력 (%)
+    ID: 'id'                       // 엔티티 고유 식별자
+};
+//#endregion
+
+//#region 📈 [구역 2] 레벨업 스탯 성장 규칙 (Level-up Stat Scaling)
+// 모든 용병은 레벨업 시 클래스의 특색에 가중치를 두어 스탯이 자동으로 성장합니다.
+
+export const CLASSES = {
+    WARRIOR: 'warrior',
+    ARCHER: 'archer',
+    HEALER: 'healer',
+    WIZARD: 'wizard',
+    BARD: 'bard'
 };
 
-// ==========================================
-// 🛡️ [구역 2] 보너스 속성 (Stat Modification)
-// ==========================================
-// 기본 스탯을 직접 수정하지 않고 아래 보너스 변수들을 합산합니다.
+// 기공(Base Increase): 모든 클래스 공통 기본 성장치
+export const BASE_GROWTH_STATS = [
+    STATS.HP, STATS.MAX_HP, STATS.ATK, STATS.MATK, 
+    STATS.DEF, STATS.MDEF, STATS.SPEED
+];
+
+// 특화(Specialization): 클래스별 주요 능력치 가중치 적용 대상
+export const CLASS_SCALING_TRAITS = {
+    [CLASSES.WARRIOR]: [STATS.ATK, STATS.DEF, STATS.MAX_HP],
+    [CLASSES.ARCHER]: [STATS.ATK, STATS.ATK_SPD, STATS.ACC, STATS.EVA],
+    [CLASSES.HEALER]: [STATS.MATK, STATS.MDEF],
+    [CLASSES.WIZARD]: [STATS.MATK, STATS.MDEF, STATS.ACC],
+    [CLASSES.BARD]: [STATS.HP, STATS.ATK, STATS.MATK, STATS.DEF, STATS.MDEF] // 균등 성장 (폭은 낮음)
+};
+
+// 예외 처리: 특정 요건(예: 성기사 컨셉의 분)에 따른 고유 성장 테이블
+export const UNIQUE_SCALING_CASES = {
+    'boon': {
+        traits: [STATS.MATK, STATS.MDEF], // warrior임에도 mAtk, mDef가 더 많이 상승
+        baseClass: CLASSES.WARRIOR
+    }
+};
+//#endregion
+
+//#region 🛡️ [구역 3] 스탯 참조 및 수정 (Getters & Modification)
+// 기본 스탯을 직접 수정하지 않고 보너스 변수들을 활용합니다. (영구 스탯 오염 방지)
+
 export const BONUS_STATS = {
     ATK: 'bonusAtk',
     MATK: 'bonusMAtk',
@@ -50,44 +84,41 @@ export const BONUS_STATS = {
     MAX_HP_MULT: 'bonusMaxHpMult'
 };
 
-// ==========================================
-// 🎖️ [구역 3] 직업 및 성장 특색 (Classes & Scaling)
-// ==========================================
-export const CLASSES = {
-    WARRIOR: 'warrior',
-    ARCHER: 'archer',
-    HEALER: 'healer',
-    WIZARD: 'wizard',
-    BARD: 'bard'
+// 통합 Getter 표준 명칭
+export const GETTERS = {
+    ATK: 'getTotalAtk',
+    MATK: 'getTotalMAtk',
+    CRIT: 'getTotalCrit',
+    DEF: 'getTotalDef',
+    EVA: 'getTotalEva',
+    SPEED: 'getTotalSpeed',
+    ATK_SPD: 'getTotalAtkSpd',
+    ACC: 'getTotalAcc'
 };
+//#endregion
 
-export const CLASS_TRAITS = {
-    [CLASSES.WARRIOR]: ['atk', 'def', 'maxHp'],
-    [CLASSES.ARCHER]: ['atk', 'atkSpd', 'acc', 'eva'],
-    [CLASSES.HEALER]: ['mAtk', 'mDef'],
-    [CLASSES.WIZARD]: ['mAtk', 'mDef', 'acc'],
-    [CLASSES.BARD]: ['hp', 'atk', 'mAtk', 'def', 'mDef'] // 균등 성장
-};
-
-// ==========================================
-// 💥 [구역 4] 전투 공식 (Combat Formulas)
-// ==========================================
+//#region 💥 [구역 4] 데미지 및 힐 공식 (Equations & Stacking)
 export const COMBAT = {
-    // 물리 데미지 계산식
-    calcPhysicalDamage: (attackerTotalAtk, multiplier) => {
-        return attackerTotalAtk * multiplier;
-    },
-    // 마법 데미지/힐 계산식
-    calcMagicEffect: (attackerTotalMAtk, multiplier) => {
-        return attackerTotalMAtk * multiplier;
-    },
+    // 물리 데미지: attacker.getTotalAtk() * Multiplier
+    // 마법 데미지/힐: attacker.getTotalMAtk() * Multiplier
+    calcPhysicalDamage: (atk, multiplier) => atk * multiplier,
+    calcMagicEffect: (mAtk, multiplier) => mAtk * multiplier,
+    
     // 중첩 규칙: (Base + Equipment) * Multipliers
-    // 지수적 폭주를 막기 위해 합산 후 최종 곱연산 적용 원칙
+    // 퍼센트 보너스 계산 시 기준점 유지로 지수적 폭주 방지
+    calcBaseWithEquip: (base, equip) => base + equip,
+    applyMultipliers: (value, multipliers) => value * multipliers
 };
+//#endregion
 
-/**
- * 표준 Getter 로직 예시 (구현 시 참고)
- * getTotalAtk() {
- *    return (this.atk + this.bonusAtk + this.equipAtk) * (this.atkMult || 1);
- * }
- */
+//#region 👯 [구역 5] 소환 및 복제물 (Summons & Clones)
+// 소환물의 초기 스탯은 마스터의 getTotal...() 값을 기반으로 스케일링
+export const SUMMON_SCALING = {
+    getMasterStat: (master, statKey) => {
+        const getterName = GETTERS[statKey.toUpperCase()];
+        return master[getterName] ? master[getterName]() : master[statKey];
+    }
+};
+//#endregion
+
+console.log("✅ [TechnicalConstants] 기술 용어 및 전투 표준 시스템 로드 완료.");

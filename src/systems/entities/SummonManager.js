@@ -1,5 +1,5 @@
 import Logger from '../../utils/Logger.js';
-import BaseEntity from '../../entities/BaseEntity.js';
+import CombatEntity from '../../entities/CombatEntity.js';
 
 /**
  * 소환물 매니저 (Summon Manager)
@@ -7,27 +7,41 @@ import BaseEntity from '../../entities/BaseEntity.js';
  */
 class SummonManager {
     constructor() {
-        this.summons = new Map();
+        this.activeSummons = new Map(); // EntityID -> CombatEntity
     }
 
-    createSummon(config, duration = 30000) {
-        const summon = new BaseEntity({
-            ...config,
-            type: 'summon'
-        });
-        this.summons.set(summon.id, summon);
+    /**
+     * [신규] 소환물 스폰 (세이렌 등)
+     * 역할: 논리 객체와 물리(Phaser) 객체를 한꺼번에 생성하고 관리 리스트에 추기
+     */
+    spawnSummon(scene, logicEntity, team, x, y, spriteKey) {
+        if (!scene) return null;
 
-        // 일정 시간 후 자동 소멸
-        setTimeout(() => {
-            this.removeSummon(summon.id);
-        }, duration);
+        const combatEntity = new CombatEntity(scene, x, y, logicEntity, spriteKey);
+        combatEntity.team = team;
 
-        return summon;
+        // 씬의 유닛 목록에 추가 (팀 판정 하드코딩 방지: mercenary/ally는 아군, 그 외는 적군)
+        const isAlly = (team === 'mercenary' || team === 'ally');
+        
+        if (isAlly) {
+            if (scene.allies) scene.allies.push(combatEntity);
+        } else {
+            if (scene.enemies) scene.enemies.push(combatEntity);
+        }
+
+        this.activeSummons.set(logicEntity.id, combatEntity);
+
+        Logger.info("SUMMON", `Spawned summon: ${logicEntity.name} (Team: ${team})`);
+        return combatEntity;
     }
 
-    removeSummon(id) {
-        this.summons.delete(id);
-        Logger.info("SUMMON", `Summon ${id} expired.`);
+    removeSummon(logicId) {
+        const entity = this.activeSummons.get(logicId);
+        if (entity) {
+            entity.destroy(); // Phaser 엔티티 파괴 (logicEntity 포함)
+            this.activeSummons.delete(logicId);
+            Logger.info("SUMMON", `Summon ${logicId} removed.`);
+        }
     }
 }
 

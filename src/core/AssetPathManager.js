@@ -18,12 +18,21 @@ class AssetPathManager {
             arrow_projectile: `${this.basePath}effect/arrow_projectile.png`,
             healing_effect: `${this.basePath}effect/healing_effect.png`,
             mass_heal_effect: `${this.basePath}effect/mass_heal_effect.png`,
-            guardian_angel_sprite: `${this.basePath}characters/summon/guadian_angel_sprite.png`,
+            guardian_angel_sprite: `${this.basePath}characters/summon/guardian_angel_sprite.png`,
             summon_guardian_angel_effect: `${this.basePath}effect/summon_guardian_angel_effect.png`,
             light_projectile: `${this.basePath}effect/light_projectile.png`,
             wizard_projectile: `${this.basePath}effect/wizard_projectile_effect.png`,
             meteor_sprite: `${this.basePath}effect/meteor_sprite.png`,
-            explosion_effect: `${this.basePath}effect/explosion_effect.png`
+            explosion_effect: `${this.basePath}effect/explosion_effect.png`,
+            sleep_icon: `${this.basePath}icon/sleep_icon.png`,
+            shield_icon: `${this.basePath}icon/shield_icon.png`,
+            shield_effect: `${this.basePath}effect/shield_effect.png`,
+            inspiration_icon: `${this.basePath}icon/inspiration_icon.png`,
+            stunned: `${this.basePath}icon/debuff_stun.png`,
+            burned: `${this.basePath}icon/debuff_burn.png`,
+            knockback: `${this.basePath}icon/knockback_icon.png`,
+            airborne: `${this.basePath}icon/airborne_icon.png`,
+            invincible: `${this.basePath}icon/invincible_icon.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)
@@ -68,6 +77,18 @@ class AssetPathManager {
             return `${enemyPath}${enemyId}_cutscene.png`;
         }
         return null;
+    }
+
+    /**
+     * 소환수 관련 에셋 경로 생성 (Summon Asset Rules)
+     * @param {string} summonId 소환수 식별자
+     * @param {string} type 'sprite' | 'cutscene'
+     */
+    getSummonPath(summonId, type = 'sprite') {
+        const summonPath = `${this.basePath}characters/summon/`;
+        let fileName = `${summonId}_${type}.png`;
+        
+        return `${summonPath}${fileName}`;
     }
 
     /**

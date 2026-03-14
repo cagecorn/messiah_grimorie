@@ -11,6 +11,10 @@ import PooledHealingEffect from './effects/PooledHealingEffect.js';
 import PooledMassHealCircle from './effects/PooledMassHealCircle.js';
 import PooledSummonEffect from './effects/PooledSummonEffect.js';
 import PooledExplosion from './effects/PooledExplosion.js';
+import PooledInspiration from './effects/PooledInspiration.js';
+import PooledSongOfProtection from './effects/PooledSongOfProtection.js';
+import PooledShieldEffect from './effects/PooledShieldEffect.js';
+import PooledAquaExplosion from './effects/PooledAquaExplosion.js';
 
 /**
  * 애니메이션 매니저 (Animation Manager)
@@ -23,6 +27,7 @@ import PooledExplosion from './effects/PooledExplosion.js';
 class AnimationManager {
     constructor() {
         this.scene = null;
+        this.activePersistentEffects = new Set();
     }
 
     //#region 🛠️ [초기화 세션]
@@ -39,6 +44,10 @@ class AnimationManager {
         poolingManager.registerPool('mass_heal_circle', () => new PooledMassHealCircle(this.scene), 20);
         poolingManager.registerPool('summon_guardian_angel_fx', () => new PooledSummonEffect(this.scene), 30);
         poolingManager.registerPool('explosion_fx', () => new PooledExplosion(this.scene), 20);
+        poolingManager.registerPool('inspiration_effect', () => new PooledInspiration(this.scene), 20);
+        poolingManager.registerPool('song_of_protection_fx', () => new PooledSongOfProtection(this.scene), 5);
+        poolingManager.registerPool('shield_overlay_fx', () => new PooledShieldEffect(this.scene), 20);
+        poolingManager.registerPool('aqua_explosion_fx', () => new PooledAquaExplosion(this.scene), 10);
 
         Logger.system("AnimationManager: Tactics-style animation system ready.");
     }
@@ -83,6 +92,74 @@ class AnimationManager {
 
         const layer3 = poolingManager.get('mass_heal_circle');
         if (layer3) layer3.show(owner, { scale: 0.8, alpha: 0.3, rotateSpeed: 720, startAngle: 90 });
+    }
+
+    /**
+     * 바드 영감 버프 시각 효과 재생
+     */
+    playInspirationEffect(target) {
+        if (!this.scene || !target || !target.active) return;
+        
+        const effect = poolingManager.get('inspiration_effect');
+        if (effect) {
+            effect.show(target);
+        }
+    }
+
+    /**
+     * 바드 수호의 노래 광역 이펙트 재생
+     * [USER 요청] 여러 장을 중첩하여 확산
+     */
+    playSongOfProtectionEffect(owner) {
+        if (!this.scene || !owner || !owner.active) return;
+        
+        for (let i = 0; i < 4; i++) {
+            this.scene.time.delayedCall(i * 200, () => {
+                if (!owner || !owner.active) return;
+                const fx = poolingManager.get('song_of_protection_fx');
+                if (fx) {
+                    fx.show(owner);
+                }
+            });
+        }
+    }
+
+    /**
+     * 쉴드 보호막 오버레이 이펙트 재생
+     */
+    playShieldOverlay(target, duration) {
+        if (!this.scene || !target || !target.active) return;
+        const effect = poolingManager.get('shield_overlay_fx');
+        if (effect) {
+            effect.show(target, duration);
+            this.activePersistentEffects.add(effect);
+        }
+    }
+
+    /**
+     * 매 프레임 지속 효과 업데이트 (위치 추적 등)
+     */
+    update(delta) {
+        if (this.activePersistentEffects.size === 0) return;
+
+        this.activePersistentEffects.forEach(effect => {
+            if (effect.active) {
+                effect.update(delta);
+            } else {
+                this.activePersistentEffects.delete(effect);
+            }
+        });
+    }
+
+    playAquaExplosion(x, y) {
+        if (!this.scene) return;
+        // 여러 겹으로 겹쳐서 ADD 연출 (유저 요청: 여러장을 격차를 두고 겹쳐서 ADD)
+        for (let i = 0; i < 3; i++) {
+            this.scene.time.delayedCall(i * 100, () => {
+                const effect = poolingManager.get('aqua_explosion_fx');
+                if (effect) effect.show(x, y);
+            });
+        }
     }
     //#endregion
 

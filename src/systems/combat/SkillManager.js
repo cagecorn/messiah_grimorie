@@ -3,6 +3,9 @@ import chargeAttack from './skills/ChargeAttack.js';
 import knockbackShot from './skills/KnockbackShot.js';
 import massHeal from './skills/MassHeal.js';
 import fireball from './skills/Fireball.js';
+import songOfProtection from './skills/SongOfProtection.js';
+import aquaBurst from './skills/AquaBurst.js';
+import sleepingBubble from './skills/SleepingBubble.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -60,6 +63,38 @@ class SkillManager {
             descriptionKey: 'skill_fireball_desc',
             cooldown: 8000, 
             logic: fireball
+        });
+
+        // 루트 (Lute) - 바드
+        this.skills.set('lute', {
+            id: 'songofprotection',
+            name: 'Song of Protection',
+            nameKey: 'skill_song_of_protection_name',
+            description: 'Creates a shield for all allies.',
+            descriptionKey: 'skill_song_of_protection_desc',
+            cooldown: 15000, // 15 seconds
+            logic: songOfProtection
+        });
+ 
+        // 세이렌 (Siren) - 소환수 전용
+        this.skills.set('siren', {
+            id: 'aquaburst',
+            name: 'Aqua Burst',
+            nameKey: 'skill_aqua_burst_name',
+            description: 'Fires a water bubble that explodes on impact.',
+            descriptionKey: 'skill_aqua_burst_desc',
+            cooldown: 5000, // 5 seconds
+            logic: aquaBurst
+        });
+ 
+        this.skills.set('siren_upgraded', {
+            id: 'sleepingbubble',
+            name: 'Sleeping Bubble',
+            nameKey: 'skill_sleeping_bubble_name',
+            description: 'Fires a water bubble that puts enemies to sleep.',
+            descriptionKey: 'skill_sleeping_bubble_desc',
+            cooldown: 5000,
+            logic: sleepingBubble
         });
 
         // 고블린 (Goblin) - 스킬 없음

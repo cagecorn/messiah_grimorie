@@ -3,6 +3,7 @@ import healthBarManager from './HealthBarManager.js';
 import damageTextManager from './DamageTextManager.js';
 import animationManager from './AnimationManager.js';
 import shadowManager from './ShadowManager.js';
+import phaserParticleManager from './PhaserParticleManager.js';
 
 /**
  * FX 매니저 (FX Manager)
@@ -54,6 +55,46 @@ class FXManager {
     showHealEffect(target) {
         if (!this.isInitialized) return;
         animationManager.playHealingEffect(target);
+    }
+
+    /**
+     * 바드 영감 효과 출력 요청 (신규)
+     */
+    showInspirationEffect(target) {
+        if (!this.isInitialized) return;
+        animationManager.playInspirationEffect(target);
+    }
+
+    /**
+     * 바드 수호의 노래 효과 출력 요청 (신규)
+     */
+    showSongOfProtectionEffect(owner) {
+        if (!this.isInitialized) return;
+        animationManager.playSongOfProtectionEffect(owner);
+    }
+
+    /**
+     * 쉴드 보호막 오버레이 출력 요청 (신규)
+     */
+    showShieldOverlay(target, duration) {
+        if (!this.isInitialized) return;
+        animationManager.playShieldOverlay(target, duration);
+    }
+
+    /**
+     * 아쿠아 폭발 효과 출력 (소환수 세이렌 스킬용)
+     */
+    showAquaExplosion(x, y) {
+        if (!this.isInitialized) return;
+        animationManager.playAquaExplosion(x, y);
+    }
+
+    /**
+     * 수면 상태 시각 효과 (ZZZ 파티클)
+     */
+    showSleepEffect(target, duration) {
+        if (!this.isInitialized || !target) return;
+        phaserParticleManager.startSleepEffect(target.x, target.y - 60, duration);
     }
 
     /**
@@ -115,6 +156,9 @@ class FXManager {
         
         // HP바 업데이트 (위치 + 렌더링)
         healthBarManager.update(delta);
+
+        // 지속성 시각 효과 업데이트 (쉴드 오버레이 추적 등)
+        animationManager.update(delta);
     }
 }
 

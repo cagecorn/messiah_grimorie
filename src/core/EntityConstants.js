@@ -21,7 +21,8 @@ export const STAT_KEYS = {
     ULT_CHARGE: 'ultChargeSpeed',
     RES_FIRE: 'fireRes',
     RES_ICE: 'iceRes',
-    RES_LIGHTNING: 'lightningRes'
+    RES_LIGHTNING: 'lightningRes',
+    SHIELD: 'shield'
 };
 
 export const ENTITY_CLASSES = {

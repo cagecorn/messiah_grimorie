@@ -52,6 +52,7 @@ class HealthBar {
         this.lastMaxHp = -1;
         this.lastSkillProgress = -1;
         this.lastUltimateProgress = -1;
+        this.lastShield = -1; // [신규] 쉴드 캐싱용
         this.lastStatusKey = ""; // [신규] 상태 이상 캐싱용
         
         // [신규] 진동(Shake) 효과 상태
@@ -121,13 +122,16 @@ class HealthBar {
         
         const skillProgress = this.targetEntity.skillProgress || 0;
         const ultimateProgress = this.targetEntity.ultimateProgress || 0;
+        const shield = this.targetEntity.logic.shield || 0;
         const hasSkill = this.targetEntity.hasSkill;
         const hasUltimate = this.targetEntity.hasUltimate;
 
         // 최적화: 수치 변화가 없으면 렌더링 건너뜀
         if (hp === this.lastHp && maxHp === this.lastMaxHp && 
             skillProgress === this.lastSkillProgress && 
-            ultimateProgress === this.lastUltimateProgress) {
+            ultimateProgress === this.lastUltimateProgress &&
+            shield === this.lastShield &&
+            this.lastStatusKey === this.getCurrentStatusKey()) {
             this.isDirty = false;
             return;
         }
@@ -162,6 +166,33 @@ class HealthBar {
             ctx.fillRect(innerGap, innerGap, gaugeWidth, hpBarHeight);
             ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
             ctx.fillRect(innerGap, innerGap, gaugeWidth, hpBarHeight * 0.4);
+        }
+
+        // [신규] 쉴드 게이지 (HP바 위에 겹쳐서 표시하여 가시성 확보)
+        if (shield > 0) {
+            const shieldRatio = Math.min(1.0, shield / maxHp);
+            // 쉴드가 너무 적어도 최소 15%는 보이게 하여 가시성 확보
+            const minShieldWidth = (w - innerGap * 2) * 0.15;
+            const shieldWidth = Math.max(minShieldWidth, (w - innerGap * 2) * shieldRatio);
+            
+            const shieldHeight = hpBarHeight * 0.7;
+            const shieldY = innerGap;
+            
+            const shieldGrad = ctx.createLinearGradient(0, shieldY, 0, shieldY + shieldHeight);
+            shieldGrad.addColorStop(0, 'rgba(255, 255, 255, 0.8)'); // 더 밝게
+            shieldGrad.addColorStop(0.5, 'rgba(255, 223, 0, 0.6)'); // 골드
+            shieldGrad.addColorStop(1, 'rgba(184, 134, 11, 0.4)');
+            
+            ctx.fillStyle = shieldGrad;
+            ctx.shadowBlur = 8 * this.resolution;
+            ctx.shadowColor = 'rgba(255, 215, 0, 1.0)'; // 글로우 강화
+            ctx.fillRect(innerGap, shieldY, shieldWidth, shieldHeight);
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 1.0)'; // 실선 강화
+            ctx.lineWidth = 1 * this.resolution;
+            ctx.strokeRect(innerGap, shieldY, shieldWidth, shieldHeight);
+            
+            ctx.shadowBlur = 0;
         }
 
         // 4. [구역] 스킬 및 궁극기 바
@@ -213,7 +244,23 @@ class HealthBar {
         this.lastMaxHp = maxHp;
         this.lastSkillProgress = skillProgress;
         this.lastUltimateProgress = ultimateProgress;
+        this.lastShield = shield;
         this.isDirty = false;
+    }
+
+    /**
+     * 현재 활성화된 모든 상태(CC + 버프 + 쉴드)의 고유 키 생성
+     */
+    getCurrentStatusKey() {
+        if (!this.targetEntity) return "";
+        const statusIds = this.targetEntity.status.getActiveEffectIds();
+        const buffIds = (this.targetEntity.logic && this.targetEntity.logic.buffs) ? this.targetEntity.logic.buffs.getActiveBuffIds() : [];
+        const hasShield = (this.targetEntity.logic && this.targetEntity.logic.shields && this.targetEntity.logic.shields.getTotalShield() > 0);
+        
+        const activeIds = [...new Set([...statusIds, ...buffIds])];
+        if (hasShield) activeIds.push('shield');
+        
+        return activeIds.sort().join('|');
     }
 
     /**
@@ -222,8 +269,7 @@ class HealthBar {
     updateStatusIcons() {
         if (!this.targetEntity || !this.targetEntity.status) return;
 
-        const activeIds = this.targetEntity.status.getActiveEffectIds();
-        const statusKey = activeIds.sort().join('|');
+        const statusKey = this.getCurrentStatusKey();
 
         // 상태가 변경되었을 때만 갱신
         if (this.lastStatusKey === statusKey) return;
@@ -236,7 +282,8 @@ class HealthBar {
         });
         this.activeIcons = [];
 
-        if (activeIds.length === 0) return;
+        if (!statusKey) return;
+        const activeIds = statusKey.split('|');
 
         // 아이콘 배치 설정
         const iconSize = 14;
@@ -252,10 +299,9 @@ class HealthBar {
 
         activeIds.forEach((id, index) => {
             const icon = poolingManager.get('status_icon');
-            const path = iconManager.getStatusIconPath(id);
+            const textureKey = iconManager.getStatusIconPath(id);
             
-            icon.setTexture(this.scene.textures.exists(path) ? path : 'unknown'); 
-            // Note: 실제 로딩 여부 체크 필요하겠지만 여기선 단순화
+            icon.setTexture(this.scene.textures.exists(textureKey) ? textureKey : 'unknown'); 
             
             icon.setDisplaySize(iconSize, iconSize);
             icon.setPosition(startX + index * spacing, 0);
@@ -276,6 +322,7 @@ class HealthBar {
         this.targetEntity = null;
         this.lastHp = -1;
         this.lastSkillProgress = -1;
+        this.lastShield = -1;
         this.lastStatusKey = "";
         
         // 아이콘들 해제

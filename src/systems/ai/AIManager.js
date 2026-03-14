@@ -6,6 +6,8 @@ import MeleeAI from './nodes/MeleeAI.js';
 import RangedAI from './nodes/RangedAI.js';
 import HealerAI from './nodes/HealerAI.js';
 import WizardAI from './nodes/WizardAI.js';
+import SirenAI from './nodes/SirenAI.js';
+import BardAI from './nodes/BardAI.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -20,7 +22,8 @@ class AIManager {
             [ENTITY_CLASSES.WARRIOR]: MeleeAI, // 클래스명(소문자)에 따른 AI 노드 맵핑
             [ENTITY_CLASSES.ARCHER]: RangedAI,
             [ENTITY_CLASSES.HEALER]: HealerAI,
-            [ENTITY_CLASSES.WIZARD]: WizardAI
+            [ENTITY_CLASSES.WIZARD]: WizardAI,
+            [ENTITY_CLASSES.BARD]: BardAI
         };
 
         // [신규] AI 성능 및 안정성 필드
@@ -76,7 +79,14 @@ class AIManager {
 
             // 3. 클래스별 AI 노드 실행 (매 프레임 실행하여 이동은 부드럽게 유지)
             const className = entity.logic.class.getClassName();
-            const node = this.aiNodes[className];
+            const id = entity.logic.id.split('_')[0]; // Siren, Aren, etc.
+            
+            let node = this.aiNodes[className];
+            
+            // [신규] 특정 유닛(소환수 등)에 대한 AI 오버라이드
+            if (id === 'siren') {
+                node = SirenAI;
+            }
 
             if (node) {
                 // AI 노드에서 엔티티의 moveDirection을 설정함
