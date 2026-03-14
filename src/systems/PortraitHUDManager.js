@@ -26,7 +26,8 @@ class PortraitHUDManager {
             instanceId: m.logic.id,           // 인스턴스 업데이트용 (aren_1)
             name: m.logic.name,
             grade: m.logic.grade ? m.logic.grade.getStars() : 1,
-            level: m.logic.leveling ? m.logic.leveling.getLevel() : 1
+            level: m.logic.leveling ? m.logic.leveling.getLevel() : 1,
+            entity: m // [신규] 원본 엔티티 참조 전달
         }));
 
         portraitHUDDOMManager.initialize(partyData);

@@ -16,6 +16,7 @@ export default class PortraitHUDCard {
         this.level = mercData.level || 1;
         
         this.container = null;
+        this.entity = mercData.entity || null; // [신규] 실시간 동기화용 엔티티 참조
         this.elements = {};
         this.isDirty = true;
         
@@ -70,9 +71,10 @@ export default class PortraitHUDCard {
         // [신규] 초상화 프레임 클릭 시 상세 정보창 열기
         const frame = card.querySelector('.mg-portrait-frame');
         frame.addEventListener('click', (e) => {
+            console.log(`[PortraitHUDCard] Click detected on: ${this.name}`, this.entity);
             e.stopPropagation();
-            // 전투 중이므로 source: combat
-            characterInfoManager.setTarget(this, 'combat');
+            // 전투 중이므로 source: combat, 타겟은 데이터 대신 엔티티 전달
+            characterInfoManager.setTarget(this.entity || this, 'combat');
         });
 
         this.container = card;

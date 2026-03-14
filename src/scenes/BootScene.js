@@ -70,21 +70,23 @@ export default class BootScene extends Phaser.Scene {
         }
 
         // [USER 요청] 바드 신규 자산 프리로드
-        this.load.image('mass_heal_circle', 'assets/effect/mass_heal_circle.png');
-        this.load.image('inspiration_effect', 'assets/effect/inspiration_effect.png');
-        this.load.image('bard_projectile_effect', 'assets/effect/bard_projectile_effect.png');
-        this.load.image('song_of_protection', 'assets/effect/song_of_protection.png');
+        this.load.image('mass_heal_effect', assetPathManager.getPath('images', 'mass_heal_effect'));
+        this.load.image('inspiration_effect', assetPathManager.getPath('images', 'inspiration_effect'));
+        this.load.image('bard_projectile_effect', assetPathManager.getPath('images', 'bard_projectile_effect'));
+        this.load.image('song_of_protection', assetPathManager.getPath('images', 'song_of_protection'));
         this.load.image('shield_effect', assetPathManager.getPath('images', 'shield_effect'));
         
         // [신규] 세이렌 및 아쿠아 버스트 관련
         this.load.image('siren_sprite', assetPathManager.getSummonPath('siren'));
         this.load.image('guardian_angel_sprite', assetPathManager.getSummonPath('guardian_angel'));
         
-        // 아이콘들을 명시적인 키값으로 로드 (UI에서 이 키를 사용함)
-        this.load.image('sleep_icon', assetPathManager.getPath('images', 'sleep_icon'));
-        this.load.image('shield_icon', assetPathManager.getPath('images', 'shield_icon'));
-        this.load.image('inspiration_icon', assetPathManager.getPath('images', 'inspiration_icon'));
-        this.load.image('stone_skin_icon', assetPathManager.getPath('images', 'stone_skin_icon'));
+        // 아이콘들을 명시적인 키값으로 로드 (UI 및 HealthBar에서 이 키를 사용함)
+        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music'];
+        iconKeys.forEach(key => {
+            const path = assetPathManager.getPath('images', key);
+            if (path) this.load.image(key, path);
+        });
+
         this.load.image('stone_skin_effect', assetPathManager.getPath('images', 'stone_skin_effect'));
 
         // [신규] 실비 스프라이트 및 사운드 프리로드

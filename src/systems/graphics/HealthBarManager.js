@@ -299,7 +299,7 @@ class HealthBar {
 
         activeIds.forEach((id, index) => {
             const icon = poolingManager.get('status_icon');
-            const textureKey = iconManager.getStatusIconPath(id);
+            const textureKey = iconManager.getStatusKey(id);
             
             icon.setTexture(this.scene.textures.exists(textureKey) ? textureKey : 'unknown'); 
             

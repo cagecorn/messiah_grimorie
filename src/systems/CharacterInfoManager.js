@@ -1,5 +1,5 @@
 import Logger from '../utils/Logger.js';
-import EventBus from '../core/EventBus.js';
+import EventBus, { EVENTS } from '../core/EventBus.js';
 import mercenaryManager from './entities/MercenaryManager.js';
 
 /**
@@ -19,21 +19,20 @@ class CharacterInfoManager {
 
     /**
      * 상세 정보창을 띄울 유닛 설정
-     * @param {object} target 유닛 데이터 혹은 CombatEntity
+     * @param {object} character 유닛 데이터 혹은 CombatEntity
      * @param {string} source 데이터 출처
      */
-    setTarget(target, source = 'collection') {
-        this.currentTarget = target;
+    setTarget(character, source = 'collection') {
+        const name = character?.logic?.name || character?.name || 'Unknown';
+        console.log(`[CharacterInfoManager] Setting target: ${name}, Source: ${source}`);
+        this.currentTarget = character;
         this.source = source;
-        
-        Logger.info("INFO_MANAGER", `Inspecting character: ${this.getName()} (Source: ${source})`);
-        EventBus.emit('UI_OPEN_CHARACTER_INFO', { target, source });
+        EventBus.emit(EVENTS.CHARACTER_INFO_OPEN, character);
     }
 
     clearTarget() {
         this.currentTarget = null;
-        this.source = null;
-        EventBus.emit('UI_CLOSE_CHARACTER_INFO');
+        EventBus.emit(EVENTS.CHARACTER_INFO_CLOSE);
     }
 
     /**
@@ -61,8 +60,9 @@ class CharacterInfoManager {
      */
     getId() {
         if (!this.currentTarget) return '';
-        // CombatEntity면 logic.id, 데이터면 id
-        const fullId = this.currentTarget.logic ? this.currentTarget.logic.id : this.currentTarget.id;
+        // CombatEntity면 logic.baseId(aren) 혹은 logic.id(aren_1), 데이터면 id
+        const logic = this.currentTarget.logic;
+        const fullId = logic ? (logic.baseId || logic.id) : this.currentTarget.id;
         return fullId.split('_')[0].toLowerCase();
     }
 }

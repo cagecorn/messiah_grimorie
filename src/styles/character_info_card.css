@@ -284,3 +284,60 @@
     color: rgba(255, 255, 255, 0.5);
     margin-top: 5px;
 }
+
+/* ==========================================
+   🖼️ [구역 5] 실시간 상태 아이콘 (Status Icons)
+   ========================================== */
+.info-status-icons {
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+}
+
+.status-icon-wrapper {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-icon-wrapper.buff {
+    border-color: #2ecc71;
+    box-shadow: inset 0 0 5px rgba(46, 204, 113, 0.3);
+}
+
+.status-icon-wrapper.status {
+    border-color: #e74c3c;
+    box-shadow: inset 0 0 5px rgba(231, 76, 60, 0.3);
+}
+
+.status-icon-wrapper img {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+}
+
+/* 스탯 색상 강조 */
+.stat-value.buffed {
+    color: #2ecc71 !important;
+    text-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
+}
+
+.stat-value.debuffed {
+    color: #e74c3c !important;
+    text-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+}

@@ -33,8 +33,8 @@ class PortraitHUDDOMManager {
             this.cards.set(member.instanceId || member.id, card);
         });
 
-        // 3. UI 레이어에 추가 (nav 보다 위인 'hud' 레이어 혹은 동일 레이어)
-        domManager.addToLayer('ui', this.container);
+        // 3. UI 레이어에 추가 ('hud' 레이어 사용)
+        domManager.addToLayer('hud', this.container);
         
         this.isInitialized = true;
         Logger.system(`PortraitHUDDOMManager: Initialized with ${partyMembers.length} cards.`);

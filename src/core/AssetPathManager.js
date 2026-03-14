@@ -28,13 +28,25 @@ class AssetPathManager {
             shield_icon: `${this.basePath}icon/shield_icon.png`,
             shield_effect: `${this.basePath}effect/shield_effect.png`,
             inspiration_icon: `${this.basePath}icon/inspiration_icon.png`,
+            inspiration_effect: `${this.basePath}effect/inspiration_effect.png`,
+            bard_projectile_effect: `${this.basePath}effect/bard_projectile_effect.png`,
+            song_of_protection: `${this.basePath}effect/song_of_protection.png`,
+            aqua_burst_projectile: `${this.basePath}effect/aqua_burtst_projectile.png`,
             stunned: `${this.basePath}icon/debuff_stun.png`,
             burned: `${this.basePath}icon/debuff_burn.png`,
             knockback: `${this.basePath}icon/knockback_icon.png`,
             airborne: `${this.basePath}icon/airborne_icon.png`,
             invincible: `${this.basePath}icon/invincible_icon.png`,
-            stone_skin_icon: `${this.basePath}icon/stone_skin_icon.png`,
-            stone_skin_effect: `${this.basePath}effect/stone_skin_effect.png`
+            stoneskin: `${this.basePath}icon/stone_skin_icon.png`,
+            stone_skin_effect: `${this.basePath}effect/stone_skin_effect.png`,
+            
+            // 버프/디버프 아이콘 표준 키셋 (ls 기반 확인)
+            shield: `${this.basePath}icon/shield_icon.png`,
+            inspiration: `${this.basePath}icon/inspiration_icon.png`,
+            music: `${this.basePath}icon/music_icon.png`,
+            sleep: `${this.basePath}icon/sleep_icon.png`,
+            knockback: `${this.basePath}icon/knockback_icon.png`,
+            airborne: `${this.basePath}icon/airborne_icon.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)

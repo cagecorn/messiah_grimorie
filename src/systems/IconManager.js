@@ -10,18 +10,18 @@ import assetPathManager from '../core/AssetPathManager.js';
 class IconManager {
     constructor() {
         this.buffIcons = {
-            'atk_up': 'atk_up',
-            'def_up': 'def_up',
-            'speed_up': 'speed_up',
-            'stunned': 'stunned',
-            'burned': 'burned',
-            'knockback': 'knockback',
-            'airborne': 'airborne',
-            'invincible': 'invincible',
-            'sleep': 'sleep_icon',
-            'shield': 'shield_icon',
-            'inspiration': 'inspiration_icon',
-            'stoneskin': 'stone_skin_icon'
+            'atk_up': 'atk_up.png',
+            'def_up': 'def_up.png',
+            'speed_up': 'speed_up.png',
+            'stunned': 'stunned.png',
+            'burned': 'burned.png',
+            'knockback': 'knockback.png',
+            'airborne': 'airborne.png',
+            'invincible': 'invincible.png',
+            'sleep': 'sleep_icon.png',
+            'shield': 'shield_icon.png',
+            'inspiration': 'inspiration_icon.png',
+            'stoneskin': 'stone_skin_icon.png'
         };
         
         this.defaultIcon = '/assets/icon/unknown.png';
@@ -36,10 +36,35 @@ class IconManager {
     }
 
     /**
-     * 버프/디버프 아이콘 경로를 반환합니다.
+     * 버프/디버프 아이콘 경로를 반환합니다. (HTML 전용)
      */
-    getStatusIconPath(statusId) {
-        return this.buffIcons[statusId] || `assets/icon/${statusId}.png`;
+    getStatusPath(statusId) {
+        // [Mapping] 특정 ID들을 공용 아이콘으로 연결
+        const mappedId = this.mapStatusId(statusId);
+        return assetPathManager.getPath('images', mappedId) || this.defaultIcon;
+    }
+
+    /**
+     * Phaser에서 사용하는 텍스처 키를 반환합니다. (Phaser 전용)
+     */
+    getStatusKey(statusId) {
+        const mappedId = this.mapStatusId(statusId);
+        if (assetPathManager.images[mappedId]) return mappedId;
+        return 'unknown';
+    }
+
+    /**
+     * 특정 상세 ID를 대표 아이콘 ID로 맵핑합니다.
+     */
+    mapStatusId(id) {
+        if (!id) return 'unknown';
+        const lowerId = id.toLowerCase();
+        
+        if (lowerId.includes('inspiration')) return 'inspiration';
+        if (lowerId.includes('stoneskin')) return 'stoneskin';
+        if (lowerId.includes('song_of_protection')) return 'shield';
+        
+        return lowerId;
     }
 
     /**

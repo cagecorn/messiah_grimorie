@@ -7,6 +7,7 @@ import mercenaryManager from '../systems/entities/MercenaryManager.js';
 import skillManager from '../systems/combat/SkillManager.js';
 import ultimateManager from '../systems/combat/UltimateManager.js';
 import damageCalculationManager from '../systems/combat/DamageCalculationManager.js';
+import characterStatusManager from '../systems/CharacterStatusManager.js';
 import iconManager from '../systems/IconManager.js';
 import { ENTITY_CLASSES, CLASS_GROWTH, SPECIAL_GROWTH, STAT_KEYS } from '../core/EntityConstants.js';
 
@@ -22,34 +23,45 @@ class CharacterInfoDOMManager {
         this.container = null;
         this.activeTab = 'stats';
         this.isDirty = false;
+        this.updateTimer = null; // [신규] 실시간 동기화용 타이머
         
         this.setupListeners();
     }
 
     setupListeners() {
-        EventBus.on('UI_OPEN_CHARACTER_INFO', () => {
+        console.log("[CharacterInfoDOMManager] Setting up global listeners...");
+        EventBus.on(EVENTS.CHARACTER_INFO_OPEN, () => {
+            console.log("[CharacterInfoDOMManager] Event CHARACTER_INFO_OPEN received!");
             this.show();
         });
 
-        EventBus.on('UI_CLOSE_CHARACTER_INFO', () => {
+        EventBus.on(EVENTS.CHARACTER_INFO_CLOSE, () => {
             this.hide();
         });
     }
 
     show() {
+        console.log(`[CharacterInfoDOMManager] show() called. Target: ${characterInfoManager.currentTarget?.name}`);
         if (!this.container) {
             this.createUI();
         }
         this.container.style.display = 'flex';
+        this.container.style.pointerEvents = 'auto'; // [필수] 레이어가 none이라 여기서 명시
         this.activeTab = 'stats'; // 초기 탭
         this.isDirty = true;
         this.update();
+        
+        // [신규] 전투 소스인 경우 실시간 업데이트 루프 시작
+        if (characterInfoManager.source === 'combat') {
+            this.startUpdateLoop();
+        }
     }
 
     hide() {
         if (this.container) {
             this.container.style.display = 'none';
         }
+        this.stopUpdateLoop(); // [신규] 루프 중지
     }
 
     createUI() {
@@ -112,13 +124,20 @@ class CharacterInfoDOMManager {
                     </div>
                 </div>
             </div>
+            ${this.renderStatusIcons()}
         `;
 
-        // 닫기 버튼 전역 바인딩 (간결함 위해)
-        window.UI_CHARACTER_INFO_CLOSE = () => characterInfoManager.clearTarget();
+        // 전역 함수 등록 (HTML onclick 용)
+        window.UI_CHARACTER_INFO_CLOSE = () => {
+            console.log("[CharacterInfoDOMManager] Global Close called");
+            characterInfoManager.clearTarget();
+        };
         window.UI_CHARACTER_INFO_TAB = (tab) => this.switchTab(tab);
 
         this.isDirty = false;
+        
+        // 마지막 렌더링 시점의 데이터 상태 저장 (최적화용) - 얕은 복사
+        this.lastReportHash = this.generateReportHash(target);
     }
 
     renderTabButton(id, icon, labelKey) {
@@ -180,14 +199,32 @@ class CharacterInfoDOMManager {
             { key: STAT_KEYS.CRIT, label: 'ui_info_stat_crit' }
         ];
 
+        // 성별 표시 대신 실시간 스탯 표시 (전투 중인 경우)
+        const report = characterInfoManager.source === 'combat' ? characterStatusManager.getStatusReport(target) : null;
+        const currentStats = report ? report.finalStats : null;
+
         return `
             <div class="stats-grid">
-                ${list.map(s => `
-                    <div class="stat-row">
-                        <span class="stat-label">${localizationManager.t(s.label)}</span>
-                        <span class="stat-value">${this.formatStatValue(s.key, stats.get(s.key))}</span>
-                    </div>
-                `).join('')}
+                ${list.map(s => {
+                    const finalVal = currentStats ? currentStats[s.key] : stats.get(s.key);
+                    const baseVal = stats.get(s.key);
+                    const isBuffed = currentStats && Math.floor(finalVal) > Math.floor(baseVal);
+                    const isDebuffed = currentStats && Math.floor(finalVal) < Math.floor(baseVal);
+                    
+                    // HP인 경우 특별 처리 (현재 HP / 최대 HP [+ 쉴드])
+                    const displayVal = (s.key === STAT_KEYS.MAX_HP && currentStats) 
+                        ? `${Math.floor(currentStats.hp)} / ${Math.floor(finalVal)}${currentStats.shield > 0 ? ` (+${Math.floor(currentStats.shield)})` : ''}`
+                        : this.formatStatValue(s.key, finalVal);
+
+                    return `
+                        <div class="stat-row">
+                            <span class="stat-label">${localizationManager.t(s.label)}</span>
+                            <span class="stat-value ${isBuffed ? 'buffed' : ''} ${isDebuffed ? 'debuffed' : ''}">
+                                ${displayVal}
+                            </span>
+                        </div>
+                    `;
+                }).join('')}
             </div>
         `;
     }
@@ -267,6 +304,70 @@ class CharacterInfoDOMManager {
                 </div>
             </div>
         `;
+    }
+
+    /**
+     * [신규] 상태 아이콘 영역 렌더링
+     */
+    renderStatusIcons() {
+        const target = characterInfoManager.currentTarget;
+        if (characterInfoManager.source !== 'combat' || !target || !target.logic) return '';
+
+        const report = characterStatusManager.getStatusReport(target);
+        if (!report || report.activeIcons.length === 0) return '';
+
+        return `
+            <div class="info-status-icons">
+                ${report.activeIcons.map(icon => `
+                    <div class="status-icon-wrapper ${icon.type}">
+                        <img src="${icon.iconPath}" title="${icon.id}">
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    /**
+     * [신규] 실시간 업데이트 루프
+     */
+    startUpdateLoop() {
+        this.stopUpdateLoop();
+        this.updateTimer = setInterval(() => {
+            if (this.container && this.container.style.display === 'flex') {
+                const target = characterInfoManager.currentTarget;
+                if (!target) return;
+
+                // [최적화] 데이터가 변했을 때만 Dirty 설정
+                const newHash = this.generateReportHash(target);
+                if (newHash !== this.lastReportHash) {
+                    this.isDirty = true;
+                    this.update();
+                }
+            } else {
+                this.stopUpdateLoop();
+            }
+        }, 200); // 0.2초마다 갱신
+    }
+
+    /**
+     * 데이터 변경 감지용 간이 해시 생성
+     */
+    generateReportHash(target) {
+        if (!target || !target.logic) return '';
+        const report = characterStatusManager.getStatusReport(target);
+        if (!report) return '';
+
+        // 주요 변동 수치들만 조합하여 문자열 생성 (쉴드 추가)
+        const s = report.finalStats;
+        const iconIds = report.activeIcons.map(i => i.id).join(',');
+        return `${report.hp}/${report.maxHp}/${s.shield}/${s.atk}/${s.mAtk}/${s.def}/${s.mDef}/${s.speed}/${s.atkSpd}/${s.crit}/${iconIds}/${this.activeTab}`;
+    }
+
+    stopUpdateLoop() {
+        if (this.updateTimer) {
+            clearInterval(this.updateTimer);
+            this.updateTimer = null;
+        }
     }
 }
 
