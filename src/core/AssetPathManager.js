@@ -9,7 +9,7 @@ import Logger from '../utils/Logger.js';
  */
 class AssetPathManager {
     constructor() {
-        this.basePath = '/assets/';
+        this.basePath = 'assets/';
         
         // [구역 1] 이미지 에셋 (Images)
         this.images = {
@@ -111,12 +111,37 @@ class AssetPathManager {
      * @param {string} category 'images', 'audio', 'data'
      * @param {string} key 에셋 키값
      */
+    /**
+     * 특정 카테고리의 에셋 경로를 반환합니다.
+     * @param {string} category 'images', 'audio', 'data'
+     * @param {string} key 에셋 키값
+     */
     getPath(category, key) {
         if (this[category] && this[category][key]) {
             return this[category][key];
         }
         Logger.warn("ASSET_MANAGER", `Asset path not found: ${category} -> ${key}`);
         return null;
+    }
+
+    /**
+     * 엔티티의 공용 경로 반환 (용병, 몬스터, 소환수 통합)
+     * @param {string} id 엔티티 ID (baseId)
+     * @param {string} type 'mercenary' | 'monster' | 'summon'
+     * @param {string} subType 'sprite' | 'cutscene'
+     */
+    getUniversalEntityPath(id, type = 'mercenary', subType = 'sprite') {
+        const lowerId = id.split('_')[0].toLowerCase();
+        
+        switch (type) {
+            case 'monster':
+                return this.getEnemyPath(lowerId, subType);
+            case 'summon':
+                return this.getSummonPath(lowerId, subType);
+            case 'mercenary':
+            default:
+                return this.getMercenaryPath(lowerId, subType);
+        }
     }
 }
 

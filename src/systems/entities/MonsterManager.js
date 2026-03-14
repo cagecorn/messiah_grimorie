@@ -41,6 +41,7 @@ class MonsterManager {
             level: 1,
             ...baseData, 
             ...customConfig,
+            baseId: monsterId.toLowerCase(), // [FIX] 베이스 ID 명시
             id: uniqueId, // 베이스 ID를 고유 ID로 덮어씌움
             type: 'monster' // [FIX] 타입 명시
         };

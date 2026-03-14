@@ -103,21 +103,31 @@ class CharacterInfoDOMManager {
         if (type === 'mercenary') {
             registryData = mercenaryManager.registry[id] || {};
             className = registryData.className || 'Unknown';
-            portraitSrc = iconManager.getPortraitPath(id);
         } else if (type === 'monster') {
             registryData = monsterManager.registry[id] || {};
             className = 'MONSTER';
-            // 몬스터는 전용 초상화가 없으면 스프라이트 키를 직접 사용 가능하도록 경로 생성 로직 우회 필요
-            // 여기서는 일단 iconManager가 'unknown'을 주면 spriteKey를 쓰도록 함.
-            portraitSrc = iconManager.getPortraitPath(id);
         }
+
+        portraitSrc = iconManager.getEntityPortraitPath(id, type);
+
+        // 초상화 폴백: 만약 위 로직에서 unknown이 떴거나 에셋을 못 찾은 경우
+        // target.spriteKey를 기반으로 다시 질의합니다.
+        if ((!portraitSrc || portraitSrc.includes('unknown.png')) && target.spriteKey) {
+            const cleanKey = target.spriteKey.split('_')[0].split('.')[0];
+            const fallbackPath = assetPathManager.getUniversalEntityPath(cleanKey, type, 'sprite');
+            if (fallbackPath) portraitSrc = fallbackPath;
+        }
+        
+        // 최종 점검: 상대경로 보정
+        if (portraitSrc && portraitSrc.startsWith('/')) {
+            portraitSrc = portraitSrc.substring(1);
+        }
+
+        // [USER RULE #4] 중요한 패치(엔티티 ID 해상도 수정) 결과 로그 출력
+        console.log(`[PATCH] CharacterInfo portrait resolved for ${id} (${type}): ${portraitSrc}`);
 
         const name = characterInfoManager.getName();
         const level = logic.leveling?.getLevel() || target.level || 1;
-
-        // 초상화 폴백 로직: 만약 getPortraitPath 결과가 기본 unknown이면 spriteKey 활용 시도
-        const isDefaultPortrait = portraitSrc.includes('unknown.png');
-        const finalPortraitSrc = (isDefaultPortrait && target.spriteKey) ? `/assets/mercenary/sprite/${target.spriteKey}.png` : portraitSrc;
 
         this.card.innerHTML = `
             <div class="info-header">
@@ -132,7 +142,7 @@ class CharacterInfoDOMManager {
             </div>
             <div class="info-body">
                 <div class="info-portrait-side">
-                    <img src="${finalPortraitSrc}" class="info-portrait-img" style="${isDefaultPortrait ? 'image-rendering: pixelated; object-fit: contain;' : ''}">
+                    <img src="${portraitSrc}" class="info-portrait-img" style="object-fit: contain;">
                 </div>
                 <div class="info-content-side">
                     <div class="info-tabs">

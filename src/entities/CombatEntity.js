@@ -11,6 +11,7 @@ import ultimateManager from '../systems/combat/UltimateManager.js';
 import combatManager from '../systems/CombatManager.js';
 import soundManager from '../systems/SoundManager.js';
 import StatusEffectManager from '../systems/combat/StatusEffectManager.js';
+import characterInfoManager from '../systems/CharacterInfoManager.js';
 
 // [컴포넌트 임포트]
 import EntitySkillComponent from './components/EntitySkillComponent.js';
@@ -112,9 +113,35 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
             }
         });
 
-        // 우클릭 시 브라우저 메뉴 출력 방지
-        this.scene.input.mouse.disableContextMenu();
+        // 우클릭 시 브라우저 메뉴 출력 방지 (글로벌 캔버스 레벨 및 개별 이벤트 강화)
+        this.sprite.on('pointerdown', (pointer) => {
+            if (pointer.rightButtonDown()) {
+                if (pointer.event) {
+                    pointer.event.preventDefault();
+                    pointer.event.stopPropagation();
+                }
+            }
+        });
+
+        // 씬 입력 전체에서 우클릭 메뉴 차단 보장
+        if (this.scene.input && this.scene.input.mouse) {
+            this.scene.input.mouse.disableContextMenu();
+        }
+
+        // 브라우저 레벨의 강력 차단 (안전장치 - 윈도우 캡처링 단계에서 딱 한 번만 등록)
+        if (!CombatEntity._contextMenuBlocked) {
+            window.addEventListener('contextmenu', (e) => {
+                // 특정 게임 서비스나 레이어가 활성화된 경우에만 차단할 수도 있지만, 
+                // 현재는 전체 게임 경험을 위해 전역 차단 유지
+                e.preventDefault();
+                e.stopPropagation();
+            }, true);
+            CombatEntity._contextMenuBlocked = true;
+        }
     }
+
+    // 전역 플래그
+    static _contextMenuBlocked = false;
 
     onAcquire() { }
 

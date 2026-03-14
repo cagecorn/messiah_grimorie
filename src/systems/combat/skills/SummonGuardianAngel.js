@@ -65,6 +65,7 @@ class SummonGuardianAngel {
         // 2. BaseEntity를 사용하여 논리 객체 생성
         const summonLogic = new BaseEntity({
             id: `summon_angel_${owner.logic.id}_${Date.now()}`,
+            baseId: 'guardian_angel', // [FIX] 명시적 베이스 ID 추가
             name: 'Guardian Angel',
             type: owner.team, // 시전자 소속 팀 (mercenary / monster)
             className: GuardianAngelConfig.className,

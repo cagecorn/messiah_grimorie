@@ -24,24 +24,37 @@ class IconManager {
             'stoneskin': 'stone_skin_icon.png'
         };
         
-        this.defaultIcon = '/assets/icon/unknown.png';
+        this.defaultIcon = 'assets/icon/unknown.png';
     }
 
     /**
-     * 용병의 초상화 경로를 반환합니다.
+     * 엔티티의 초상화 경로를 반환합니다. (용병, 몬스터, 소환수 대응)
+     */
+    getEntityPortraitPath(id, type = 'mercenary') {
+        return assetPathManager.getUniversalEntityPath(id, type, 'sprite') || this.defaultIcon;
+    }
+
+    /**
+     * [Deprecated] 용병의 초상화 경로를 반환합니다. (getEntityPortraitPath 권장)
      */
     getPortraitPath(mercId) {
-        // 현재는 스프라이트 이미지를 초상화로 활용
-        return assetPathManager.getMercenaryPath(mercId, 'sprite') || this.defaultIcon;
+        return this.getEntityPortraitPath(mercId, 'mercenary');
     }
 
     /**
      * 버프/디버프 아이콘 경로를 반환합니다. (HTML 전용)
      */
-    getStatusPath(statusId) {
+    getStatusIconPath(statusId) {
         // [Mapping] 특정 ID들을 공용 아이콘으로 연결
         const mappedId = this.mapStatusId(statusId);
         return assetPathManager.getPath('images', mappedId) || this.defaultIcon;
+    }
+
+    /**
+     * [Alias] getStatusIconPath
+     */
+    getStatusPath(statusId) {
+        return this.getStatusIconPath(statusId);
     }
 
     /**

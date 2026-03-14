@@ -19,7 +19,10 @@ export default class BaseEntity {
         const { id, baseId, name, type, className, isSpecial, level, exp, stars, baseStats } = config;
 
         this.id = id;
-        this.baseId = baseId || type; // 용병은 baseId, 몬스터 등은 type 활용 가능
+        
+        // [BUG FIX] baseId가 명시되지 않은 경우 id에서 숫자를 떼어내어 유추 (aren_1 -> aren)
+        // 만약 id도 없다면 기존처럼 type을 활용
+        this.baseId = baseId || (id ? id.split('_')[0] : type);
         this.name = name;
         this.type = type; // 'mercenary', 'monster', etc.
 
