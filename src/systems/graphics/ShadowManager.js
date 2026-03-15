@@ -54,13 +54,33 @@ class ShadowManager {
             return;
         }
 
-        // [GLOBAL] 한 번만 등록해야 하는 이벤트 리스너
+        // [신규] 사망 이벤트 감시 - 엔티티가 파괴되기 전에 그림자를 확실히 제거하기 위한 Fail-safe
         EventBus.on(EVENTS.ENTITY_DIED, (entity) => {
-            this.removeShadow(entity);
+            const entityId = entity.id;
+            if (!entityId) return;
+
+            const hasShadow = this.shadows.has(entityId);
+            if (hasShadow) {
+                Logger.debug("SHADOW_DEBUG", `ENTITY_DIED received for ${entityId}. Triggering removeShadow.`);
+                this.removeShadow(entity);
+            }
         });
 
+        // [신규] 주기적 누수 감시 (5초마다 현재 살아있는 그림자 수 출력)
+        if (this.leakCheckId) clearInterval(this.leakCheckId);
+        this.leakCheckId = setInterval(() => {
+            if (this.shadows.size > 0) {
+                Logger.info("SHADOW_LEAK_CHECK", `Current active shadows in manager: ${this.shadows.size}`);
+                // 상태 파악을 위해 ID 목록 출력 (너무 많으면 생략)
+                if (this.shadows.size < 20) {
+                    const ids = Array.from(this.shadows.keys());
+                    Logger.debug("SHADOW_LEAK_CHECK", `Active IDs: ${ids.join(', ')}`);
+                }
+            }
+        }, 5000);
+
         this.isInitialized = true;
-        Logger.system("ShadowManager: Shadow pooling initialized with ENTITY_DIED listener.");
+        Logger.system("ShadowManager: Shadow pooling initialized with ENTITY_DIED listener and Leak Checker.");
     }
 
     /**
@@ -69,21 +89,31 @@ class ShadowManager {
      * @param {CombatEntity} entity 
      */
     createShadow(scene, entity) {
-        const config = measurementManager.graphics.shadow;
+        if (!entity || !entity.id || !this.scene) return;
+        
+        const entityId = entity.id;
         
         // [FIX] 중복 생성 방지: 이미 그림자가 있다면 먼저 제거하여 고아 객체 생성 차단
-        if (this.shadows.has(entity.id)) {
+        if (this.shadows.has(entityId)) {
+            Logger.debug("SHADOW_DEBUG", `Duplicate shadow request for ${entityId}. Removing old one.`);
             this.removeShadow(entity);
         }
 
         // 풀에서 그림자 객체 획득
         const pooledShadow = poolingManager.get('shadow');
+        if (!pooledShadow) {
+            Logger.error("SHADOW_ERROR", "Failed to acquire shadow from pool.");
+            return;
+        }
+
         const graphics = pooledShadow.graphics;
+        const config = measurementManager.graphics.shadow;
         
         this.updateShadowVisuals(graphics, entity, config);
         graphics.setDepth(layerManager.getDepth('shadow'));
         
-        this.shadows.set(entity.id, pooledShadow);
+        this.shadows.set(entityId, pooledShadow);
+        Logger.debug("SHADOW_DEBUG", `Shadow created for ${entityId}. Current count: ${this.shadows.size}`);
         return graphics;
     }
 
@@ -143,10 +173,14 @@ class ShadowManager {
      * 특정 유닛의 그림자 제거 (풀 반납)
      */
     removeShadow(entity) {
-        const pooledShadow = this.shadows.get(entity.id);
+        const entityId = entity.id;
+        if (!entityId) return;
+
+        const pooledShadow = this.shadows.get(entityId);
         if (pooledShadow) {
             poolingManager.release('shadow', pooledShadow);
-            this.shadows.delete(entity.id);
+            this.shadows.delete(entityId);
+            Logger.debug("SHADOW_DEBUG", `Shadow removed for ${entityId}. Remaining: ${this.shadows.size}`);
         }
     }
 
