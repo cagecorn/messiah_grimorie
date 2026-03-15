@@ -5,6 +5,7 @@ import WizardProjectile from '../../entities/projectiles/skills/WizardProjectile
 import MeteorProjectile from '../../entities/projectiles/skills/MeteorProjectile.js';
 import BardProjectile from '../../entities/projectiles/common/BardProjectile.js';
 import AquaBurstProjectile from '../../entities/projectiles/common/AquaBurstProjectile.js';
+import FireBurstProjectile from '../../entities/projectiles/skills/FireBurstProjectile.js';
 import ImSorryProjectile from '../../entities/projectiles/skills/ImSorryProjectile.js';
 
 /**
@@ -37,6 +38,7 @@ class ProjectileManager {
         this.registerProjectile('meteor', MeteorProjectile);
         this.registerProjectile('bard', BardProjectile);
         this.registerProjectile('aqua_burst', AquaBurstProjectile);
+        this.registerProjectile('fire_burst', FireBurstProjectile);
         this.registerProjectile('im_sorry_emoji', ImSorryProjectile);
 
         Logger.system("ProjectileManager: Initialized for scene.");

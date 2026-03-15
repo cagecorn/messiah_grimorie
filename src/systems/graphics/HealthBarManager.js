@@ -20,7 +20,7 @@ class HealthBar {
     constructor(scene) {
         this.scene = scene;
         this.width = 60;  // 최종 표시 너비
-        this.height = 14; // [상향] 3단 바 구성을 위해 높이 조절
+        this.height = 16; // [상향] 4단 바(HP, Stamina, Skill, Ult) 구성을 위해 높이 조절
         this.resolution = 2; // 슈퍼 샘플링 배율
         
         // 오프스크린 버퍼 생성
@@ -52,6 +52,7 @@ class HealthBar {
         this.lastMaxHp = -1;
         this.lastSkillProgress = -1;
         this.lastUltimateProgress = -1;
+        this.lastStaminaProgress = -1; // [신규] 스태미나 캐싱용
         this.lastShield = -1; // [신규] 쉴드 캐싱용
         this.lastStatusKey = ""; // [신규] 상태 이상 캐싱용
         
@@ -122,6 +123,7 @@ class HealthBar {
         
         const skillProgress = this.targetEntity.skillProgress || 0;
         const ultimateProgress = this.targetEntity.ultimateProgress || 0;
+        const staminaProgress = this.targetEntity.staminaProgress || 0;
         const shield = this.targetEntity.logic.shield || 0;
         const hasSkill = this.targetEntity.hasSkill;
         const hasUltimate = this.targetEntity.hasUltimate;
@@ -130,6 +132,7 @@ class HealthBar {
         if (hp === this.lastHp && maxHp === this.lastMaxHp && 
             skillProgress === this.lastSkillProgress && 
             ultimateProgress === this.lastUltimateProgress &&
+            staminaProgress === this.lastStaminaProgress &&
             shield === this.lastShield &&
             this.lastStatusKey === this.getCurrentStatusKey()) {
             this.isDirty = false;
@@ -195,11 +198,27 @@ class HealthBar {
             ctx.shadowBlur = 0;
         }
 
-        // 4. [구역] 스킬 및 궁극기 바
+        // 4. [구역] 서브 바 설정 (Stamina, Skill, Ultimate)
         let currentY = innerGap + hpBarHeight + 1 * this.resolution;
-        const subBarHeight = (h - hpBarHeight - innerGap * 3) / 2;
+        const subBarCount = 1 + (hasSkill ? 1 : 0) + (hasUltimate ? 1 : 0);
+        const subBarHeight = (h - hpBarHeight - innerGap * 2 - (subBarCount * this.resolution)) / subBarCount;
 
-        // 5. 스킬 게이지 (보라색)
+        // 5. 스태미나 게이지 (시안색 / Cyan)
+        // [USER 요청] 모든 유닛에게 스태미나 바 표시
+        ctx.fillStyle = '#082f49'; // Very dark cyan background
+        ctx.fillRect(innerGap, currentY, w - innerGap * 2, subBarHeight);
+
+        if (staminaProgress > 0) {
+            const stamWidth = (w - innerGap * 2) * Math.min(1, staminaProgress);
+            const stamGrad = ctx.createLinearGradient(0, currentY, 0, currentY + subBarHeight);
+            stamGrad.addColorStop(0, '#22d3ee'); // Bright cyan
+            stamGrad.addColorStop(1, '#0891b2'); // Deep cyan
+            ctx.fillStyle = stamGrad;
+            ctx.fillRect(innerGap, currentY, stamWidth, subBarHeight);
+        }
+        currentY += subBarHeight + 1 * this.resolution;
+
+        // 6. 스킬 게이지 (보라색)
         if (hasSkill) {
             ctx.fillStyle = '#0f0f1b';
             ctx.fillRect(innerGap, currentY, w - innerGap * 2, subBarHeight);
@@ -244,6 +263,7 @@ class HealthBar {
         this.lastMaxHp = maxHp;
         this.lastSkillProgress = skillProgress;
         this.lastUltimateProgress = ultimateProgress;
+        this.lastStaminaProgress = staminaProgress;
         this.lastShield = shield;
         this.isDirty = false;
     }

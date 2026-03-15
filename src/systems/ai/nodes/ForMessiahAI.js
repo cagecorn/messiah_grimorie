@@ -19,10 +19,8 @@ class ForMessiahAI {
         const activeEnemies = enemies.filter(e => e.active && e.logic.isAlive);
         if (activeEnemies.length === 0) return false;
 
-        // 3. 군집 분석 (가장 뭉쳐있는 곳의 중심점 찾기)
-        // CoordinateManager를 통해 전체 적의 무게 중심을 타겟팅
-        // (추후 더 정교한 클러스터링 기반 탐색으로 확장 가능)
-        const targetPoint = coordinateManager.getCenterOfMass(activeEnemies);
+        // 3. 군집 분석 (가장 밀집된 적진의 타겟 점 찾기) (반경 200)
+        const targetPoint = coordinateManager.getBestAOETarget(activeEnemies, 200);
 
         // 4. 사거리 확인 (궁극기는 전장 어디든 가능하도록 넉넉히 설정)
         // 화면 밖 점프이므로 사거리 제약은 크게 없으나 최소 거리는 둠

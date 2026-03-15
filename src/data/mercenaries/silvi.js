@@ -31,6 +31,8 @@ export default {
         [STAT_KEYS.ULT_CHARGE]: 1.0,
         [STAT_KEYS.RES_FIRE]: 0,
         [STAT_KEYS.RES_ICE]: 0,
-        [STAT_KEYS.RES_LIGHTNING]: 0
+        [STAT_KEYS.RES_LIGHTNING]: 0,
+        [STAT_KEYS.STAMINA]: 120,    // 탱커이므로 높음
+        [STAT_KEYS.STAM_REGEN]: 8     // 하지만 무거워서 느림
     }
 };

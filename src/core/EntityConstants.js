@@ -23,7 +23,9 @@ export const STAT_KEYS = {
     RES_ICE: 'iceRes',
     RES_LIGHTNING: 'lightningRes',
     SHIELD: 'shield',
-    DR: 'bonusDR'
+    DR: 'bonusDR',
+    STAMINA: 'stamina',
+    STAM_REGEN: 'stamRegen'
 };
 
 export const ENTITY_CLASSES = {
@@ -44,26 +46,34 @@ export const CLASS_GROWTH = {
         [STAT_KEYS.DEF]: 1.5,
         [STAT_KEYS.MAX_HP]: 3.0,
         [STAT_KEYS.M_ATK]: 0.5,
-        [STAT_KEYS.M_DEF]: 0.8
+        [STAT_KEYS.M_DEF]: 0.8,
+        [STAT_KEYS.STAMINA]: 2.0, // 고함량
+        [STAT_KEYS.STAM_REGEN]: 0.1 // 보통
     },
     [ENTITY_CLASSES.ARCHER]: {
         [STAT_KEYS.ATK]: 1.8,
         [STAT_KEYS.ATK_SPD]: 0.02, // [FIX] 1.5 -> 0.02 (초당 공격 횟수가 과도하게 증가하는 현상 수정)
         [STAT_KEYS.ACC]: 1.2,
         [STAT_KEYS.EVA]: 1.2,
-        [STAT_KEYS.MAX_HP]: 1.5
+        [STAT_KEYS.MAX_HP]: 1.5,
+        [STAT_KEYS.STAMINA]: 1.2,
+        [STAT_KEYS.STAM_REGEN]: 0.3 // 빠름
     },
     [ENTITY_CLASSES.HEALER]: {
         [STAT_KEYS.M_ATK]: 2.0,
         [STAT_KEYS.M_DEF]: 1.5,
         [STAT_KEYS.MAX_HP]: 1.8,
-        [STAT_KEYS.DEF]: 1.0
+        [STAT_KEYS.DEF]: 1.0,
+        [STAT_KEYS.STAMINA]: 1.0,
+        [STAT_KEYS.STAM_REGEN]: 0.15
     },
     [ENTITY_CLASSES.WIZARD]: {
         [STAT_KEYS.M_ATK]: 2.5,
         [STAT_KEYS.M_DEF]: 1.2,
         [STAT_KEYS.ACC]: 1.5,
-        [STAT_KEYS.MAX_HP]: 1.2
+        [STAT_KEYS.MAX_HP]: 1.2,
+        [STAT_KEYS.STAMINA]: 0.8,
+        [STAT_KEYS.STAM_REGEN]: 0.4 // 매우빠름 (스펠캐스터)
     },
     [ENTITY_CLASSES.BARD]: {
         [STAT_KEYS.MAX_HP]: 1.5,
@@ -71,7 +81,9 @@ export const CLASS_GROWTH = {
         [STAT_KEYS.M_ATK]: 1.2,
         [STAT_KEYS.DEF]: 1.2,
         [STAT_KEYS.M_DEF]: 1.2,
-        [STAT_KEYS.SPEED]: 1.1
+        [STAT_KEYS.SPEED]: 1.1,
+        [STAT_KEYS.STAMINA]: 1.2,
+        [STAT_KEYS.STAM_REGEN]: 0.2
     }
 };
 

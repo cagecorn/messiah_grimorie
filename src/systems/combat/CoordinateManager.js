@@ -7,7 +7,42 @@
  */
 class CoordinateManager {
     /**
-     * 유닛 집합의 중앙 지점 계산
+     * 유닛 집합에서 가장 밀집된 지점(Target) 반환
+     * @param {Array} units CombatEntity 배열
+     * @param {number} radius 분석 반경
+     */
+    getBestAOETarget(units, radius = 100) {
+        if (!units || units.length === 0) return { x: 0, y: 0 };
+
+        let bestTarget = units[0];
+        let maxCount = -1;
+
+        units.forEach(candidate => {
+            if (!candidate.active) return;
+            
+            let count = 0;
+            units.forEach(other => {
+                if (!other.active) return;
+                
+                // 유닛의 중심점(보통 발밑) 기준으로 거리 계산
+                const dx = candidate.x - other.x;
+                const dy = candidate.y - other.y;
+                const distSq = dx * dx + dy * dy;
+                
+                if (distSq < radius * radius) count++;
+            });
+
+            if (count > maxCount) {
+                maxCount = count;
+                bestTarget = candidate;
+            }
+        });
+
+        return { x: bestTarget.x, y: bestTarget.y };
+    }
+
+    /**
+     * 유닛 집합의 중앙 지점 계산 (Center of Mass)
      * @param {Array} units CombatEntity 배열
      */
     getCenterOfMass(units) {

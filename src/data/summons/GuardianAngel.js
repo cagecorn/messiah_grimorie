@@ -31,6 +31,8 @@ export default {
         [STAT_KEYS.ULT_CHARGE]: 0, // 소환수는 궁극기가 없음
         [STAT_KEYS.RES_FIRE]: 20,
         [STAT_KEYS.RES_ICE]: 20,
-        [STAT_KEYS.RES_LIGHTNING]: 20
+        [STAT_KEYS.RES_LIGHTNING]: 20,
+        [STAT_KEYS.STAMINA]: 100,
+        [STAT_KEYS.STAM_REGEN]: 15
     }
 };

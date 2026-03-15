@@ -32,6 +32,8 @@ export default {
         [STAT_KEYS.ULT_CHARGE]: 1.5, // 바드 보너스
         [STAT_KEYS.RES_FIRE]: 0,
         [STAT_KEYS.RES_ICE]: 0,
-        [STAT_KEYS.RES_LIGHTNING]: 0
+        [STAT_KEYS.RES_LIGHTNING]: 0,
+        [STAT_KEYS.STAMINA]: 80,
+        [STAT_KEYS.STAM_REGEN]: 15
     }
 };

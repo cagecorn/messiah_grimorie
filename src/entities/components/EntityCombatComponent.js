@@ -25,6 +25,7 @@ export default class EntityCombatComponent {
      */
     syncLogic() {
         this.logic = this.entity.logic;
+        this.attackCooldown = 0;
     }
 
     /**
@@ -83,8 +84,8 @@ export default class EntityCombatComponent {
     takeDamage(amount, attacker) {
         if (!this.logic.isAlive || this.logic.isDead) return;
 
-        // [신규] 무적 상태 체크
-        if (this.entity.status && this.entity.status.states.invincible) {
+        // [신규] 무적 상태 체크 (상태 이상 및 액션 컴포넌트 I-frames 통합)
+        if (this.entity.isInvincible() || (this.entity.status && this.entity.status.states.invincible)) {
             Logger.info("COMBAT", `${this.logic.name} is INVINCIBLE! Damage ignored.`);
             return;
         }

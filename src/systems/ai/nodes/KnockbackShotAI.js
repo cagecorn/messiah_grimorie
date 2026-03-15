@@ -1,4 +1,5 @@
 import Logger from '../../../utils/Logger.js';
+import coordinateManager from '../../combat/CoordinateManager.js';
 
 /**
  * 넉백 샷 AI 노드 (Knockback Shot AI Node)
@@ -26,42 +27,24 @@ class KnockbackShotAI {
     }
 
     /**
-     * 관통 효율이 가장 좋은 타겟 선정
+     * 관통 효율이 가장 좋은 타겟 선정 (CoordinateManager 기반)
      */
     static findBestClumpTarget(entity, enemies) {
         const aliveEnemies = enemies.filter(e => e.active && e.logic.isAlive);
         if (aliveEnemies.length === 0) return null;
 
-        let bestTarget = null;
-        let maxImpact = -1;
-
-        // 모든 적을 후보로 두고, 그 적을 향해 쐈을 때 경로상에 다른 적이 얼마나 있는지 체크
-        aliveEnemies.forEach(candidate => {
-            const dist = Phaser.Math.Distance.Between(entity.x, entity.y, candidate.x, candidate.y);
-            if (dist > 800) return; // 사거리 밖
-
-            // 경로 벡터
-            const angle = Phaser.Math.Angle.Between(entity.x, entity.y, candidate.x, candidate.y);
-            
-            // 이 경로 주변(선형)에 있는 적의 수 계산
-            let count = 0;
-            aliveEnemies.forEach(other => {
-                // 선분과 점 사이의 거리 계산 (단순화: 각도 차이로 계산)
-                const otherAngle = Phaser.Math.Angle.Between(entity.x, entity.y, other.x, other.y);
-                const angleDiff = Math.abs(Phaser.Math.Angle.Wrap(angle - otherAngle));
-                
-                if (angleDiff < 0.1) { // 약 5도 이내
-                    count++;
-                }
-            });
-
-            if (count > maxImpact) {
-                maxImpact = count;
-                bestTarget = candidate;
-            }
+        // 사거리(800) 내의 적들만 필터링
+        const reachableEnemies = aliveEnemies.filter(e => {
+            return Phaser.Math.Distance.Between(entity.x, entity.y, e.x, e.y) <= 800;
         });
 
-        return bestTarget;
+        if (reachableEnemies.length === 0) return null;
+
+        // 밀집 지역 분석 (넉백샷은 직선이므로 반경을 80 정도로 잡아 경로상의 적 탐색)
+        const targetPoint = coordinateManager.getBestAOETarget(reachableEnemies, 80);
+        
+        // 해당 지점의 적 중 하나 반환
+        return reachableEnemies.find(e => e.x === targetPoint.x && e.y === targetPoint.y) || reachableEnemies[0];
     }
 }
 

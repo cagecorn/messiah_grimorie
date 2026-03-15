@@ -39,7 +39,14 @@ class SpawnManager {
             return entity;
         }, 10);
 
-        Logger.system("SpawnManager: Pooling registered for Goblins and Shamans.");
+        poolingManager.registerPool('monster_goblin_wizard', () => {
+            const dummyLogic = monsterManager.spawn('goblin_wizard', { level: 1 });
+            const entity = new CombatEntity(scene, 0, 0, dummyLogic, 'enemy_goblin_wizard_sprite');
+            entity.poolType = 'monster_goblin_wizard';
+            return entity;
+        }, 5);
+
+        Logger.system("SpawnManager: Pooling registered for Goblins, Shamans, and Wizards.");
     }
     /**
      * 아군 유닛 스폰 (편성된 유닛들)
@@ -97,8 +104,9 @@ class SpawnManager {
         // [USER 요청] 몬스터 ID 결정 (고블린 7 : 고블린 샤먼 3 비율)
         const monsterIds = [];
         for (let i = 0; i < enemyCount; i++) {
-            // 7:3 비율로 고블린과 샤먼 분배
-            const id = (Math.random() < 0.7) ? 'goblin' : 'goblin_shaman';
+            // 6:3:1 비율로 고블린, 샤먼, 위자드 분배
+            const rand = Math.random();
+            const id = (rand < 0.6) ? 'goblin' : (rand < 0.9 ? 'goblin_shaman' : 'goblin_wizard');
             monsterIds.push(id);
         }
 
@@ -172,6 +180,13 @@ class SpawnManager {
             id: 'goblin_shaman',
             key: `enemy_goblin_shaman_sprite`,
             path: assetPathManager.getEnemyPath('goblin_shaman', 'sprite')
+        });
+
+        assets.push({
+            type: 'monster',
+            id: 'goblin_wizard',
+            key: `enemy_goblin_wizard_sprite`,
+            path: assetPathManager.getEnemyPath('goblin_wizard', 'sprite')
         });
 
         return assets;

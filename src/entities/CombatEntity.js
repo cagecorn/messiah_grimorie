@@ -18,6 +18,8 @@ import EntitySkillComponent from './components/EntitySkillComponent.js';
 import EntityMovementComponent from './components/EntityMovementComponent.js';
 import EntityVisualComponent from './components/EntityVisualComponent.js';
 import EntityCombatComponent from './components/EntityCombatComponent.js';
+import EntityActionComponent from './components/EntityActionComponent.js';
+import EntityStaminaComponent from './components/EntityStaminaComponent.js';
 
 import poolingManager from '../core/PoolingManager.js';
 
@@ -80,6 +82,20 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         } else {
             this.combat.syncLogic();
             this.combat.attackCooldown = 0;
+        }
+
+        // 5. 스태미나 관리
+        if (!this.stamina) {
+            this.stamina = new EntityStaminaComponent(this);
+        } else {
+            this.stamina.reset();
+        }
+
+        // 6. 액션 관리 (구르기 등)
+        if (!this.actions) {
+            this.actions = new EntityActionComponent(this);
+        } else {
+            this.actions.reset();
         }
 
         this.baseDepth = layerManager.getDepth('entities');
@@ -181,6 +197,7 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     get hasUltimate() { return this.skills.hasUltimate; }
     get maxSkillCooldown() { return this.skills.maxSkillCooldown; }
     get attackCooldown() { return this.combat.attackCooldown; }
+    get staminaProgress() { return this.stamina.getProgress(); }
 
     // [신규] 구조적 분리로 인한 데이터 접근 브릿지
     get skillData() { return this.skills.skillData; }
@@ -240,6 +257,8 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     updateAttackCooldown(delta) {
         this.combat.update(delta);
         this.skills.update(delta);
+        this.stamina.update(delta);
+        this.actions.update(delta);
         this.visual.updateIdleState(); // 아이들 바빙 체크
     }
 
@@ -252,6 +271,11 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     useSkill(skillId, target) { return this.skills.useSkill(skillId, target); }
     isUltimateReady() { return this.skills.isUltimateReady(); }
     useUltimate(target) { return this.skills.useUltimate(target); }
+
+    // [신규] 액션 실행 프록시
+    roll(direction) { return this.actions.roll(direction); }
+    isRolling() { return this.actions.isRolling; }
+    isInvincible() { return this.actions.isInvincible(); }
 
     preDestroy() {
         combatManager.removeUnit(this);

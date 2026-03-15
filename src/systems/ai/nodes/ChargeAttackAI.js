@@ -18,9 +18,8 @@ class ChargeAttackAI {
         const activeEnemies = enemies.filter(e => e.active && e.logic.isAlive);
         if (activeEnemies.length === 0) return false;
 
-        // CoordinateManager를 통해 가장 뭉쳐있는 곳(중앙 지점) 찾기
-        // (단순화를 위해 모든 적의 무게 중심을 사용하거나, 특정 범위 내 군집 탐색 가능)
-        const targetPoint = coordinateManager.getCenterOfMass(activeEnemies);
+        // CoordinateManager를 통해 가장 밀집된 지점 분석 (반경 150)
+        const targetPoint = coordinateManager.getBestAOETarget(activeEnemies, 150);
 
         // 2. 사거리 확인 (돌진기이므로 넉넉하게 600px 이내면 사용)
         const dist = Phaser.Math.Distance.Between(entity.x, entity.y, targetPoint.x, targetPoint.y);

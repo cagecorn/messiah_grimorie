@@ -95,6 +95,14 @@ class FXManager {
     }
 
     /**
+     * 파이어 폭발 효과 출력 (스킬용)
+     */
+    showFireExplosion(x, y) {
+        if (!this.isInitialized) return;
+        animationManager.playFireExplosion(x, y);
+    }
+
+    /**
      * 수면 상태 시각 효과 (ZZZ 파티클)
      */
     showSleepEffect(target, duration) {

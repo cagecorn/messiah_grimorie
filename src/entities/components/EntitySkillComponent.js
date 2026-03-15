@@ -9,8 +9,9 @@ export default class EntitySkillComponent {
         this.entity = entity;
         this.logic = entity.logic;
         
-        // 1. 스킬 데이터 초기화
-        this.skillData = skillManager.getSkillData(this.logic.id);
+        // 1. 스킬 데이터 초기화 (baseId 우선 사용)
+        const targetId = this.logic.baseId || this.logic.id;
+        this.skillData = skillManager.getSkillData(targetId);
         this.hasSkill = this.skillData.hasSkill !== false;
         this.skillProgress = (this.logic.type === 'mercenary' && this.hasSkill) ? 1.0 : 0;
         this.maxSkillCooldown = this.hasSkill ? this.skillData.cooldown : 0;
@@ -28,8 +29,9 @@ export default class EntitySkillComponent {
     reset(skillManager, ultimateManager) {
         this.logic = this.entity.logic;
         
-        // 데이터 다시 로드
-        this.skillData = skillManager.getSkillData(this.logic.id);
+        // 데이터 다시 로드 (baseId 우선 사용)
+        const targetId = this.logic.baseId || this.logic.id;
+        this.skillData = skillManager.getSkillData(targetId);
         this.hasSkill = this.skillData.hasSkill !== false;
         this.skillProgress = (this.logic.type === 'mercenary' && this.hasSkill) ? 1.0 : 0;
         this.maxSkillCooldown = this.hasSkill ? this.skillData.cooldown : 0;

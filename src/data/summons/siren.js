@@ -31,7 +31,9 @@ class SirenEntity extends BaseEntity {
                 [STAT_KEYS.ATK_RANGE]: 350,
                 [STAT_KEYS.ACC]: 100,
                 [STAT_KEYS.EVA]: 20,
-                [STAT_KEYS.CRIT]: 10
+                [STAT_KEYS.CRIT]: 10,
+                [STAT_KEYS.STAMINA]: 60,
+                [STAT_KEYS.STAM_REGEN]: 25
             }
         };
 

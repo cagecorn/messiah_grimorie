@@ -75,6 +75,12 @@ class CameraManager {
         // 3. 적응형 줌 계산
         const screenWidth = this.mainCamera.width;
         const screenHeight = this.mainCamera.height;
+        const worldWidth = measurementManager.world.width;
+        const worldHeight = measurementManager.world.height;
+
+        // [신규] 맵 밖의 빈 공간(Void)이 보이지 않도록 최소 안전 줌 계산
+        // 화면이 월드를 꽉 채울 수 있는 가장 작은 줌 레벨
+        const minSafeZoom = Math.max(screenWidth / worldWidth, screenHeight / worldHeight);
         
         // 줌 레벨 계산 (spread가 0인 경우를 대비해 minSpread 사용)
         let targetZoom = Math.min(
@@ -82,8 +88,8 @@ class CameraManager {
             screenHeight / (maxSpread * config.spreadPadding)
         );
         
-        // 줌 범위 제한
-        targetZoom = Phaser.Math.Clamp(targetZoom, config.minZoom, config.maxZoom);
+        // 줌 범위 제한 (minSafeZoom을 하한선으로 강제 적용)
+        targetZoom = Phaser.Math.Clamp(targetZoom, Math.max(config.minZoom, minSafeZoom), config.maxZoom);
 
         // 4. 부드러운 줌 전환
         const newZoom = Phaser.Math.Linear(this.mainCamera.zoom, targetZoom, config.zoomLerp);

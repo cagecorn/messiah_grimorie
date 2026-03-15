@@ -4,7 +4,13 @@ import poolingManager from '../../core/PoolingManager.js';
 import phaserParticleManager from './PhaserParticleManager.js';
 import ghostManager from './GhostManager.js';
 
-// [모듈화된 이펙트 임포트]
+// [신규 모듈화된 애니메이터들]
+import SupportAnimator from './animations/SupportAnimator.js';
+import SpecialAnimator from './animations/SpecialAnimator.js';
+import CombatAnimator from './animations/CombatAnimator.js';
+import StateAnimator from './animations/StateAnimator.js';
+
+// [이펙트 풀링 객체들]
 import PooledHitEffect from './effects/PooledHitEffect.js';
 import PooledSkillEffect from './effects/PooledSkillEffect.js';
 import PooledHealingEffect from './effects/PooledHealingEffect.js';
@@ -15,147 +21,85 @@ import PooledInspiration from './effects/PooledInspiration.js';
 import PooledSongOfProtection from './effects/PooledSongOfProtection.js';
 import PooledShieldEffect from './effects/PooledShieldEffect.js';
 import PooledAquaExplosion from './effects/PooledAquaExplosion.js';
+import PooledFireExplosion from './effects/PooledFireExplosion.js';
 import PooledStoneSkinEffect from './effects/PooledStoneSkinEffect.js';
 
 /**
  * 애니메이션 매니저 (Animation Manager)
- * 역할: [유닛의 역동적인 연출 로직 담당]
+ * 역할: [유닛의 역동적인 연출 로직 담당 - 퍼사드 패턴]
  * 
  * 🦖 거대한 갓 오브젝트를 길들이는 꼼수 준수:
- * 1. 시각적 모듈화 (#region) 적용
- * 2. 물리적 모듈화 (이펙트 자식 클래스 분리)
+ * 1. 물리적 모듈화 (Specialized Animators 분리)
+ * 2. 퍼사드(Facade): 외부에는 동일한 인터페이스 유지
  */
 class AnimationManager {
     constructor() {
         this.scene = null;
         this.activePersistentEffects = new Set();
+        
+        // 도메인별 애니메이터 인스턴스
+        this.support = new SupportAnimator(this);
+        this.special = new SpecialAnimator(this);
+        this.combat = new CombatAnimator(this);
+        this.state = new StateAnimator(this);
     }
 
     //#region 🛠️ [초기화 세션]
     init(scene) {
         this.scene = scene;
 
-        // [신규] 피격 이펙트 풀 등록 (초기 50개로 상향 - 대규모 전투 대비)
-        poolingManager.registerPool('impact_effect', () => new PooledHitEffect(this.scene), 50);
+        // [이펙트 풀 등록 통합 관리]
+        poolingManager.registerPool('impact_effect', () => new PooledHitEffect(this.scene), 50, true);
+        poolingManager.registerPool('charge_attack_fx', () => new PooledSkillEffect(this.scene, 'charge_attack'), 5, true);
+        poolingManager.registerPool('for_messiah_pillar', () => new PooledSkillEffect(this.scene, 'for_messiah'), 3, true);
+        poolingManager.registerPool('healing_effect', () => new PooledHealingEffect(this.scene), 60, true);
+        poolingManager.registerPool('mass_heal_circle', () => new PooledMassHealCircle(this.scene), 20, true);
+        poolingManager.registerPool('summon_guardian_angel_fx', () => new PooledSummonEffect(this.scene), 30, true);
+        poolingManager.registerPool('explosion_fx', () => new PooledExplosion(this.scene), 20, true);
+        poolingManager.registerPool('inspiration_effect', () => new PooledInspiration(this.scene), 20, true);
+        poolingManager.registerPool('song_of_protection_fx', () => new PooledSongOfProtection(this.scene), 5, true);
+        poolingManager.registerPool('shield_overlay_fx', () => new PooledShieldEffect(this.scene), 20, true);
+        poolingManager.registerPool('aqua_explosion_fx', () => new PooledAquaExplosion(this.scene), 10, true);
+        poolingManager.registerPool('fire_explosion_fx', () => new PooledFireExplosion(this.scene), 20, true);
+        poolingManager.registerPool('stone_skin_overlay_fx', () => new PooledStoneSkinEffect(this.scene), 5, true);
 
-        // [USER 요청] 차지 어택 및 궁극기 기둥 효과 풀링
-        poolingManager.registerPool('charge_attack_fx', () => new PooledSkillEffect(this.scene, 'charge_attack'), 5);
-        poolingManager.registerPool('for_messiah_pillar', () => new PooledSkillEffect(this.scene, 'for_messiah'), 3);
-        poolingManager.registerPool('healing_effect', () => new PooledHealingEffect(this.scene), 60);
-        poolingManager.registerPool('mass_heal_circle', () => new PooledMassHealCircle(this.scene), 20);
-        poolingManager.registerPool('summon_guardian_angel_fx', () => new PooledSummonEffect(this.scene), 30);
-        poolingManager.registerPool('explosion_fx', () => new PooledExplosion(this.scene), 20);
-        poolingManager.registerPool('inspiration_effect', () => new PooledInspiration(this.scene), 20);
-        poolingManager.registerPool('song_of_protection_fx', () => new PooledSongOfProtection(this.scene), 5);
-        poolingManager.registerPool('shield_overlay_fx', () => new PooledShieldEffect(this.scene), 20);
-        poolingManager.registerPool('aqua_explosion_fx', () => new PooledAquaExplosion(this.scene), 10);
-        poolingManager.registerPool('stone_skin_overlay_fx', () => new PooledStoneSkinEffect(this.scene), 5);
-
-        Logger.system("AnimationManager: Tactics-style animation system ready.");
+        Logger.system("AnimationManager: Facade ready with Modular Animators.");
     }
     //#endregion
 
-    //#region 💚 [힐링 & 서포트 이펙트]
-    /**
-     * 힐러 평타 힐링 이펙트 재생
-     * [USER 요청] 6장을 시차를 두고 중첩하여 연출 (ADD 모드)
-     */
-    playHealingEffect(target) {
-        if (!this.scene || !target || !target.active) return;
-        
-        for (let i = 0; i < 6; i++) {
-            this.scene.time.delayedCall(i * 50, () => {
-                if (!target || !target.active) return;
-                
-                const effect = poolingManager.get('healing_effect');
-                if (effect) {
-                    effect.show(target);
-                }
-            });
-        }
+    //#region 🔌 [퍼사드 인터페이스 (위임)]
+    // 💚 Support
+    playHealingEffect(target) { this.support.playHealingEffect(target); }
+    playMassHealEffect(owner) { this.support.playMassHealEffect(owner); }
+    playInspirationEffect(target) { this.support.playInspirationEffect(target); }
+    playSongOfProtectionEffect(owner) { this.support.playSongOfProtectionEffect(owner); }
+    playShieldOverlay(target, duration) { this.support.playShieldOverlay(target, duration); }
+    playStoneSkinOverlay(target, duration) { this.support.playStoneSkinOverlay(target, duration); }
 
-        if (phaserParticleManager.spawnHealBurst) {
-            phaserParticleManager.spawnHealBurst(target.x, target.y - 20);
-        }
-    }
+    // 👼 Special
+    playGuardianAngelSummonVFX(x, y) { this.special.playGuardianAngelSummonVFX(x, y); }
+    playGuardianAngelUpgradeVFX(target, tint) { this.special.playGuardianAngelUpgradeVFX(target, tint); }
+    playExplosion(x, y, scale) { this.special.playExplosion(x, y, scale); }
+    playAquaExplosion(x, y) { this.special.playAquaExplosion(x, y); }
+    playFireExplosion(x, y) { this.special.playFireExplosion(x, y); }
 
-    /**
-     * 매스 힐 써클 효과 재생 (세라 중심)
-     * [USER 요청] 여러 장을 겹쳐서 회전 연출
-     */
-    playMassHealEffect(owner) {
-        if (!this.scene || !owner || !owner.active) return;
+    // ⚔️ Combat
+    playHitEffect(target, type) { this.combat.playHitEffect(target, type); }
+    playSkillDash(entity, targetPos, onComplete) { this.combat.playSkillDash(entity, targetPos, onComplete); }
+    playRollAnimation(entity, duration) { this.combat.playRollAnimation(entity, duration); }
+    playDashAttack(entity, target, onHit) { this.combat.playDashAttack(entity, target, onHit); }
 
-        const layer1 = poolingManager.get('mass_heal_circle');
-        if (layer1) layer1.show(owner, { scale: 1.0, alpha: 0.6, rotateSpeed: 360, startAngle: 0 });
-
-        const layer2 = poolingManager.get('mass_heal_circle');
-        if (layer2) layer2.show(owner, { scale: 1.2, alpha: 0.4, rotateSpeed: -480, startAngle: 45 });
-
-        const layer3 = poolingManager.get('mass_heal_circle');
-        if (layer3) layer3.show(owner, { scale: 0.8, alpha: 0.3, rotateSpeed: 720, startAngle: 90 });
-    }
-
-    /**
-     * 바드 영감 버프 시각 효과 재생
-     */
-    playInspirationEffect(target) {
-        if (!this.scene || !target || !target.active) return;
-        
-        const effect = poolingManager.get('inspiration_effect');
-        if (effect) {
-            effect.show(target);
-        }
-    }
-
-    /**
-     * 바드 수호의 노래 광역 이펙트 재생
-     * [USER 요청] 여러 장을 중첩하여 확산
-     */
-    playSongOfProtectionEffect(owner) {
-        if (!this.scene || !owner || !owner.active) return;
-        
-        for (let i = 0; i < 4; i++) {
-            this.scene.time.delayedCall(i * 200, () => {
-                if (!owner || !owner.active) return;
-                const fx = poolingManager.get('song_of_protection_fx');
-                if (fx) {
-                    fx.show(owner);
-                }
-            });
-        }
-    }
-
-    /**
-     * 쉴드 보호막 오버레이 이펙트 재생
-     */
-    playShieldOverlay(target, duration) {
-        if (!this.scene || !target || !target.active) return;
-        const effect = poolingManager.get('shield_overlay_fx');
-        if (effect) {
-            effect.show(target, duration);
-            this.activePersistentEffects.add(effect);
-        }
-    }
-
-    /**
-     * 실비 스톤 스킨 오버레이 이펙트 재생
-     */
-    playStoneSkinOverlay(target, duration) {
-        if (!this.scene || !target || !target.active) return;
-        const effect = poolingManager.get('stone_skin_overlay_fx');
-        if (effect) {
-            effect.show(target, duration);
-            this.activePersistentEffects.add(effect);
-        }
-    }
+    // 💀 State
+    playDeathAnimation(entity, onComplete) { this.state.playDeathAnimation(entity, onComplete); }
+    playIdleBobbing(entity, className) { this.state.playIdleBobbing(entity, className); }
+    stopIdleBobbing(entity) { this.state.stopIdleBobbing(entity); }
+    //#endregion
 
     /**
      * 매 프레임 지속 효과 업데이트 (위치 추적 등)
      */
     update(delta) {
         if (this.activePersistentEffects.size === 0) return;
-
         this.activePersistentEffects.forEach(effect => {
             if (effect.active) {
                 effect.update(delta);
@@ -164,323 +108,6 @@ class AnimationManager {
             }
         });
     }
-
-    playAquaExplosion(x, y) {
-        if (!this.scene) return;
-        // 여러 겹으로 겹쳐서 ADD 연출 (유저 요청: 여러장을 격차를 두고 겹쳐서 ADD)
-        for (let i = 0; i < 3; i++) {
-            this.scene.time.delayedCall(i * 100, () => {
-                const effect = poolingManager.get('aqua_explosion_fx');
-                if (effect) effect.show(x, y);
-            });
-        }
-    }
-    //#endregion
-
-    //#region 👼 [소환 & 궁극기 이펙트]
-    /**
-     * 수호천사 소환 이펙트 재생
-     * [USER 요청] 6장을 시차를 두고 중첩 연출
-     * [USER 요청] Y축 위로 높게 배치하여 '후광' 느낌 연출
-     */
-    playGuardianAngelSummonVFX(x, y) {
-        if (!this.scene) return;
-
-        const verticalOffset = -80; // 후광 느낌을 위해 위로 올림
-
-        for (let i = 0; i < 6; i++) {
-            this.scene.time.delayedCall(i * 100, () => {
-                const fx = poolingManager.get('summon_guardian_angel_fx');
-                if (fx) {
-                    fx.show(x, y + verticalOffset, { scale: 3.0, alpha: 0.7, duration: 1500 });
-                }
-            });
-        }
-    }
-
-    /**
-     * 수호천사 강화 이펙트 재생
-     * [USER 요청] 4장을 시차를 두고 중첩 연출
-     * [USER 요청] Y축 위로 높게 배치하여 '후광' 느낌 연출
-     */
-    playGuardianAngelUpgradeVFX(target, tint) {
-        if (!this.scene || !target || !target.active) return;
-
-        const verticalOffset = -100; // 유닛 머리 위 후광
-
-        for (let i = 0; i < 4; i++) {
-            this.scene.time.delayedCall(i * 80, () => {
-                if (!target || !target.active) return;
-                const fx = poolingManager.get('summon_guardian_angel_fx');
-                if (fx) {
-                    fx.show(target.x, target.y + verticalOffset, { scale: 4.5, alpha: 0.8, duration: 1000, tint: tint });
-                }
-            });
-        }
-    }
-
-    /**
-     * 거대 폭발 이펙트 재생 (메테오 등)
-     * [USER 요청] 여러 장을 겹쳐서 ADD 모드로 크게 연출
-     */
-    playExplosion(x, y, scale = 1.0) {
-        if (!this.scene) return;
-
-        const fx = poolingManager.get('explosion_fx');
-        if (fx) {
-            fx.show(x, y, { scale: scale });
-        }
-    }
-    //#endregion
-
-    //#region ⚔️ [전투 & 타격 애니메이션]
-    /**
-     * 피격 이펙트 애니메이션 (Impact Effect)
-     */
-    playHitEffect(target, type = 'physical') {
-        if (!this.scene || !target || !target.active) return;
-
-        let key = '';
-        if (type === 'physical') {
-            key = Math.random() < 0.5 ? 'impact_phys_1' : 'impact_phys_2';
-        } else {
-            return;
-        }
-
-        if (type === 'physical') {
-            const effect1 = poolingManager.get('impact_effect');
-            if (effect1) {
-                effect1.show(target, 'impact_phys_1');
-            }
-
-            this.scene.time.delayedCall(50, () => {
-                const effect2 = poolingManager.get('impact_effect');
-                if (effect2) {
-                    effect2.show(target, 'impact_phys_2');
-                }
-            });
-        } else {
-            const effect = poolingManager.get('impact_effect');
-            if (effect) {
-                effect.show(target, key);
-            }
-        }
-    }
-
-    /**
-     * 스킬 전용 고속 돌진 애니메이션 (Charge Attack 등)
-     */
-    playSkillDash(entity, targetPos, onComplete) {
-        if (!this.scene || !entity || !targetPos) return;
-
-        // this.scene.cameras.main.shake(100, 0.003); // [USER 요청] 카메라 쉐이크 비활성화
-
-        const dx = targetPos.x - entity.x;
-        const dy = targetPos.y - entity.y;
-        const angle = Math.atan2(dy, dx);
-        const dist = Phaser.Math.Distance.Between(entity.x, entity.y, targetPos.x, targetPos.y);
-
-        const pooledFx = poolingManager.get('charge_attack_fx');
-        const trajectory = pooledFx.sprite;
-
-        trajectory.setPosition(entity.x, entity.y);
-        trajectory.setOrigin(0, 0.5);
-        trajectory.setRotation(angle);
-        trajectory.setAlpha(1.0);
-        trajectory.setBlendMode(Phaser.BlendModes.ADD);
-        trajectory.setDepth(entity.depth - 1);
-        trajectory.setDisplaySize(dist, 320);
-
-        const originalScaleX = entity.sprite.scaleX;
-        entity.sprite.scaleX = originalScaleX * 1.5;
-
-        const ghostTimer = this.scene.time.addEvent({
-            delay: 20,
-            repeat: Math.floor(dist / 25),
-            callback: () => {
-                if (!entity.active || !entity.sprite) return;
-                ghostManager.spawnGhost(entity, {
-                    lifeTime: 300,
-                    tint: 0x00ffff,
-                    alpha: 0.6
-                });
-                if (phaserParticleManager.spawnWhiteDust) {
-                    phaserParticleManager.spawnWhiteDust(entity.x, entity.y);
-                }
-            }
-        });
-
-        this.scene.tweens.add({
-            targets: entity,
-            x: targetPos.x,
-            y: targetPos.y,
-            duration: 180,
-            ease: 'Cubic.out',
-            onComplete: () => {
-                entity.sprite.scaleX = originalScaleX;
-                if (ghostTimer) ghostTimer.remove();
-
-                this.scene.tweens.add({
-                    targets: trajectory,
-                    alpha: 0,
-                    scaleY: 0.5,
-                    duration: 400,
-                    ease: 'Quad.out',
-                    onComplete: () => poolingManager.release('charge_attack_fx', pooledFx)
-                });
-
-                if (onComplete) onComplete();
-            }
-        });
-    }
-
-    /**
-     * 평타 대쉬 애니메이션 실행
-     */
-    playDashAttack(entity, target, onHit) {
-        if (!this.scene || !entity || !target || !entity.sprite) return;
-
-        const dx = target.x - entity.x;
-        const dy = target.y - entity.y;
-        const dashX = dx * 0.4;
-        const dashY = dy * 0.4;
-
-        const ghostTimer = this.scene.time.addEvent({
-            delay: 20,
-            repeat: 4,
-            callback: () => {
-                if (!entity.active || !entity.sprite) return;
-                ghostManager.spawnGhost(entity, {
-                    lifeTime: 200,
-                    tint: 0x00ffff,
-                    alpha: 0.4
-                });
-            }
-        });
-
-        this.scene.tweens.add({
-            targets: entity.sprite,
-            x: dashX,
-            y: dashY,
-            duration: 100,
-            ease: 'Cubic.out',
-            onComplete: () => {
-                if (onHit) onHit();
-                this.scene.tweens.add({
-                    targets: entity.sprite,
-                    x: 0,
-                    y: 0,
-                    duration: 200,
-                    ease: 'Back.out'
-                });
-            }
-        });
-    }
-    //#endregion
-
-    //#region 💀 [사망 & 상태 변화 애니메이션]
-    playDeathAnimation(entity, onComplete) {
-        if (!this.scene || !entity || !entity.sprite) {
-            if (onComplete) onComplete();
-            return;
-        }
-
-        const sprite = entity.sprite;
-        this.stopIdleBobbing(entity);
-        this.scene.tweens.killTweensOf(sprite);
-
-        if (entity.body) {
-            entity.body.setEnable(false);
-        }
-
-        sprite.setTint(0xffffff);
-        // this.scene.cameras.main.shake(150, 0.005); // [USER 요청] 카메라 쉐이크 비활성화
-
-        const fallAngle = sprite.flipX ? -90 : 90;
-
-        this.scene.tweens.add({
-            targets: sprite,
-            angle: fallAngle,
-            y: -10,
-            duration: 300,
-            ease: 'Cubic.in',
-            onStart: () => {
-                sprite.setTint(0x666666);
-            },
-            onComplete: () => {
-                this.scene.tweens.add({
-                    targets: sprite,
-                    y: -25,
-                    duration: 200,
-                    ease: 'Cubic.out',
-                    yoyo: true,
-                    onComplete: () => {
-                        if (phaserParticleManager.spawnSoul) {
-                            const baseY = entity.y - (entity.zHeight || 0);
-                            phaserParticleManager.spawnSoul(entity.x, baseY - 20);
-                        }
-
-                        this.scene.tweens.add({
-                            targets: entity,
-                            alpha: 0,
-                            duration: 800,
-                            delay: 200,
-                            onComplete: () => {
-                                sprite.setTint(0xffffff);
-                                sprite.setAngle(0);
-                                sprite.setY(0);
-                                entity.alpha = 1;
-                                if (onComplete) onComplete();
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    }
-
-    /**
-     * 유닛 아이들 바빙 애니메이션 (Idle Bobbing)
-     */
-    playIdleBobbing(entity, className) {
-        if (!this.scene || !entity || !entity.sprite || entity.idleBobbingTween) return;
-
-        let amplitude = -4;
-        let baseDuration = 1000;
-
-        if (className === 'warrior') {
-            baseDuration = 1100;
-        } else if (className === 'archer') {
-            baseDuration = 900;
-        }
-
-        entity.idleBobbingTween = this.scene.tweens.add({
-            targets: entity.sprite,
-            y: amplitude,
-            duration: baseDuration,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
-    }
-
-    /**
-     * 아이들 바빙 애니메이션 중지
-     */
-    stopIdleBobbing(entity) {
-        if (entity.idleBobbingTween) {
-            entity.idleBobbingTween.stop();
-            entity.idleBobbingTween = null;
-
-            this.scene.tweens.add({
-                targets: entity.sprite,
-                y: 0,
-                duration: 200,
-                ease: 'Cubic.out'
-            });
-        }
-    }
-    //#endregion
 }
 
 const animationManager = new AnimationManager();

@@ -17,8 +17,8 @@ class SkillFireballAI {
         // 1. 쿨다운 및 조건 확인 (ID는 소문자 'fireball')
         if (!entity.isSkillReady('fireball')) return false;
 
-        // 2. 타겟팅: CoordinateManager를 통해 적들의 무게 중심(Center of Mass) 계산
-        const targetPoint = coordinateManager.getCenterOfMass(enemies);
+        // 2. 타겟팅: CoordinateManager를 통해 가장 밀집된 지점 분석 (반경 150)
+        const targetPoint = coordinateManager.getBestAOETarget(enemies, 150);
         
         // 유효한 좌표인지 확인
         if (targetPoint.x === 0 && targetPoint.y === 0) return false;

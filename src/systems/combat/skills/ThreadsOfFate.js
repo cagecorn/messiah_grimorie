@@ -57,16 +57,27 @@ class ThreadsOfFate {
     performSingleCross(owner) {
         const scene = owner.scene;
         const enemies = scene.enemies.filter(e => e.active && e.logic.isAlive);
-        if (enemies.length === 0) return;
-
-        // 1. 타겟팅: 적들이 밀집된 곳의 중심점을 찾거나, 랜덤한 적 근처를 조준
-        // 여기서는 매 타격마다 적진의 무게 중심을 약간의 오프셋과 함께 조준
-        const center = coordinateManager.getCenterOfMass(enemies);
-        const offset = {
-            x: Phaser.Math.Between(-100, 100),
-            y: Phaser.Math.Between(-100, 100)
-        };
-        const targetPoint = { x: center.x + offset.x, y: center.y + offset.y };
+        
+        // 타겟 포인트 결정
+        let targetPoint;
+        if (enemies.length > 0) {
+            // 1. 타겟팅: 적들이 밀집된 곳의 최적 지점 찾기 (CoordinateManager 활용)
+            targetPoint = coordinateManager.getBestAOETarget(enemies, 150);
+            
+            // 약간의 변동성 부여
+            targetPoint.x += Phaser.Math.Between(-50, 50);
+            targetPoint.y += Phaser.Math.Between(-50, 50);
+            
+            // 마지막 유효 타겟 지점 기억
+            this.lastTargetPoint = { x: targetPoint.x, y: targetPoint.y };
+        } else {
+            // 적이 없다면 마지막 타겟 지점이나 화면 중앙 조준
+            targetPoint = this.lastTargetPoint || { x: scene.cameras.main.centerX, y: scene.cameras.main.centerY };
+            
+            // 매번 같은 곳만 쏘지 않도록 넓게 랜덤 오프셋
+            targetPoint.x += Phaser.Math.Between(-200, 200);
+            targetPoint.y += Phaser.Math.Between(-200, 200);
+        }
 
         // 2. 발사 궤적 계산 (화면 밖 -> 화면 밖)
         const trajectory = this.calculateScreenCrossing(scene, targetPoint);

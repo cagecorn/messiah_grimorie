@@ -5,6 +5,7 @@ import instanceIDManager from '../../utils/InstanceIDManager.js';
 // [데이터 로드] 초기 몬스터 라인업
 import goblin from '../../data/monsters/goblin.js';
 import goblin_shaman from '../../data/monsters/goblin_shaman.js';
+import goblin_wizard from '../../data/monsters/goblin_wizard.js';
 
 /**
  * 몬스터 매니저 (Monster Manager)
@@ -17,7 +18,8 @@ class MonsterManager {
         // [ID 관리] 고정 ID 레지스트리
         this.registry = {
             goblin,
-            goblin_shaman
+            goblin_shaman,
+            goblin_wizard
         };
 
         Logger.system("MonsterManager: Registry initialized.");

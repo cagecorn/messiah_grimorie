@@ -17,8 +17,10 @@ class ThreadsOfFateAI {
         const activeEnemies = enemies.filter(e => e.active && e.logic.isAlive);
         if (activeEnemies.length === 0) return false;
 
-        // 적진의 무게 중심 근처면 시전
-        if (entity.skills.useUltimate()) {
+        // 3. 군집 분석 및 시전 결정
+        const targetPoint = coordinateManager.getBestAOETarget(activeEnemies, 250);
+        
+        if (entity.skills.useUltimate(targetPoint)) {
             Logger.info("AI", `${entity.logic.name} decided to use ULTIMATE: Threads of Fate!`);
             return true;
         }

@@ -14,6 +14,13 @@ import LuteAI from './nodes/LuteAI.js';
 import EllaAI from './nodes/EllaAI.js';
 import MerlinAI from './nodes/MerlinAI.js';
 import SeraAI from './nodes/SeraAI.js';
+import GoblinWizardAI from './nodes/GoblinWizardAI.js';
+import ProjectileSensor from './nodes/ProjectileSensor.js';
+import ProjectileClassifier from './nodes/ProjectileClassifier.js';
+import ProjectileEvasion from './nodes/ProjectileEvasion.js';
+import GroupLeashAI from './nodes/GroupLeashAI.js';
+import ActionSelector from './nodes/ActionSelector.js';
+import RollingNode from './nodes/RollingNode.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -36,7 +43,11 @@ class AIManager {
         this.thinkInterval = 200; // 0.2초마다 사고함 (60fps 기준 효율적)
         this.thinkCooldowns = new Map(); // EntityID -> cooldown
 
-        Logger.system("AIManager: Initialized with Optimized Thinking (200ms).");
+        // [신규] 액션 시스템 연동
+        this.rollingNode = new RollingNode();
+        this.actionSelector = new ActionSelector(this.rollingNode);
+
+        Logger.system("AIManager: Initialized with Optimized Thinking (200ms) & ActionSelector.");
     }
 
     /**
@@ -83,9 +94,31 @@ class AIManager {
 
             this.thinkCooldowns.set(entityId, cooldown);
 
+            // [NEW] Projectile AI Block System (Priority: SURVIVAL)
+            // 1. [Sense] 주변 투사체 스캔
+            const detectedProjectiles = ProjectileSensor.sense(entity);
+            
+            // 2. [Select Action] 구르기 또는 다른 액션 선택
+            const actionResult = this.actionSelector.evaluate(entity, detectedProjectiles, bb.get('target'));
+            
+            if (actionResult === 'roll' || actionResult === 'rolling_in_progress') {
+                return; // 구르기 중이거나 방금 구르기를 시작했으면 클래스 AI 스킵
+            }
+
+            // [NEW] Mercenary Leash AI (Priority: COHESION)
+            // 아군 그룹에서 너무 멀어지면 중심으로 복귀하도록 강제함 (화면 이탈 방지)
+            if (entity.team === 'mercenary') {
+                const leashDirection = GroupLeashAI.execute(entity, allies, 450); // 살짝 여유로운 450px
+                if (leashDirection) {
+                    entity.moveDirection = leashDirection;
+                    // [DEBUG] 목줄 작동 중일 때는 다른 AI 로직을 건너뜀 (귀환 우선)
+                    return;
+                }
+            }
+
             // 3. 클래스별 AI 노드 실행 (매 프레임 실행하여 이동은 부드럽게 유지)
             const className = entity.logic.class.getClassName();
-            const id = entity.logic.id.split('_')[0]; // Siren, Aren, etc.
+            const id = entity.logic.baseId || entity.logic.id.split('_')[0]; // [FIX] baseId 우선 사용
             
             let node = this.aiNodes[className];
             
@@ -104,6 +137,8 @@ class AIManager {
                 node = MerlinAI;
             } else if (id === 'sera') {
                 node = SeraAI;
+            } else if (id === 'goblin_wizard') {
+                node = GoblinWizardAI;
             }
 
             if (node) {

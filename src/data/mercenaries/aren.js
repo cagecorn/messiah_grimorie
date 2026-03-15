@@ -26,6 +26,8 @@ export default {
         [STAT_KEYS.ULT_CHARGE]: 1.0,
         [STAT_KEYS.RES_FIRE]: 0,
         [STAT_KEYS.RES_ICE]: 0,
-        [STAT_KEYS.RES_LIGHTNING]: 0
+        [STAT_KEYS.RES_LIGHTNING]: 0,
+        [STAT_KEYS.STAMINA]: 100,
+        [STAT_KEYS.STAM_REGEN]: 10
     }
 };

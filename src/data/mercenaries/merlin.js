@@ -27,6 +27,8 @@ export default {
         [STAT_KEYS.ULT_CHARGE]: 1.2,
         [STAT_KEYS.RES_FIRE]: 20, // 마법사 속성 저항
         [STAT_KEYS.RES_ICE]: 5,
-        [STAT_KEYS.RES_LIGHTNING]: 5
+        [STAT_KEYS.RES_LIGHTNING]: 5,
+        [STAT_KEYS.STAMINA]: 60,
+        [STAT_KEYS.STAM_REGEN]: 25
     }
 };

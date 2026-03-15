@@ -66,38 +66,94 @@ class TrailManager {
     }
 
     /**
-     * [신규] "운명의 끈" 전용 매우 촘촘한 실 형태의 궤적
+     * [신규] "운명의 끈" 전용 직선 실 형태의 궤적
      */
     createThreadTrail(target) {
         if (!this.scene) return null;
 
-        // [USER 요청] 물방울처럼 끊기지 않고 '빛나는 직선'처럼 보이도록 개선
-        const emitter = this.scene.add.particles(0, 0, 'particle_thread', {
-            follow: target,
-            scale: { start: 1.0, end: 0.8 }, // 끈의 굵기 유지
-            alpha: { start: 1.0, end: 0 }, 
-            lifespan: 1000,                  // 끈이 화면에 선명하게 남는 시간
-            blendMode: 'ADD',
-            color: [0xff0000, 0xff3300, 0xff0000], 
-            frequency: 1,                    // 1ms 마다 하나씩
-            quantity: 2,                     // [핵심] 1ms 당 2개씩 생성하여 빈틈을 완전히 메움
-            maxParticles: 2000,
-            emitting: true
-        });
-
-        emitter.setDepth(target.depth + 15); // 투사체보다도 위에
-        return emitter;
+        // [USER 요청] 파티클 대신 '붉은 색 직선'으로 구현
+        const trail = new ThreadTrail(this.scene, target);
+        return trail;
     }
     
     /**
-     * 에미터 중지 및 제거
+     * 에미터 또는 커스텀 궤적 중지 및 제거
      */
-    stopTrail(emitter) {
-        if (!emitter) return;
-        emitter.stop();
-        // 파티클들이 자연스럽게 사라진 후 완전 제거
-        this.scene.time.delayedCall(500, () => {
-            if (emitter) emitter.destroy();
+    stopTrail(trail) {
+        if (!trail) return;
+        
+        if (trail.stop && typeof trail.stop === 'function') {
+            trail.stop();
+        } else if (trail.stop && typeof trail.stop === 'object') {
+            // Emitter 인 경우
+            trail.stop();
+            this.scene.time.delayedCall(500, () => {
+                if (trail) trail.destroy();
+            });
+        }
+    }
+}
+
+/**
+ * 운명의 끈 전용 직선 궤적 클래스
+ */
+class ThreadTrail {
+    constructor(scene, target) {
+        this.scene = scene;
+        this.target = target;
+        this.startPos = { x: target.x, y: target.y };
+        this.graphics = scene.add.graphics();
+        this.graphics.setDepth(810); // 프로젝트일 fx(800) 보다 위
+        this.color = 0xff0000;
+        this.alpha = 1.0;
+        this.isStopped = false;
+        
+        // ADD 모드 효과를 위해 블렌드 모드 설정
+        this.graphics.setBlendMode(Phaser.BlendModes.ADD);
+    }
+
+    /**
+     * 매 프레임 업데이트 (투사체에서 호출 필수)
+     */
+    update() {
+        if (this.isStopped || !this.graphics) return;
+
+        this.graphics.clear();
+        
+        // 메인 끈 (진한 빨강)
+        this.graphics.lineStyle(2, 0xff0000, this.alpha);
+        this.graphics.beginPath();
+        this.graphics.moveTo(this.startPos.x, this.startPos.y);
+        this.graphics.lineTo(this.target.x, this.target.y);
+        this.graphics.strokePath();
+
+        // 중앙 빛나는 선 (밝은 빨강/흰색)
+        this.graphics.lineStyle(1, 0xff8888, this.alpha * 0.8);
+        this.graphics.beginPath();
+        this.graphics.moveTo(this.startPos.x, this.startPos.y);
+        this.graphics.lineTo(this.target.x, this.target.y);
+        this.graphics.strokePath();
+    }
+
+    stop() {
+        this.isStopped = true;
+        if (!this.scene) return;
+
+        this.scene.tweens.add({
+            targets: this,
+            alpha: 0,
+            duration: 800,
+            onUpdate: () => {
+                if (this.graphics) {
+                    this.update();
+                }
+            },
+            onComplete: () => {
+                if (this.graphics) {
+                    this.graphics.destroy();
+                    this.graphics = null;
+                }
+            }
         });
     }
 }

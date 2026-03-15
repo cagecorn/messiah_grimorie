@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import combatManager from '../../CombatManager.js';
+import coordinateManager from '../../combat/CoordinateManager.js';
 
 /**
  * 아쿠아 버스트 AI (Aqua Burst AI)
@@ -16,22 +17,7 @@ export const decideAquaBurstTarget = (owner) => {
 
     if (enemies.length === 0) return null;
 
-    // 2. 가장 밀집된 지역 타겟팅 (단순화: 주변에 적이 가장 많은 적 선택)
-    let bestTarget = enemies[0];
-    let maxCount = -1;
-
-    enemies.forEach(candidate => {
-        let count = 0;
-        enemies.forEach(other => {
-            const dist = Phaser.Math.Distance.Between(candidate.x, candidate.y, other.x, other.y);
-            if (dist < 100) count++;
-        });
-
-        if (count > maxCount) {
-            maxCount = count;
-            bestTarget = candidate;
-        }
-    });
-
-    return bestTarget;
+    // 2. 가장 밀집된 지역 타겟팅 (CoordinateManager 활용)
+    const targetPoint = coordinateManager.getBestAOETarget(enemies, 120);
+    return enemies.find(e => e.x === targetPoint.x && e.y === targetPoint.y) || enemies[0];
 };

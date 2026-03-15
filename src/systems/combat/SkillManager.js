@@ -5,6 +5,7 @@ import massHeal from './skills/MassHeal.js';
 import fireball from './skills/Fireball.js';
 import songOfProtection from './skills/SongOfProtection.js';
 import aquaBurst from './skills/AquaBurst.js';
+import fireBurst from './skills/FireBurst.js';
 import sleepingBubble from './skills/SleepingBubble.js';
 import stoneSkin from './skills/StoneSkin.js';
 
@@ -117,15 +118,34 @@ class SkillManager {
         this.skills.set('goblin_shaman', {
             hasSkill: false
         });
+
+        this.skills.set('goblin_wizard', {
+            id: 'fire_burst',
+            name: 'Fire Burst',
+            nameKey: 'skill_fire_burst_name',
+            description: 'Fires a fire ball that explodes on impact.',
+            descriptionKey: 'skill_fire_burst_desc',
+            cooldown: 6000, 
+            logic: fireBurst
+        });
     }
 
     /**
      * 유닛 아이디에 해당하는 스킬 정보 반환
      */
     getSkillData(id) {
-        // id가 aren_1, aren_2 형식이므로 prefix 추출
-        const baseId = id.split('_')[0];
-        const skill = this.skills.get(baseId);
+        // [FIX] 1. 전체 ID로 먼저 시도 (baseId가 통째로 들어올 경우 대비)
+        let skill = this.skills.get(id);
+        
+        // 2. 실패 시 인스턴스 ID 규칙(id_count)에 따라 baseId 추출 시도
+        // 예: 'goblin_wizard_1' -> 'goblin_wizard'
+        if (!skill && id) {
+            const lastUnderscoreIndex = id.lastIndexOf('_');
+            if (lastUnderscoreIndex !== -1) {
+                const baseId = id.substring(0, lastUnderscoreIndex);
+                skill = this.skills.get(baseId);
+            }
+        }
         
         if (!skill) {
             return { hasSkill: false };
