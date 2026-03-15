@@ -1,5 +1,6 @@
 import StringUtil from '../utils/StringUtil.js';
 import Logger from '../utils/Logger.js';
+import emojiManager from './EmojiManager.js';
 
 /**
  * 전역 레지스트리 시스템 (Global Registry System)
@@ -17,7 +18,7 @@ class Registry {
      * @param {any} value 
      */
     register(key, value) {
-        const normalizedKey = StringUtil.normalize(key);
+        const normalizedKey = emojiManager.normalizeToId(StringUtil.normalize(key));
         if (this.data.has(normalizedKey)) {
             Logger.warn("REGISTRY", `[${this.name}] Overwriting existing key: ${normalizedKey}`);
         }
@@ -25,12 +26,12 @@ class Registry {
     }
 
     /**
-     * 데이터 조회 (대소문자 무시)
+     * 데이터 조회 (대소문자 무시 + 이모지 호환)
      * @param {string} key 
      * @returns {any}
      */
     get(key) {
-        const normalizedKey = StringUtil.normalize(key);
+        const normalizedKey = emojiManager.normalizeToId(StringUtil.normalize(key));
         return this.data.get(normalizedKey);
     }
 

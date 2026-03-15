@@ -111,6 +111,10 @@ export default class BootScene extends Phaser.Scene {
         // [CORE] 매니저 초기화
         sceneManager.initialize(this.game);
 
+        // [PERSISTENCE] 전역 데이터(골드, 라운드 기록 등) 복구
+        const currencyManager = (await import('../core/CurrencyManager.js')).default;
+        await currencyManager.loadFromDB();
+
         // [SYSTEM] 데이터 컬렉션 및 초기 지급 시스템 (Hardcode-Free)
         const collectionModule = await import('../systems/MercenaryCollectionManager.js');
         await collectionModule.default.initialize();

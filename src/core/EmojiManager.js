@@ -16,8 +16,33 @@ class EmojiManager {
             '🛡️': 'shield.png',
             '🪵': 'log.png'
         };
+
+        // [STABLE] 역방향 매핑 (ID -> Emoji)
+        this.idMap = {
+            'gold': '🪙',
+            'diamond': '💎',
+            'shield': '🛡️',
+            'log': '🪵'
+        };
         
-        Logger.system("EmojiManager: Initialized (Visual mapping ready).");
+        Logger.system("EmojiManager: Initialized with ID normalization.");
+    }
+
+    /**
+     * ID를 이모지로 변환 (Compat용)
+     */
+    getEmojiFromId(id) {
+        return this.idMap[id] || id;
+    }
+
+    /**
+     * 이모지 또는 ID를 표준 ID로 정규화 (Compat용)
+     */
+    normalizeToId(key) {
+        for (const [id, emoji] of Object.entries(this.idMap)) {
+            if (key === id || key === emoji) return id;
+        }
+        return key;
     }
 
     /**
@@ -35,13 +60,13 @@ class EmojiManager {
     }
 
     /**
-     * Phaser 텍스트 또는 캔버스에서 사용할 수 있도록 이모지에 해당하는 자산 키 반환
+     * Phaser 텍스트 또는 캔버스에서 사용할 수 있도록 이모지/ID에 해당하는 자산 키 반환
      */
-    getAssetKey(emoji) {
+    getAssetKey(key) {
+        const emoji = this.idMap[key] || key;
         const fileName = this.emojiMap[emoji];
         if (!fileName) return null;
         
-        // 확장자를 제외한 이름을 키로 사용 (e.g. 'gold.png' -> 'emoji_gold')
         return `emoji_${fileName.split('.')[0]}`;
     }
 

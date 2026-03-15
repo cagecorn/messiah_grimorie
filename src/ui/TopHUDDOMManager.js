@@ -238,7 +238,8 @@ class TopHUDDOMManager {
 
     setupListeners() {
         EventBus.on(EVENTS.LANGUAGE_CHANGED, () => this.updateTexts());
-        EventBus.on('CURRENCY_CHANGED', () => this.updateCurrencies());
+        EventBus.on('CURRENCY_CHANGED_GOLD', () => this.updateCurrencies());
+        EventBus.on('CURRENCY_CHANGED_GEM', () => this.updateCurrencies());
         EventBus.on('DUNGEON_RECORD_UPDATED', () => this.refreshDungeonList());
     }
 
@@ -249,7 +250,14 @@ class TopHUDDOMManager {
         });
     }
 
-    updateCurrencies() {}
+    updateCurrencies() {
+        if (this.elements.gold) {
+            this.elements.gold.label.innerText = state.economy.gold.toLocaleString();
+        }
+        if (this.elements.gem) {
+            this.elements.gem.label.innerText = state.economy.gem.toLocaleString();
+        }
+    }
 
     updateAll() {
         this.updateTexts();

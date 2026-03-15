@@ -72,6 +72,35 @@ class CurrencyManager {
     }
 
     /**
+     * DB에서 데이터 로드하여 GlobalState 복구
+     */
+    async loadFromDB() {
+        try {
+            const data = await indexDBManager.load('messiahData', state.messiah.id);
+            if (data) {
+                // [GOD OBJECT] 불러온 데이터를 전역 상태에 병합
+                state.messiah.level = data.level || state.messiah.level;
+                
+                if (data.economy) {
+                    Object.assign(state.economy, data.economy);
+                }
+                
+                if (data.gameState) {
+                    // dungeonRecords 등 깊은 객체 보존을 위해 병합
+                    if (!state.gameState) state.gameState = {};
+                    Object.assign(state.gameState, data.gameState);
+                }
+
+                Logger.info("ECONOMY_LOAD", "Persistent data restored successfully.");
+                return true;
+            }
+        } catch (err) {
+            Logger.error("ECONOMY_LOAD", `Failed to load persistence: ${err.message}`);
+        }
+        return false;
+    }
+
+    /**
      * 잔액 확인
      */
     getBalance(type) {

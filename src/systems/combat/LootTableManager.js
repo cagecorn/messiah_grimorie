@@ -21,14 +21,14 @@ class LootTableManager {
         this.register('goblin_common', {
             gold: { min: 10, max: 25 },
             drops: [
-                { id: '🪵', chance: 0.2 }
+                { id: 'log', chance: 0.2 }
             ]
         });
 
         this.register('goblin_shaman', {
             gold: { min: 30, max: 60 },
             drops: [
-                { id: '🪵', chance: 0.4 }
+                { id: 'log', chance: 0.4 }
             ]
         });
 

@@ -31,16 +31,22 @@ class DungeonRoundManager {
      * 특정 던전의 최고 기록 확인
      */
     getBestRecord(stageId) {
-        return this.records[stageId] || 0;
+        if (!state.gameState || !state.gameState.dungeonRecords) return 0;
+        return state.gameState.dungeonRecords[stageId] || 0;
     }
 
     /**
      * 새로운 기록 갱신 시도
      */
     updateRecord(stageId, round) {
-        if (!this.records[stageId] || round > this.records[stageId]) {
-            this.records[stageId] = round;
-            state.gameState.dungeonRecords[stageId] = round; // GlobalState 동기화
+        if (!state.gameState) state.gameState = {};
+        if (!state.gameState.dungeonRecords) state.gameState.dungeonRecords = {};
+
+        const currentBest = state.gameState.dungeonRecords[stageId] || 0;
+
+        if (round > currentBest) {
+            state.gameState.dungeonRecords[stageId] = round;
+            this.records[stageId] = round; // 하위 호환성 유지
             
             Logger.info("DUNGEON", `New Record for ${stageId}: Round ${round}!`);
             

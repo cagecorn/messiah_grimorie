@@ -117,6 +117,14 @@ class MessiahInventoryDOMManager {
             Logger.info("INV_UI", "Event received: UI_OPEN_INVENTORY");
             this.toggle();
         });
+
+        // [신규] 재화 변경 시에도 인벤토리 더티 플래그 처리
+        const refreshFunc = () => {
+            this.isDirty = true;
+            if (this.isOpened) this.render();
+        };
+        EventBus.on('CURRENCY_CHANGED_GOLD', refreshFunc);
+        EventBus.on('CURRENCY_CHANGED_GEM', refreshFunc);
     }
 
     toggle() {
@@ -145,15 +153,32 @@ class MessiahInventoryDOMManager {
         
         const Registry = (await import('../core/Registry.js')).default;
         const allSlots = messiahInventoryManager.getSlots();
+        let displaySlots = [...allSlots];
         
+        // [SCALING] 골드/다이아 등 전역 재화를 인벤토리 슬롯에 가상으로 노출 (CURRENCY 탭일 때)
+        const state = (await import('../core/GlobalState.js')).default;
+        const currencies = [];
+        if (this.currentCategory === 'ALL' || this.currentCategory === 'CURRENCY') {
+            if (state.economy.gold > 0) {
+                currencies.push({ id: 'gold', amount: state.economy.gold, isCurrency: true });
+            }
+            if (state.economy.gem > 0) {
+                currencies.push({ id: 'gem', amount: state.economy.gem, isCurrency: true });
+            }
+        }
+
         // [FILTER] 카테고리에 맞춰 필터링
-        let displaySlots = allSlots;
         if (this.currentCategory !== 'ALL') {
-            displaySlots = allSlots.filter(item => {
+            displaySlots = displaySlots.filter(item => {
                 if (!item) return false;
-                const def = Registry.get('items', item.id);
+                const def = Registry.items.get(item.id);
                 return def && def.type === this.currentCategory;
             });
+        }
+
+        // 재화와 일반 아이템 합치기 (재화가 항상 앞에 나오도록)
+        if (this.currentCategory === 'ALL' || this.currentCategory === 'CURRENCY') {
+            displaySlots = [...currencies, ...displaySlots.filter(s => s !== null)];
         }
         
         displaySlots.forEach((item, index) => {
@@ -161,8 +186,10 @@ class MessiahInventoryDOMManager {
             slot.className = 'mg-inventory-slot';
             
             if (item) {
-                // [FIX] Registry에서 타입에 맞는 아이콘 정보를 가져올 수도 있음
-                const fileName = emojiManager.emojiMap[item.id] || 'default_item.png';
+                // [FIX] Registry에서 아이콘(이모지)을 먼저 찾고, 없으면 ID를 이모지로 간주
+                const def = Registry.items.get(item.id);
+                const emoji = (def && def.icon) ? def.icon : item.id;
+                const fileName = emojiManager.emojiMap[emoji] || 'default_item.png';
                 
                 const icon = document.createElement('img');
                 icon.className = 'mg-inventory-item-icon';
@@ -170,7 +197,7 @@ class MessiahInventoryDOMManager {
                 
                 const amount = document.createElement('div');
                 amount.className = 'mg-inventory-item-amount';
-                amount.innerText = item.amount;
+                amount.innerText = (item.amount >= 1000) ? String(item.amount) : item.amount;
                 
                 slot.appendChild(icon);
                 slot.appendChild(amount);
