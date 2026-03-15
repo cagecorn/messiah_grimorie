@@ -74,6 +74,14 @@ class SoundManager {
         if (!this.scene) return;
         audioManager.playSFX(this.scene, 'stone_skin_sfx', 0.8);
     }
+
+    /**
+     * 구르기 효과음 재생
+     */
+    playRoll() {
+        if (!this.scene) return;
+        audioManager.playSFX(this.scene, 'roll_sfx', 0.8);
+    }
 }
 
 const soundManager = new SoundManager();

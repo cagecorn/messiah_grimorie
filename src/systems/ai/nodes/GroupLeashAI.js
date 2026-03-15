@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import coordinateManager from '../../combat/CoordinateManager.js';
+import combatManager from '../../CombatManager.js';
 
 /**
  * 용병 목줄 AI (Group Leash AI)
@@ -18,8 +18,8 @@ class GroupLeashAI {
     static execute(entity, allies, leashRange = 400) {
         if (!entity || !allies || allies.length <= 1) return null;
 
-        // 1. 아군 그룹의 무게 중심 계산
-        const center = coordinateManager.getCenterOfMass(allies);
+        // 1. [FIX] 매번 O(N)으로 계산하지 않고 CombatManager에서 미리 계산된 중심점 사용
+        const center = combatManager.centerOfMass;
         
         // 2. 중심과의 거리 계산
         const dist = Phaser.Math.Distance.Between(entity.x, entity.y, center.x, center.y);

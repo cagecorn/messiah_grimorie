@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import Logger from '../utils/Logger.js';
 import EventBus, { EVENTS } from '../core/EventBus.js';
 import spawnManager from '../systems/combat/SpawnManager.js';
+import combatManager from '../systems/CombatManager.js';
 import backgroundManager from '../systems/BackgroundManager.js';
 import assetPathManager from '../core/AssetPathManager.js';
 import displayManager from '../core/DisplayManager.js';
@@ -252,6 +253,9 @@ export default class BattleScene extends Phaser.Scene {
 
     update(time, delta) {
         if (this.isTransitioning) return;
+
+        // [SYSTEM] 컴뱃 매니저 업데이트 (공간 격자 갱신 및 그룹 중심점 계산)
+        combatManager.update(delta);
 
         // [HUD] 초상화 허드 업데이트
         portraitHUDManager.update(time, delta);

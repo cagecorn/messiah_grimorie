@@ -18,9 +18,11 @@ export default class RollingNode {
         let activeThreat = null;
         for (const projData of threats) {
             const analysis = ProjectileClassifier.analyze(entity, projData);
-            if (analysis.isThreat) {
+            
+            // [FIX] 타겟팅(유도) 투사체는 구르기로 피할 수 없으므로 무시 (스태미나 절약)
+            if (analysis.isThreat && analysis.type !== 'target') {
                 activeThreat = analysis;
-                break; // 가장 가까운 위협부터 처리
+                break; // 가장 가까운 회피 가능한 위협부터 처리
             }
         }
 

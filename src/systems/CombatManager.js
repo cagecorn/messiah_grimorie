@@ -11,6 +11,59 @@ import AquaBurstProjectile from '../entities/projectiles/common/AquaBurstProject
 import fxManager from './graphics/FXManager.js';
 
 /**
+ * 공간 분할 격자 (Spatial Partitioning Grid)
+ * 역할: [O(N^2) 연산을 O(N)으로 단축하기 위한 공간 인덱서]
+ */
+class SpatialGrid {
+    constructor(width, height, cellSize = 120) {
+        this.cellSize = cellSize;
+        this.cols = Math.ceil(width / cellSize);
+        this.rows = Math.ceil(height / cellSize);
+        this.cells = new Array(this.cols * this.rows).fill(null).map(() => new Set());
+    }
+
+    clear() {
+        this.cells.forEach(cell => cell.clear());
+    }
+
+    insert(entity) {
+        const idx = this.getIndex(entity.x, entity.y);
+        if (idx !== -1) this.cells[idx].add(entity);
+    }
+
+    getIndex(x, y) {
+        const col = Math.floor(x / this.cellSize);
+        const row = Math.floor(y / this.cellSize);
+        if (col < 0 || col >= this.cols || row < 0 || row >= this.rows) return -1;
+        return col + row * this.cols;
+    }
+
+    /**
+     * 특정 범위 내의 엔티티 검색
+     */
+    query(x, y, range) {
+        const result = [];
+        const left = Math.floor((x - range) / this.cellSize);
+        const right = Math.floor((x + range) / this.cellSize);
+        const top = Math.floor((y - range) / this.cellSize);
+        const bottom = Math.floor((y + range) / this.cellSize);
+
+        for (let c = Math.max(0, left); c <= Math.min(this.cols - 1, right); c++) {
+            for (let r = Math.max(0, top); r <= Math.min(this.rows - 1, bottom); r++) {
+                const idx = c + r * this.cols;
+                this.cells[idx].forEach(entity => {
+                    const distSq = (entity.x - x) ** 2 + (entity.y - y) ** 2;
+                    if (distSq <= range * range) {
+                        result.push(entity);
+                    }
+                });
+            }
+        }
+        return result;
+    }
+}
+
+/**
  * 컴뱃 매니저 (Combat Manager)
  * 역할: [전투 로직의 중앙 라우터]
  * 
@@ -18,15 +71,20 @@ import fxManager from './graphics/FXManager.js';
  */
 class CombatManager {
     constructor() {
-        this.units = new Set(); // 현재 전장에 존재하는 모든 유닛 (용병+몬스터)
-        this.grid = null;       // 공간 분할 격자 (Spatial Partitioning Grid)
-        this.scene = null;      // 씬 참조
+        this.units = new Set();  // 현재 전장에 존재하는 모든 유닛 (용병+몬스터)
+        this.grid = null;        // 공간 분할 격자 (Spatial Partitioning Grid)
+        this.scene = null;       // 씬 참조
+        this.centerOfMass = { x: 0, y: 0 }; // [신규] 아군 중심점 (프레임당 1회 계산)
         
-        Logger.system("CombatManager: Initialized.");
+        Logger.system("CombatManager: Initialized with SpatialGrid capacity.");
     }
 
     init(scene) {
         this.scene = scene;
+        const world = measurementManager.world;
+        // 격자 시스템 초기화 (셀 크기 120px - 투사체 감지 범위 300px 고려)
+        this.grid = new SpatialGrid(world.width, world.height, 150);
+        Logger.system(`CombatManager: SpatialGrid initialized (${this.grid.cols}x${this.grid.rows})`);
     }
 
     /**
@@ -34,7 +92,31 @@ class CombatManager {
      */
     update(delta) {
         if (!TimeManager.shouldUpdate()) return;
+        
+        // 1. 공간 격자 갱신
         this.refreshSpatialGrid();
+        
+        // 2. [신규] 아군 중심점 중앙 집중 계산 (O(N) 1회만 수행)
+        this.updateGroupCenter();
+    }
+
+    /**
+     * 아군(용병)의 무게 중심 계산 (프레임당 1회)
+     */
+    updateGroupCenter() {
+        let sumX = 0, sumY = 0, count = 0;
+        this.units.forEach(unit => {
+            if (unit.active && unit.team === 'mercenary') {
+                sumX += unit.x;
+                sumY += unit.y;
+                count++;
+            }
+        });
+
+        if (count > 0) {
+            this.centerOfMass.x = sumX / count;
+            this.centerOfMass.y = sumY / count;
+        }
     }
 
     /**
@@ -253,11 +335,27 @@ class CombatManager {
         Logger.info("COMBAT", `Song of Protection applied shield (+${shieldAmount.toFixed(1)}) to ${count} allies.`);
     }
 
-    refreshSpatialGrid() { /* Spatial Partitioning Placeholder */ }
+    refreshSpatialGrid() {
+        if (!this.grid) return;
+        this.grid.clear();
+        this.units.forEach(unit => {
+            if (unit.active) this.grid.insert(unit);
+        });
+    }
+
+    /**
+     * 주변 유닛 검색 (Optimized by Grid)
+     */
+    getUnitsInRange(x, y, range) {
+        if (!this.grid) return Array.from(this.units); // Fallback
+        return this.grid.query(x, y, range);
+    }
+
     addUnit(unit) { 
         this.units.add(unit); 
         Logger.system(`CombatManager: Unit Registered -> [${unit.logic.name}] (Team: ${unit.team}) Total: ${this.units.size}`);
     }
+
     removeUnit(unit) { 
         this.units.delete(unit); 
         Logger.info("COMBAT_MANAGER", `Unit Deregistered: ${unit.logic.name}`);

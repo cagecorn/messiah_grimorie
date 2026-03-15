@@ -4,6 +4,7 @@ import damageTextManager from './DamageTextManager.js';
 import animationManager from './AnimationManager.js';
 import shadowManager from './ShadowManager.js';
 import phaserParticleManager from './PhaserParticleManager.js';
+import actionTextManager from './ActionTextManager.js';
 
 /**
  * FX 매니저 (FX Manager)
@@ -28,6 +29,7 @@ class FXManager {
         healthBarManager.init(scene);
         damageTextManager.init(scene);
         shadowManager.init(scene);
+        actionTextManager.init(scene);
         
         if (this.isInitialized) {
             Logger.system("FXManager: Re-linked sub-managers to new scene instance.");
@@ -111,6 +113,14 @@ class FXManager {
     }
 
     /**
+     * 액션 텍스트 출력 (Dodge!, Level Up! 등)
+     */
+    showActionText(entity, text, color = '#ffffff') {
+        if (!this.isInitialized) return;
+        actionTextManager.show(entity, text, color);
+    }
+
+    /**
      * 광역 힐 시각 효과 출력 (세라 중심 써클)
      */
     showMassHealCircle(owner) {
@@ -172,6 +182,9 @@ class FXManager {
 
         // 지속성 시각 효과 업데이트 (쉴드 오버레이 추적 등)
         animationManager.update(delta);
+
+        // 액션 텍스트 추적 업데이트
+        actionTextManager.update(delta);
     }
 }
 

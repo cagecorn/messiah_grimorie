@@ -70,6 +70,15 @@ export default class EntityVisualComponent {
     }
 
     /**
+     * 기본 스케일 강제 복구 (트윈 중단 대비 안전장치)
+     */
+    restoreBaseScale() {
+        if (!this.sprite) return;
+        const config = this.entity.getEntityConfig();
+        this.sprite.setScale(config.displayScale);
+    }
+
+    /**
      * 아이들 상태 체크 및 바빙 애니메이션 제어
      */
     updateIdleState() {
@@ -84,6 +93,9 @@ export default class EntityVisualComponent {
         if (isIdleNow !== this.isIdle) {
             this.isIdle = isIdleNow;
             if (this.isIdle) {
+                // [FIX] 아이들 진입 시 혹시 남아있을 수 있는 연출용 스케일링 강제 초기화
+                this.restoreBaseScale();
+                
                 const className = this.entity.logic.class ? this.entity.logic.class.getClassName() : 'default';
                 this.animationManager.playIdleBobbing(this.entity, className);
             } else {
@@ -108,6 +120,10 @@ export default class EntityVisualComponent {
         this.fxManager.detachHUD(this.entity);
         this.shadowManager.removeShadow(this.entity);
         this.animationManager.stopIdleBobbing(this.entity);
+        
+        // [FIX] 풀에 반납되거나 파괴될 때 스케일 확실히 복구
+        this.restoreBaseScale();
+        
         this.isIdle = false;
     }
 }

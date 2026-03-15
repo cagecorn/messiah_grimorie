@@ -53,7 +53,8 @@ class AssetPathManager {
         // [구역 2] 오디오 에셋 (Audio)
         this.audio = {
             explosive_1: `${this.basePath}sfx/explosive-1.mp3`,
-            stone_skin_sfx: `${this.basePath}sfx/crack-1.mp3`
+            stone_skin_sfx: `${this.basePath}sfx/crack-1.mp3`,
+            roll_sfx: `${this.basePath}sfx/roll.mp3`
         };
 
         // [구역 3] 애니메이션 및 데이터 (Data/Atlas)

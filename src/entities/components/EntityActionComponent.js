@@ -1,6 +1,8 @@
 import Logger from '../../utils/Logger.js';
 import animationManager from '../../systems/graphics/AnimationManager.js';
 import phaserParticleManager from '../../systems/graphics/PhaserParticleManager.js';
+import soundManager from '../../systems/SoundManager.js';
+import fxManager from '../../systems/graphics/FXManager.js';
 
 /**
  * 엔티티 액션 컴포넌트 (Entity Action Component)
@@ -62,12 +64,16 @@ export default class EntityActionComponent {
         this.iFrameActive = true;
         this.actionCooldown = 800; // 구르기 자체 쿨타임
 
-        const rollDuration = 400;
-        const rollSpeed = 600; // [FIX] 더 빠르고 역동적인 이동을 위해 상향 (기존 400)
+        const rollDuration = 300; // [FIX] 이동 거리 단축을 위해 기간 축소 (기본 400)
+        const rollSpeed = 400; // [FIX] 유저 피드백 반영: 속도 하향 (기존 600)
 
-        // 1. 시각적 연출 실행 (회전 + 잔상 + 먼지 효과)
+        // 1. 시각적 연출 실행 (회전 + 잔상 + 먼지 효과 + 닷지 텍스트)
         animationManager.playRollAnimation(this.entity, rollDuration);
         phaserParticleManager.spawnWhiteDust(this.entity.x, this.entity.y);
+        fxManager.showActionText(this.entity, "DODGE!", "#22d3ee"); // 시안색 영어 텍스트
+
+        // [신규] 구르기 효과음 재생
+        soundManager.playRoll();
 
         // 2. 물리적 가속 부여 (MovementComponent 직접 제어 대신 body 조작)
         if (this.entity.body) {

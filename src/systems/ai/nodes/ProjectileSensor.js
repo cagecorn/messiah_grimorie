@@ -14,11 +14,12 @@ class ProjectileSensor {
      */
     static sense(entity, range = 300) {
         const detected = [];
-        const projectiles = projectileManager.activeProjectiles;
+        // [FIX] 전체 루프 대신 최적화된 격자 쿼리 사용 (O(N*M) -> O(N))
+        const neighbors = projectileManager.getProjectilesInRange(entity.x, entity.y, range);
 
-        if (!projectiles) return detected;
+        if (!neighbors) return detected;
 
-        projectiles.forEach(proj => {
+        neighbors.forEach(proj => {
             // 아군 투사체는 무시
             if (proj.owner.team === entity.team) return;
 

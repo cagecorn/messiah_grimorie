@@ -1,4 +1,6 @@
+import Phaser from 'phaser';
 import Logger from '../../utils/Logger.js';
+import measurementManager from '../../core/MeasurementManager.js';
 import ThreadsOfFateProjectile from '../../entities/projectiles/skills/ThreadsOfFateProjectile.js';
 import LightProjectile from '../../entities/projectiles/skills/LightProjectile.js';
 import WizardProjectile from '../../entities/projectiles/skills/WizardProjectile.js';
@@ -21,6 +23,7 @@ class ProjectileManager {
         this.pools = new Map(); // projectileKey -> Phaser.GameObjects.Group
         this.registry = new Map(); // projectileKey -> ProjectileClass (Routing Registry)
         this.activeProjectiles = new Set();
+        this.grid = null; // [신규] 공간 분할 격자
     }
 
     /**
@@ -30,6 +33,19 @@ class ProjectileManager {
         this.scene = scene;
         this.pools.clear();
         this.activeProjectiles.clear();
+
+        // 1. 격자 시스템 초기화 (투사체 감지 최적화용)
+        const world = measurementManager.world;
+        this.grid = {
+            cellSize: 150,
+            cols: Math.ceil(world.width / 150),
+            rows: Math.ceil(world.height / 150),
+            cells: []
+        };
+        // 2D 배열 초기화
+        for (let i = 0; i < this.grid.cols * this.grid.rows; i++) {
+            this.grid.cells[i] = new Set();
+        }
         
         // [Routing]
         this.registerProjectile('threads_of_fate_projectile', ThreadsOfFateProjectile);
@@ -118,10 +134,19 @@ class ProjectileManager {
      * 활성 투사체 업데이트 루프
      */
     update(time, delta) {
-        if (this.activeProjectiles.size === 0) return;
+        if (this.activeProjectiles.size === 0) {
+            if (this.grid) this.clearGrid();
+            return;
+        }
+
+        // 1. 격자 초기화
+        this.clearGrid();
 
         this.activeProjectiles.forEach(projectile => {
             if (projectile.active) {
+                // 2. 격자에 삽입
+                this.insertToGrid(projectile);
+
                 if (projectile.update) {
                     projectile.update(time, delta);
                 }
@@ -129,6 +154,48 @@ class ProjectileManager {
                 this.activeProjectiles.delete(projectile);
             }
         });
+    }
+
+    clearGrid() {
+        if (!this.grid) return;
+        for (let i = 0; i < this.grid.cells.length; i++) {
+            this.grid.cells[i].clear();
+        }
+    }
+
+    insertToGrid(proj) {
+        const col = Math.floor(proj.x / this.grid.cellSize);
+        const row = Math.floor(proj.y / this.grid.cellSize);
+        if (col >= 0 && col < this.grid.cols && row >= 0 && row < this.grid.rows) {
+            const idx = col + row * this.grid.cols;
+            this.grid.cells[idx].add(proj);
+        }
+    }
+
+    /**
+     * 특정 범위 내의 투사체 검색 (Optimized)
+     */
+    getProjectilesInRange(x, y, range) {
+        const result = [];
+        if (!this.grid) return Array.from(this.activeProjectiles);
+
+        const left = Math.floor((x - range) / this.grid.cellSize);
+        const right = Math.floor((x + range) / this.grid.cellSize);
+        const top = Math.floor((y - range) / this.grid.cellSize);
+        const bottom = Math.floor((y + range) / this.grid.cellSize);
+
+        for (let c = Math.max(0, left); c <= Math.min(this.grid.cols - 1, right); c++) {
+            for (let r = Math.max(0, top); r <= Math.min(this.grid.rows - 1, bottom); r++) {
+                const idx = c + r * this.grid.cols;
+                this.grid.cells[idx].forEach(proj => {
+                    const distSq = (proj.x - x) ** 2 + (proj.y - y) ** 2;
+                    if (distSq <= range * range) {
+                        result.push(proj);
+                    }
+                });
+            }
+        }
+        return result;
     }
 
     /**
