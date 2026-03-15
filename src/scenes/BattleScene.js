@@ -236,6 +236,12 @@ export default class BattleScene extends Phaser.Scene {
 
         // [카메라] 중앙 정렬
         cameraManager.centerCamera();
+
+        // [SCENE CLEANUP] 씬 종료 시 매니저 정리
+        this.events.on('shutdown', () => {
+            shadowManager.cleanup();
+            Logger.info("BATTLE", "ShadowManager cleaned up on scene shutdown.");
+        });
     }
 
     update(time, delta) {
@@ -244,8 +250,8 @@ export default class BattleScene extends Phaser.Scene {
         // [HUD] 초상화 허드 업데이트
         portraitHUDManager.update(time, delta);
 
-        // [그림자] 실시간 업데이트
-        shadowManager.update([...this.allies, ...this.enemies]);
+        // [그림자] 실시간 업데이트 (매니저가 내부 맵을 전수 조사하여 누락 없이 관리함)
+        shadowManager.update();
         fxManager.update(time, delta); // [신규] FX 시스템 업데이트 (HP바 등)
 
         // [신규] 투사체 매니저 업데이트

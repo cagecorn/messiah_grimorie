@@ -7,6 +7,10 @@ const Logger = {
         const timestamp = new Date().toLocaleTimeString();
         console.log(`%c[${timestamp}] [${area}] ${message}`, "color: #00ff00; font-weight: bold;", data || "");
     },
+    debug: (area, message, data = null) => {
+        const timestamp = new Date().toLocaleTimeString();
+        console.log(`%c[${timestamp}] [${area}] ${message}`, "color: #9e9e9e; font-style: italic;", data || "");
+    },
     warn: (area, message, data = null) => {
         console.warn(`[${area}] ${message}`, data || "");
     },

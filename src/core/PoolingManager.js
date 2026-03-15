@@ -14,7 +14,9 @@ class Pool {
         this.freeObjects = [];
         
         for (let i = 0; i < initialSize; i++) {
-            this.freeObjects.push(this.factory());
+            const obj = this.factory();
+            // [FIX] 초기 생성된 객체들을 즉시 release하여 중립 상태(그림자 제거, 비활성화 등)로 전환
+            this.release(obj);
         }
     }
 

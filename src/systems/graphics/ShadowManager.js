@@ -46,47 +46,52 @@ class ShadowManager {
         this.scene = scene;
         
         // [SCENE-SPECIFIC] 씬이 바뀔 때마다 팩토리 함수가 최신 씬을 참조하도록 풀 재등록
-        // 전투 중 유닛 수에 맞춰 약 50개 정도 초기 확보
         poolingManager.registerPool('shadow', () => new PooledShadow(this.scene), 50, true);
         
-        if (this.isInitialized) {
-            Logger.system("ShadowManager: Re-linked to new scene instance.");
-            return;
-        }
-
-        // [신규] 사망 이벤트 감시 - 엔티티가 파괴되기 전에 그림자를 확실히 제거하기 위한 Fail-safe
-        EventBus.on(EVENTS.ENTITY_DIED, (entity) => {
-            const entityId = entity.id;
-            if (!entityId) return;
-
-            const hasShadow = this.shadows.has(entityId);
-            if (hasShadow) {
-                Logger.debug("SHADOW_DEBUG", `ENTITY_DIED received for ${entityId}. Triggering removeShadow.`);
-                this.removeShadow(entity);
-            }
-        });
-
         // [신규] 주기적 누수 감시 (5초마다 현재 살아있는 그림자 수 출력)
+        // 씬이 재시작되더라도 감시기는 항상 최신 씬 상태를 반영해야 하므로 매번 초기화
         if (this.leakCheckId) clearInterval(this.leakCheckId);
         this.leakCheckId = setInterval(() => {
             if (this.shadows.size > 0) {
-                Logger.info("SHADOW_LEAK_CHECK", `Current active shadows in manager: ${this.shadows.size}`);
-                // 상태 파악을 위해 ID 목록 출력 (너무 많으면 생략)
-                if (this.shadows.size < 20) {
-                    const ids = Array.from(this.shadows.keys());
-                    Logger.debug("SHADOW_LEAK_CHECK", `Active IDs: ${ids.join(', ')}`);
+                // 씬에 존재하는 모든 엔티티의 ID 수집
+                const sceneEntityIds = new Set();
+                if (this.scene) {
+                    if (this.scene.allies) this.scene.allies.forEach(e => sceneEntityIds.add(e.id));
+                    if (this.scene.enemies) this.scene.enemies.forEach(e => sceneEntityIds.add(e.id));
+                }
+
+                // [LOGGING] 누수 여부와 상관없이 현재 상태 출력 (디버깅용)
+                Logger.info("SHADOW_LEAK_CHECK", `Active shadows count: ${this.shadows.size} vs Scene entities: ${sceneEntityIds.size}`);
+                
+                if (this.shadows.size > sceneEntityIds.size) {
+                    const orphanIds = [];
+                    this.shadows.forEach((data, id) => {
+                        if (!sceneEntityIds.has(id)) orphanIds.push(id);
+                    });
+
+                    if (orphanIds.length > 0) {
+                        Logger.warn("SHADOW_LEAK", `Detected ${orphanIds.length} orphan shadows: ${orphanIds.slice(0, 10).join(', ')}...`);
+                    }
                 }
             }
         }, 5000);
 
+        if (this.isInitialized) {
+            Logger.system("ShadowManager: Re-linked to new scene instance & Refreshed Leak Checker.");
+            return;
+        }
+
+        // [GLOBAL] 이벤트 리스너는 싱글톤 생명주기 동안 딱 한 번만 등록
+        EventBus.on(EVENTS.ENTITY_DIED, (entity) => {
+            this.removeShadow(entity);
+        });
+
         this.isInitialized = true;
-        Logger.system("ShadowManager: Shadow pooling initialized with ENTITY_DIED listener and Leak Checker.");
+        Logger.system("ShadowManager: Shadow pooling initialized with ENTITY_DIED listener.");
     }
 
     /**
      * 유닛을 위한 그림자 생성
-     * @param {Phaser.Scene} scene 
-     * @param {CombatEntity} entity 
      */
     createShadow(scene, entity) {
         if (!entity || !entity.id || !this.scene) return;
@@ -112,40 +117,63 @@ class ShadowManager {
         this.updateShadowVisuals(graphics, entity, config);
         graphics.setDepth(layerManager.getDepth('shadow'));
         
-        this.shadows.set(entityId, pooledShadow);
+        // [REFAC] 엔티티 참조도 함께 저장하여 자동 청소(GC) 및 업데이트에 활용
+        this.shadows.set(entityId, { 
+            poolItem: pooledShadow, 
+            entity: entity,
+            createdFrame: this.scene.time.now 
+        });
+
         Logger.debug("SHADOW_DEBUG", `Shadow created for ${entityId}. Current count: ${this.shadows.size}`);
         return graphics;
     }
 
     /**
-     * 유닛의 위치와 고도에 맞춰 그림자 업데이트
+     * 그림자 업데이트 루프 (Map-Driven 방식)
+     * 인자로 전달받는 entities 목록에 없더라도 매니저 소유의 그림자를 전수 조사하여 누수를 방지합니다.
      */
-    update(entities) {
+    update() {
+        if (!this.scene || this.shadows.size === 0) return;
+        
         const config = measurementManager.graphics.shadow;
         
-        entities.forEach(entity => {
-            const pooledShadow = this.shadows.get(entity.id);
-            if (!pooledShadow) return;
+        // 맵의 모든 항목을 순회하며 업데이트 및 유효성 검사 수행
+        this.shadows.forEach((data, id) => {
+            try {
+                const { poolItem, entity } = data;
+                const shadow = poolItem.graphics;
 
-            if (!entity.active) {
-                this.removeShadow(entity);
-                return;
+                // [DEFENSIVE] 그래픽 객체가 파괴되었거나 유효하지 않은 경우 (씬 전환 등)
+                if (!shadow || !shadow.scene || shadow.scene !== this.scene) {
+                    Logger.warn("SHADOW_GC", `Invalid graphics detected for [${id}]. Pruning.`);
+                    this.shadows.delete(id);
+                    return;
+                }
+
+                // [LEAK PREVENTION] 엔티티가 비활성이거나, 씬에서 사라졌거나, 다른 ID로 재사용된 경우 즉시 제거
+                const isOrphan = !entity || !entity.active || !entity.scene;
+                const isDead = entity.logic && !entity.logic.isAlive;
+                const isIdMismatched = entity && entity.id !== id;
+
+                if (isOrphan || isDead || isIdMismatched) {
+                    Logger.info("SHADOW_GC", `Cleaning shadow for [${id}]: Orphan=${isOrphan}, Dead=${isDead}, Mismatch=${isIdMismatched}`);
+                    poolingManager.release('shadow', poolItem);
+                    this.shadows.delete(id);
+                    return;
+                }
+
+                // 시각적 업데이트 수행
+                shadow.clear();
+                this.updateShadowVisuals(shadow, entity, config);
+                
+                const vx = entity.sprite ? entity.sprite.x : 0;
+                shadow.setPosition(entity.x + vx, entity.y);
+                shadow.setDepth(layerManager.getDepth('shadow'));
+
+            } catch (error) {
+                Logger.error("SHADOW_UPDATE_ERROR", `Failed to update shadow for [${id}]: ${error.message}`);
+                this.shadows.delete(id);
             }
-
-            const shadow = pooledShadow.graphics;
-
-            // [USER 요청] 그림자는 항상 지면 좌표(entity.x, entity.y)를 따르며, 
-            // 스프라이트의 바빙(bobbing)이나 고도(zHeight)에 의한 Y 오프셋을 무시합니다.
-            // 단, 대쉬 공격 등 스프라이트 자체가 X축으로 이동하는 경우(vx)는 따라갑니다.
-            shadow.clear();
-            this.updateShadowVisuals(shadow, entity, config);
-            
-            const vx = entity.sprite ? entity.sprite.x : 0;
-            // vy는 무시 (그림자가 공중에 뜨지 않도록)
-            shadow.setPosition(entity.x + vx, entity.y);
-
-            // 레이어 고정
-            shadow.setDepth(layerManager.getDepth('shadow'));
         });
     }
 
@@ -173,12 +201,13 @@ class ShadowManager {
      * 특정 유닛의 그림자 제거 (풀 반납)
      */
     removeShadow(entity) {
+        if (!entity) return;
         const entityId = entity.id;
         if (!entityId) return;
 
-        const pooledShadow = this.shadows.get(entityId);
-        if (pooledShadow) {
-            poolingManager.release('shadow', pooledShadow);
+        const data = this.shadows.get(entityId);
+        if (data) {
+            poolingManager.release('shadow', data.poolItem);
             this.shadows.delete(entityId);
             Logger.debug("SHADOW_DEBUG", `Shadow removed for ${entityId}. Remaining: ${this.shadows.size}`);
         }
@@ -188,8 +217,8 @@ class ShadowManager {
      * 모든 그림자 제거
      */
     cleanup() {
-        this.shadows.forEach((pooledShadow, id) => {
-            poolingManager.release('shadow', pooledShadow);
+        this.shadows.forEach((data, id) => {
+            poolingManager.release('shadow', data.poolItem);
         });
         this.shadows.clear();
     }
