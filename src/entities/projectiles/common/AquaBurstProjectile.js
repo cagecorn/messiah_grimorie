@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import poolingManager from '../../../core/PoolingManager.js';
 import combatManager from '../../../systems/CombatManager.js';
 import fxManager from '../../../systems/graphics/FXManager.js';
+import Logger from '../../../utils/Logger.js';
 
 /**
  * 아쿠아 버스트 투사체 (AquaBurstProjectile)
@@ -87,17 +88,26 @@ export default class AquaBurstProjectile extends Phaser.GameObjects.Container {
         const isSleeping = this.config.isSleeping || false;
 
         // AOE Manager가 있다면 활용, 없으면 직접 거리 체크
-        combatManager.units.forEach(unit => {
-            if (unit.active && unit.logic.isAlive && unit.team !== this.attacker.team) {
-                const dist = Phaser.Math.Distance.Between(this.x, this.y, unit.x, unit.y - 40);
-                if (dist <= radius) {
-                    // 데미지 처리
-                    combatManager.processDamage(this.attacker, unit, damage, 'magic', false);
-                    
-                    // 수면 효과 (Sleeping Bubble일 때만)
-                    if (isSleeping && unit.logic.status) {
-                        unit.logic.status.applyEffect('sleep', 4000); // 4초 수면
+        const unitsInScene = Array.from(combatManager.units);
+        Logger.debug("AQUA_BURST_DEBUG", `onHit at (${this.x.toFixed(1)}, ${this.y.toFixed(1)}). Checking ${unitsInScene.length} units.`);
+
+        unitsInScene.forEach(unit => {
+            if (unit.active && unit.logic.isAlive) {
+                if (unit.team !== this.attacker.team) {
+                    const dist = Phaser.Math.Distance.Between(this.x, this.y, unit.x, unit.y - 40);
+                    if (dist <= radius) {
+                        Logger.debug("AQUA_BURST_DEBUG", `Hitting ${unit.logic.name} at dist ${dist.toFixed(1)}`);
+                        // 데미지 처리
+                        combatManager.processDamage(this.attacker, unit, damage, 'magic', false);
+                        
+                        // 수면 효과 (Sleeping Bubble일 때만)
+                        if (isSleeping && unit.logic.status) {
+                            unit.logic.status.applyEffect('sleep', 4000); // 4초 수면
+                        }
                     }
+                } else if (unit === this.target) {
+                    // [DEBUG] 타겟인데 팀이 같아서 무시되는 경우 확인
+                    Logger.debug("AQUA_BURST_DEBUG", `Target ${unit.logic.name} ignored: same team (${unit.team} === ${this.attacker.team})`);
                 }
             }
         });
