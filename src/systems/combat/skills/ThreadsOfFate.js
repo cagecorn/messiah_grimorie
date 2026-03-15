@@ -81,7 +81,7 @@ class ThreadsOfFate {
 
         // 4. 효과음 및 카메라 흔들림
         soundManager.playSound('arrow_1'); // 적절한 '칭!' 사운드가 없다면 화살 소리 대체
-        scene.cameras.main.shake(150, 0.01);
+        // scene.cameras.main.shake(150, 0.01); // [USER 요청] 카메라 쉐이크 비활성화
     }
 
     /**

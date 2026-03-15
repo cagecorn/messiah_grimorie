@@ -51,7 +51,7 @@ class ImSorry {
         const baseScale = owner.getEntityConfig().displayScale;
 
         // 카메라 쉐이크 시작
-        scene.cameras.main.shake(2000, 0.008);
+        // scene.cameras.main.shake(2000, 0.008); // [USER 요청] 카메라 쉐이크 비활성화
 
         // 뛰는 애니메이션 트윈 (반복)
         scene.tweens.add({

@@ -10,7 +10,7 @@ import fxManager from '../../../systems/graphics/FXManager.js';
 export default class AquaBurstProjectile extends Phaser.GameObjects.Container {
     constructor(scene) {
         super(scene, 0, 0);
-        this.sprite = scene.add.sprite(0, 0, 'aqua_burtst_projectile');
+        this.sprite = scene.add.sprite(0, 0, 'aqua_burst_projectile');
         this.add(this.sprite);
         
         // 투사체는 항상 좌측을 보고 있음 -> 기본적으로 왼쪽 응시

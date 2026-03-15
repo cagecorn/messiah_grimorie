@@ -48,7 +48,7 @@ export const CLASS_GROWTH = {
     },
     [ENTITY_CLASSES.ARCHER]: {
         [STAT_KEYS.ATK]: 1.8,
-        [STAT_KEYS.ATK_SPD]: 1.5,
+        [STAT_KEYS.ATK_SPD]: 0.02, // [FIX] 1.5 -> 0.02 (초당 공격 횟수가 과도하게 증가하는 현상 수정)
         [STAT_KEYS.ACC]: 1.2,
         [STAT_KEYS.EVA]: 1.2,
         [STAT_KEYS.MAX_HP]: 1.5

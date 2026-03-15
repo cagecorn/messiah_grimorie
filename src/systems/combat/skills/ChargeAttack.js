@@ -58,7 +58,7 @@ class ChargeAttack {
         }
 
         if (owner.scene && owner.scene.cameras.main) {
-            owner.scene.cameras.main.shake(150, 0.005);
+            // owner.scene.cameras.main.shake(150, 0.005); // [USER 요청] 카메라 쉐이크 비활성화
         }
     }
 }

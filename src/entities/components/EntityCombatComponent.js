@@ -179,8 +179,8 @@ export default class EntityCombatComponent {
         this.entity.stop();
         this.soundManager.playUnitFallen();
 
-        // HUD 해제
-        this.fxManager.detachHUD(this.entity);
+        // HUD 및 그림자 즉시 제거 (사망 애니메이션 중 잔상 방지)
+        this.entity.visual.cleanup();
 
         // 사망 애니메이션 및 풀링 반환
         this.animationManager.playDeathAnimation(this.entity, () => {

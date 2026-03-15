@@ -273,7 +273,7 @@ class AnimationManager {
     playSkillDash(entity, targetPos, onComplete) {
         if (!this.scene || !entity || !targetPos) return;
 
-        this.scene.cameras.main.shake(100, 0.003);
+        // this.scene.cameras.main.shake(100, 0.003); // [USER 요청] 카메라 쉐이크 비활성화
 
         const dx = targetPos.x - entity.x;
         const dy = targetPos.y - entity.y;
@@ -394,7 +394,7 @@ class AnimationManager {
         }
 
         sprite.setTint(0xffffff);
-        this.scene.cameras.main.shake(150, 0.005);
+        // this.scene.cameras.main.shake(150, 0.005); // [USER 요청] 카메라 쉐이크 비활성화
 
         const fallAngle = sprite.flipX ? -90 : 90;
 

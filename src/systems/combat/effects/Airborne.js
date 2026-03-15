@@ -44,7 +44,9 @@ class Airborne {
                     },
                     onComplete: () => {
                         target.sprite.setAngle(0);
-                        if (scene.cameras.main) scene.cameras.main.shake(100, 0.005);
+                        if (scene.cameras.main) {
+                            // scene.cameras.main.shake(100, 0.005); // [USER 요청] 카메라 쉐이크 비활성화
+                        }
                         Logger.info("CC", `${target.logic.name} slammed into the ground.`);
                     }
                 });

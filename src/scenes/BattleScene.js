@@ -83,6 +83,7 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('wizard_projectile', assetPathManager.getPath('images', 'wizard_projectile'));
         this.load.image('meteor_sprite', assetPathManager.getPath('images', 'meteor_sprite'));
         this.load.image('explosion_effect', assetPathManager.getPath('images', 'explosion_effect'));
+        this.load.image('aqua_burst_projectile', assetPathManager.getPath('images', 'aqua_burst_projectile'));
 
         // [신규] 상태 이상 아이콘 프리로드 (키값을 텍스처 키로 사용)
         const statusIcons = ['knockback', 'airborne', 'stunned', 'burned', 'invincible'];
@@ -215,6 +216,10 @@ export default class BattleScene extends Phaser.Scene {
         // 투사체 라우팅 등록
         this.projectileManager.registerProjectile('arrow', ArrowProjectile);
         this.projectileManager.registerProjectile('knockback_shot', KnockbackShotProjectile);
+        
+        // [신규] 세이렌 투사체 등록
+        const AquaBurstProjectile = (await import('../entities/projectiles/common/AquaBurstProjectile.js')).default;
+        this.projectileManager.registerProjectile('aqua_burst', AquaBurstProjectile);
 
         // [전투] 스폰 매니저를 통한 초기 배치
         this.spawnManager = spawnManager;

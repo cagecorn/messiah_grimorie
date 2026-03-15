@@ -1,5 +1,4 @@
 import Logger from '../../utils/Logger.js';
-import EventBus from '../../core/EventBus.js';
 import entityManager from '../../core/EntityManager.js';
 
 /**
@@ -30,21 +29,23 @@ class LootInteractionManager {
 
     /**
      * 유닛(용병, 소환수)과의 자동 획득 판단 (Overlap)
-     * 이 함수는 BattleScene이나 전담 매니저의 update 루틴에서 호출됩니다.
      */
     update() {
-        if (!this.isInitialized || !this.lootGroup) return;
+        if (!this.isInitialized || !this.lootGroup || !this.scene?.physics) return;
 
-        // [STABLE] 등록된 용병들을 수집가로 활용 (Set을 Array로 변환)
+        // [STABLE] 등록된 용병들을 수집가로 활용
         const collectors = Array.from(entityManager.getCategory('mercenary'));
-        if (collectors.length === 0) return;
+        
+        // 살아있고 액티브한 용병만 필터링 (물리 충돌 최적화)
+        const activeCollectors = collectors.filter(c => c.active && c.logic?.isAlive);
+        if (activeCollectors.length === 0) return;
 
         // [STABLE] 물리 중첩 확인 (Overlap)
         this.scene.physics.overlap(
-            collectors,
+            activeCollectors,
             this.lootGroup,
             (collector, loot) => {
-                if (loot.active && !loot.isCollected) {
+                if (loot && loot.active && !loot.isCollected) {
                     loot.collect();
                 }
             }

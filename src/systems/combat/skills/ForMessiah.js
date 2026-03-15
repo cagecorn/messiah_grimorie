@@ -30,15 +30,10 @@ class ForMessiah {
 
         // [Robust Fix] 시전 전 기존 연출 트윈 제거 및 상태 초기화
         const scene = owner.scene;
-        scene.tweens.killTweensOf([owner, owner.sprite]);
+        this.resetOwnerSprite(owner); // 공통 초기화 로직 적용
         
         // 0. 무적 상태 부여 (AI 행동 차단 및 데미지 무시 - [USER 요청])
         Invincible.apply(owner, 2200);
-
-        const baseScale = owner.getEntityConfig().displayScale;
-        owner.sprite.setPosition(0, 0); 
-        owner.sprite.setAlpha(1);
-        owner.sprite.setScale(baseScale);
 
         // 1. 게이지 초기화
         owner.ultimateProgress = 0;
@@ -79,7 +74,7 @@ class ForMessiah {
         const baseScale = owner.getEntityConfig().displayScale;
 
         // 시각적 연출: 떨림 및 틴트 해제
-        scene.cameras.main.shake(200, 0.005);
+        // scene.cameras.main.shake(200, 0.005); // [USER 요청] 카메라 쉐이크 비활성화
         owner.sprite.clearTint();
 
         // 세로로 길게 늘리기 (왜곡)
@@ -145,11 +140,25 @@ class ForMessiah {
             onComplete: () => {
                 ghostTimer.remove();
                 // 확실하게 베이스 스케일 및 위치 복구
-                owner.sprite.setScale(baseScale);
-                owner.sprite.setPosition(0, 0); 
+                this.resetOwnerSprite(owner);
                 this.applyImpactEffect(owner, targetPos);
             }
         });
+    }
+
+    /**
+     * [신규] 시전자 스프라이트 상태 초기화 (왜곡 복구)
+     */
+    resetOwnerSprite(owner) {
+        if (!owner || !owner.sprite) return;
+        const config = owner.getEntityConfig();
+        owner.sprite.setScale(config.displayScale);
+        owner.sprite.setPosition(0, 0);
+        owner.sprite.setAlpha(1);
+        owner.sprite.setAngle(0);
+        owner.sprite.clearTint();
+        // 트윈도 확실히 정리
+        owner.scene.tweens.killTweensOf(owner.sprite);
     }
 
     /**
@@ -159,7 +168,7 @@ class ForMessiah {
         const scene = owner.scene;
 
         // 1. 화면 효과
-        scene.cameras.main.shake(400, 0.015);
+        // scene.cameras.main.shake(400, 0.015); // [USER 요청] 카메라 쉐이크 비활성화
 
         // 2. [변경] 거대한 빛의 기둥 연출 (Persistence 강화) - 풀링 적용
         const pooledPillar = poolingManager.get('for_messiah_pillar');

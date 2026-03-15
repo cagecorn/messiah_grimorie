@@ -148,7 +148,7 @@ export default class MeteorProjectile extends Phaser.GameObjects.Sprite {
         }
 
         if (this.scene.cameras && this.scene.cameras.main) {
-            this.scene.cameras.main.shake(this.isUltimate ? 300 : 200, this.isUltimate ? 0.025 : 0.012);
+            // this.scene.cameras.main.shake(this.isUltimate ? 300 : 200, this.isUltimate ? 0.025 : 0.012); // [USER 요청] 카메라 쉐이크 비활성화
         }
 
         // [USER 요청] 자연스러운 소멸 연출: 지면을 뚫고 들어가는 느낌 (Piercing Fade-out)

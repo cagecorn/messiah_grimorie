@@ -39,12 +39,25 @@ class MercenaryCollectionManager {
         if (this.isInitialized) return;
 
         try {
+            // 1. 컬렉션 메타데이터 로드 (보유 목록)
             const data = await indexDBManager.getAll('mercenaries');
-            data.forEach(merc => {
-                this.ownedMercenaries.set(merc.id.toLowerCase(), merc);
-            });
+            
+            // 2. [FIX] 각 용병별 상세 데이터(진행도) 병합 로드
+            for (const merc of data) {
+                const id = merc.id.toLowerCase();
+                const dbManager = this.dbManagers[id];
+                if (dbManager) {
+                    const detailedData = await dbManager.loadData();
+                    if (detailedData) {
+                        // 기존 메타데이터에 진행도(레벨, 경험치 등) 덮어쓰기
+                        Object.assign(merc, detailedData);
+                    }
+                }
+                this.ownedMercenaries.set(id, merc);
+            }
+
             this.isInitialized = true;
-            Logger.system(`MercenaryCollectionManager: Initialized (${this.ownedMercenaries.size} owned).`);
+            Logger.system(`MercenaryCollectionManager: Initialized (${this.ownedMercenaries.size} owned with detailed progress).`);
             EventBus.emit('COLLECTION_LOADED', { count: this.ownedMercenaries.size });
         } catch (err) {
             Logger.error("COLLECTION_MANAGER", `Initialization failed: ${err.message}`);
