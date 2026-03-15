@@ -66,12 +66,13 @@ export default class EntityCombatComponent {
      */
     playAttackAnimation(target, onHit) {
         const className = this.logic.class.getClassName();
-        const isMelee = className === 'warrior' || this.logic.type === 'monster';
+        // [FIX] 몬스터도 클래스 머신이 적용되어 있으므로, 힐러/마법사/궁수 아키타입은 대쉬를 생략합니다.
+        const isMelee = className === 'warrior' || (this.logic.type === 'monster' && className !== 'healer' && className !== 'wizard' && className !== 'archer');
 
         if (isMelee) {
             this.animationManager.playDashAttack(this.entity, target, onHit);
         } else {
-            // 원거리 클래스는 대쉬 없이 제자리에서 공격
+            // 원거리/서포터 클래스는 대쉬 없이 제자리에서 공격
             this.entity.scene.time.delayedCall(100, onHit);
         }
     }

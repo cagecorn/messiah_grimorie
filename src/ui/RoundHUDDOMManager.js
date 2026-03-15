@@ -19,10 +19,12 @@ class RoundHUDDOMManager {
         this.container.id = 'hud-round-display';
         this.container.className = 'mg-round-display';
         
-        // 초기 HTML 구성
+        // 초기 HTML 구성 (가로형 배치를 위해 래퍼 추가)
         this.container.innerHTML = `
-            <div class="round-label">ROUND</div>
-            <div class="round-number">1</div>
+            <div class="round-wrapper">
+                <span class="round-label">ROUND</span>
+                <span class="round-number">1</span>
+            </div>
         `;
 
         this.roundValue = this.container.querySelector('.round-number');

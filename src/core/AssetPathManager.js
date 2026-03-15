@@ -32,6 +32,7 @@ class AssetPathManager {
             bard_projectile_effect: `${this.basePath}effect/bard_projectile_effect.png`,
             song_of_protection: `${this.basePath}effect/song_of_protection.png`,
             aqua_burst_projectile: `${this.basePath}effect/aqua_burst_projectile.png`,
+            aqua_explosion_effect: `${this.basePath}effect/aqua_explosion_effect.png`,
             stunned: `${this.basePath}icon/debuff_stun.png`,
             burned: `${this.basePath}icon/debuff_burn.png`,
             knockback: `${this.basePath}icon/knockback_icon.png`,

@@ -56,6 +56,11 @@ class ShadowManager {
     createShadow(scene, entity) {
         const config = measurementManager.graphics.shadow;
         
+        // [FIX] 중복 생성 방지: 이미 그림자가 있다면 먼저 제거하여 고아 객체 생성 차단
+        if (this.shadows.has(entity.id)) {
+            this.removeShadow(entity);
+        }
+
         // 풀에서 그림자 객체 획득
         const pooledShadow = poolingManager.get('shadow');
         const graphics = pooledShadow.graphics;
