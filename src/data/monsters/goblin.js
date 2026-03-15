@@ -10,7 +10,7 @@ export default {
     level: 1,
     exp: 0,
     dropTableId: 'goblin_common',
-    baseRewardExp: 15,
+    baseRewardExp: 7,
     baseStats: {
         [STAT_KEYS.MAX_HP]: 50,    // 저조한 체력
         [STAT_KEYS.ATK]: 5,        // 저조한 공격력

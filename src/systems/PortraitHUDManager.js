@@ -62,6 +62,7 @@ class PortraitHUDManager {
 
             portraitHUDDOMManager.updateCard(m.logic.id, {
                 hpPercent,
+                level: m.logic.leveling ? m.logic.leveling.getLevel() : 1, // [신규] 실시간 레벨 전달
                 skillPercent,
                 ultPercent,
                 buffs

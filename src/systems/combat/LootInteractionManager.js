@@ -17,14 +17,14 @@ class LootInteractionManager {
     }
 
     /**
-     * 초기화
+     * 초기화 및 씬 동기화
      */
     init(scene, lootGroup) {
         this.scene = scene;
         this.lootGroup = lootGroup;
         this.isInitialized = true;
         
-        Logger.system("LootInteractionManager: Collection collision system active.");
+        Logger.system("LootInteractionManager: Re-linked to current physics world.");
     }
 
     /**
@@ -41,15 +41,25 @@ class LootInteractionManager {
         if (activeCollectors.length === 0) return;
 
         // [STABLE] 물리 중첩 확인 (Overlap)
-        this.scene.physics.overlap(
-            activeCollectors,
-            this.lootGroup,
-            (collector, loot) => {
-                if (loot && loot.active && !loot.isCollected) {
-                    loot.collect();
+        // [FIX] lootGroup이 유효한지(파괴되지 않았는지) 한 번 더 확인
+        if (!this.lootGroup.active || !this.lootGroup.children) {
+            Logger.warn("LOOT_DEBUG", "lootGroup is inactive or has no children structure. Skipping overlap.");
+            return;
+        }
+
+        try {
+            this.scene.physics.overlap(
+                activeCollectors,
+                this.lootGroup,
+                (collector, loot) => {
+                    if (loot && loot.active && !loot.isCollected) {
+                        loot.collect();
+                    }
                 }
-            }
-        );
+            );
+        } catch (err) {
+            Logger.error("LOOT_ERROR", `Overlap check failed: ${err.message}`);
+        }
     }
 }
 

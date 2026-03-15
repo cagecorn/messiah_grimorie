@@ -2,6 +2,7 @@ import measurementManager from '../../core/MeasurementManager.js';
 import Logger from '../../utils/Logger.js';
 import layerManager from '../../ui/LayerManager.js';
 import poolingManager from '../../core/PoolingManager.js';
+import EventBus, { EVENTS } from '../../core/EventBus.js';
 
 /**
  * 풀링용 그림자 객체 (Pooled Shadow)
@@ -43,9 +44,23 @@ class ShadowManager {
      */
     init(scene) {
         this.scene = scene;
+        
+        // [SCENE-SPECIFIC] 씬이 바뀔 때마다 팩토리 함수가 최신 씬을 참조하도록 풀 재등록
         // 전투 중 유닛 수에 맞춰 약 50개 정도 초기 확보
-        poolingManager.registerPool('shadow', () => new PooledShadow(this.scene), 50);
-        Logger.system("ShadowManager: Shadow pooling initialized (50 units).");
+        poolingManager.registerPool('shadow', () => new PooledShadow(this.scene), 50, true);
+        
+        if (this.isInitialized) {
+            Logger.system("ShadowManager: Re-linked to new scene instance.");
+            return;
+        }
+
+        // [GLOBAL] 한 번만 등록해야 하는 이벤트 리스너
+        EventBus.on(EVENTS.ENTITY_DIED, (entity) => {
+            this.removeShadow(entity);
+        });
+
+        this.isInitialized = true;
+        Logger.system("ShadowManager: Shadow pooling initialized with ENTITY_DIED listener.");
     }
 
     /**

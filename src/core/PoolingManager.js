@@ -50,11 +50,18 @@ class PoolingManager {
      * @param {string} type 'monster', 'fx', 'projectile' 등
      * @param {function} factory 객체 생성 함수
      * @param {number} size 초기 풀 사이즈
+     * @param {boolean} overwrite 기존 풀이 있을 경우 덮어쓸지 여부
      */
-    registerPool(type, factory, size = 0) {
+    registerPool(type, factory, size = 0, overwrite = false) {
+        const key = type.toLowerCase();
+        if (this.pools.has(key) && !overwrite) {
+            Logger.info("POOL_ROUTER", `Pool already exists: ${type}. Use overwrite=true if factory change is needed.`);
+            return;
+        }
+        
         const pool = new Pool(type, factory, size);
-        this.pools.set(type.toLowerCase(), pool);
-        Logger.info("POOL_ROUTER", `Pool registered: ${type} (Initial size: ${size})`);
+        this.pools.set(key, pool);
+        Logger.info("POOL_ROUTER", `Pool registered: ${type} (Initial size: ${size}, Overwrite: ${overwrite})`);
     }
 
     /**

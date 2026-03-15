@@ -9,7 +9,7 @@ export default {
     level: 1,
     exp: 0,
     dropTableId: 'goblin_shaman',
-    baseRewardExp: 35,
+    baseRewardExp: 17,
     baseStats: {
         [STAT_KEYS.MAX_HP]: 40,
         [STAT_KEYS.ATK]: 2,

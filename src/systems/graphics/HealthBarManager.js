@@ -348,16 +348,17 @@ class HealthBarManager {
     init(scene) {
         this.scene = scene;
         
+        // [SCENE-SPECIFIC] 씬이 바뀔 때마다 팩토리 함수가 최신 씬을 참조하도록 풀 재등록
         // HP바 풀 등록
-        poolingManager.registerPool('hp_bar', () => new HealthBar(this.scene), 20);
+        poolingManager.registerPool('hp_bar', () => new HealthBar(this.scene), 20, true);
         
         // [신규] 상태 아이콘 풀 등록
         poolingManager.registerPool('status_icon', () => {
-            const img = scene.add.image(0, 0, 'unknown');
+            const img = this.scene.add.image(0, 0, 'unknown');
             return img;
-        }, 50);
+        }, 50, true);
         
-        Logger.system("HealthBarManager: Super-sampling & Status Icon Pooling initialized.");
+        Logger.system("HealthBarManager: Re-linked to new scene instance & Pools updated.");
     }
 
     /**

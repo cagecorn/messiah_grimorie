@@ -17,9 +17,12 @@ class ExperienceManager {
     }
 
     init() {
-        if (this.isInitialized) return;
+        if (this.isInitialized) {
+            Logger.system("ExperienceManager: Already watching battle rewards.");
+            return;
+        }
         
-        // 사망 이벤트 구독
+        // 사망 이벤트 구독 (Global Singleton 이므로 한 번만 등록)
         EventBus.on(EVENTS.ENTITY_DIED, (entity) => this.handleEntityDeath(entity));
         
         this.isInitialized = true;
@@ -58,24 +61,34 @@ class ExperienceManager {
             return;
         }
 
-        Logger.info("EXP_DEBUG", `Distributing ${amount} EXP to ${scene.allies.length} allies.`);
+        // 1. 경험치를 받을 자격이 있는 용병 필터링 (살아있고, 소환수가 아닌 경우)
+        const eligibleAllies = scene.allies.filter(ally => 
+            ally.logic && ally.logic.isAlive && ally.logic.type !== 'summon'
+        );
 
-        scene.allies.forEach(ally => {
-            if (ally.logic && ally.logic.isAlive) {
-                Logger.info("EXP_DEBUG", `Giving ${amount} EXP to ${ally.logic.name}`);
-                // 각 용병의 LevelingManager가 내부적으로 스탯 성장을 처리합니다 (BaseEntity 연동)
-                ally.logic.leveling.gainExp(amount);
+        if (eligibleAllies.length === 0) {
+            Logger.warn("EXP_DEBUG", "No eligible allies found to receive EXP.");
+            return;
+        }
 
-                // [SAVE] 컬렉션 매니저를 통해 DB에 영구 저장 (baseId 활용)
-                const lev = ally.logic.leveling;
-                mercenaryCollectionManager.updateMercenaryProgress(
-                    ally.logic.baseId, 
-                    lev.getLevel(), 
-                    lev.exp
-                );
-            } else {
-                Logger.warn("EXP_DEBUG", `Ally ${ally.logic?.name} is not eligible (logic: ${!!ally.logic}, isAlive: ${ally.logic?.isAlive})`);
-            }
+        // 2. [USER 요청] 경험치 쉐어: 전체 경험치를 적격 용병 수로 나눕니다.
+        const sharedExp = amount / eligibleAllies.length;
+        
+        Logger.info("EXP_DEBUG", `Distributing total ${amount.toFixed(1)} EXP among ${eligibleAllies.length} allies (${sharedExp.toFixed(1)} each).`);
+
+        eligibleAllies.forEach(ally => {
+            Logger.info("EXP_DEBUG", `Giving ${sharedExp.toFixed(1)} EXP to ${ally.logic.name}`);
+            
+            // 각 용병의 LevelingManager가 내부적으로 스탯 성장을 처리합니다
+            ally.logic.leveling.gainExp(sharedExp);
+
+            // [SAVE] 컬렉션 매니저를 통해 DB에 영구 저장 (baseId 활용)
+            const lev = ally.logic.leveling;
+            mercenaryCollectionManager.updateMercenaryProgress(
+                ally.logic.baseId, 
+                lev.getLevel(), 
+                lev.exp
+            );
         });
     }
 

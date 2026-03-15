@@ -24,11 +24,16 @@ class FXManager {
     init(scene) {
         this.scene = scene;
         
-        // 1. 하위 매니저 초기화
+        // [SCENE-SPECIFIC] 씬이 바뀔 때마다 하위 매니저들에게 새로운 씬 객체를 전달하여 동기화
         healthBarManager.init(scene);
         damageTextManager.init(scene);
         shadowManager.init(scene);
         
+        if (this.isInitialized) {
+            Logger.system("FXManager: Re-linked sub-managers to new scene instance.");
+            return;
+        }
+
         this.isInitialized = true;
         Logger.system("FXManager: Central Command Tower initialized.");
     }

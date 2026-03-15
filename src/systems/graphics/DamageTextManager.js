@@ -109,10 +109,11 @@ class DamageTextManager {
 
     init(scene) {
         this.scene = scene;
-        // [USER 요청] 풀링 등록 (데미지 텍스트는 많이 생성되므로 80개 정도로 확장)
-        poolingManager.registerPool('damage_text', () => new DamageText(this.scene), 80);
+        // [SCENE-SPECIFIC] 씬이 바뀔 때마다 팩토리 함수가 최신 씬을 참조하도록 풀 재등록
+        // 데미지 텍스트는 많이 생성되므로 80개 정도로 확장
+        poolingManager.registerPool('damage_text', () => new DamageText(this.scene), 80, true);
         
-        Logger.system("DamageTextManager: High-res text pooling initialized (80 units).");
+        Logger.system("DamageTextManager: Re-linked to new scene instance & Pool updated.");
     }
 
     /**

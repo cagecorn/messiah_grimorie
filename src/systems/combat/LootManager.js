@@ -16,15 +16,17 @@ class LootManager {
 
     init(scene) {
         this.scene = scene;
-        if (this.isInitialized) return;
-
-        // 아이템 풀링 매니저 초기화
-        itemPoolingManager.init(scene);
         
-        // 인터랙션 매니저 초기화 (풀링된 그룹 전달)
+        // [SCENE-SPECIFIC] 씬이 바뀔 때마다 하위 매니저들에게 새로운 씬 객체를 전달하여 동기화
+        itemPoolingManager.init(scene);
         lootInteractionManager.init(scene, itemPoolingManager.getLootGroup());
 
-        // 사망 이벤트 구독
+        if (this.isInitialized) {
+            Logger.system("LootManager: Re-linked to new scene instance.");
+            return;
+        }
+
+        // [GLOBAL] 한 번만 등록해야 하는 이벤트 리스너들
         EventBus.on(EVENTS.ENTITY_DIED, (entity) => this.handleEntityDeath(entity));
         
         this.isInitialized = true;

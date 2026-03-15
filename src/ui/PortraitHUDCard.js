@@ -25,6 +25,7 @@ export default class PortraitHUDCard {
             hpPercent: -1,
             skillPercent: -1,
             ultPercent: -1,
+            level: -1,
             buffs: []
         };
     }
@@ -84,6 +85,7 @@ export default class PortraitHUDCard {
         this.elements.skillFill = card.querySelector('.mg-bar-fill.skill');
         this.elements.ultFill = card.querySelector('.mg-ult-bar-fill');
         this.elements.ultText = card.querySelector('.mg-ult-text');
+        this.elements.lvlText = card.querySelector('.mg-merc-lvl');
         this.elements.buffList = card.querySelector('.mg-buff-list');
 
         return card;
@@ -99,6 +101,12 @@ export default class PortraitHUDCard {
         if (this.lastState.hpPercent !== data.hpPercent) {
             this.elements.hpFill.style.width = `${data.hpPercent}%`;
             this.lastState.hpPercent = data.hpPercent;
+        }
+
+        // [신규] 레벨 업데이트
+        if (this.lastState.level !== data.level) {
+            this.elements.lvlText.innerText = `LV. ${data.level}`;
+            this.lastState.level = data.level;
         }
 
         // 2. 스킬 게이지 업데이트

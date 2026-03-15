@@ -14,25 +14,29 @@ class ItemPoolingManager {
     init(scene) {
         this.scene = scene;
         
-        // [STABLE] 물리 중첩 기능을 위해 통합 루팅 그룹 생성
+        // [SCENE-SPECIFIC] 물리 중첩 기능을 위해 통합 루팅 그룹 생성 
+        // 씬이 바뀔 때마다 기존 그룹은 파괴되므로 항상 새로 생성함
         this.lootGroup = scene.physics.add.group();
 
+        // [STABLE] 이미 등록된 풀(Pool)은 PoolingManager 내부에서 관리되므로,
+        // 팩토리 함수만 최신 씬을 참조하도록 갱신하거나 필요한 경우 재등록합니다.
+        
         // 골드용 풀 등록 (EmojiManager에서 키 가져옴)
         const goldKey = emojiManager.getAssetKey('🪙');
         poolingManager.registerPool('loot_gold', () => {
-            const entity = new LootEntity(scene, 0, 0, goldKey);
+            const entity = new LootEntity(this.scene, 0, 0, goldKey);
             entity.poolType = 'loot_gold';
-            this.lootGroup.add(entity); // 그룹에 포함
+            this.lootGroup.add(entity); // 새 그룹에 포함
             return entity;
-        }, 30); // 대규모 드랍 대비 초기 사이즈 30
+        }, 30, true); // Overwrite: true 를 지원하도록 PoolingManager 수정 고려 (현재는 덮어씌움)
 
-        // 기본 아이템 풀 등록 (나중에 아이템 아이콘별로 확장 가능)
+        // 기본 아이템 풀 등록
         poolingManager.registerPool('loot_item', () => {
-            const entity = new LootEntity(scene, 0, 0, 'emoji_shield'); // 임시 텍스처
+            const entity = new LootEntity(this.scene, 0, 0, 'emoji_shield'); 
             entity.poolType = 'loot_item';
-            this.lootGroup.add(entity); // 그룹에 포함
+            this.lootGroup.add(entity); // 새 그룹에 포함
             return entity;
-        }, 10);
+        }, 10, true);
     }
 
     /**

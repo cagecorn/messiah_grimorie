@@ -70,7 +70,7 @@ class SummonGuardianAngel {
             type: 'summon', // 타입 명시
             className: GuardianAngelConfig.className,
             isSpecial: true,
-            level: owner.logic.leveling ? owner.logic.leveling.getLevel() : 1,
+            level: 1, // [USER 요청] 소환수는 레벨업 성장을 하지 않도록 1로 고정
             baseStats: scaledStats
         });
 

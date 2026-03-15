@@ -18,6 +18,7 @@ class SirenEntity extends BaseEntity {
             name: 'Siren',
             type: 'summon', // 시스템상 소환수로 취급
             className: 'wizard',
+            level: 1, // [USER 요청] 소환수는 레벨업 성장을 하지 않도록 1로 고정
             baseStats: {
                 [STAT_KEYS.MAX_HP]: masterMAtk * 5, // 체력은 마스터 마공의 5배
                 [STAT_KEYS.HP]: masterMAtk * 5,
