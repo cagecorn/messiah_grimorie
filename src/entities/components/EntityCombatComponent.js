@@ -57,10 +57,20 @@ export default class EntityCombatComponent {
         const atkSpd = this.logic.getTotalAtkSpd();
         this.attackCooldown = 1000 / Math.max(0.1, atkSpd);
 
-        // [FIX] 공격 수행 중임을 표시하여 아이들 바빙 및 이동 AI 간섭 방지
+        // [FIX] 'isBusy'가 스턴/중단 등으로 인해 무한히 true로 해제되지 않는 'stutter' 현상 방지용 안전장치
+        // 공격 애니메이션이 끝나지 않더라도 800ms 후에는 강제로 해제하여 AI 복구
         this.entity.isBusy = true;
+        if (this.busySafetyTimer) this.busySafetyTimer.remove();
+        this.busySafetyTimer = this.entity.scene.time.delayedCall(800, () => {
+            if (this.entity.active && this.entity.isBusy) {
+                Logger.warn("AI_SAFEGUARD", `isBusy safety cleared for ${this.entity.logic.name} (Animation likely interrupted)`);
+                this.entity.isBusy = false;
+            }
+        });
 
         this.playAttackAnimation(target, () => {
+             // 애니메이션 히트 시점에 이미 Busy가 해제되었을 수도 있으므로 (안전장치에 의해)
+             // 여기서 별도의 처리는 하지 않으며, 실제 해제는 CombatAnimator의 Dash Return onComplete에서 수행됨
             this.combatManager.executeNormalAttack(this.entity, target);
         });
     }

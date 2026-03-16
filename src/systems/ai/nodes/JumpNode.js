@@ -33,6 +33,16 @@ class JumpNode {
         entity.isJumping = true;
         entity.isBusy = true;
 
+        // [FIX] 점프 애니메이션 중단 시 AI가 멈추는 현상 방지용 안전장치
+        entity.scene.time.delayedCall(800, () => {
+            if (entity.active && entity.isJumping) {
+                Logger.warn("AI_SAFEGUARD", `isBusy/isJumping safety cleared for ${entity.logic.name} (Jump interrupted)`);
+                entity.isJumping = false;
+                entity.isBusy = false;
+                if (entity.visual && entity.visual.sprite) entity.visual.sprite.y = 0;
+            }
+        });
+
         // [FIX] 점프 시작 전 아이들 바빙 중지
         animationManager.stopIdleBobbing(entity);
 
