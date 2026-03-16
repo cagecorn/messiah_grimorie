@@ -44,7 +44,7 @@ export default class EntityActionComponent {
      * @param {Object} direction {x, y} 이동 방향 벡터 (정규화된 상태여야 함)
      */
     roll(direction) {
-        if (this.isRolling || this.actionCooldown > 0) return false;
+        if (this.isRolling || this.actionCooldown > 0 || this.entity.isBeingCarried) return false;
 
         const rollStaminaCost = 30; // 기본 소모량
         if (!this.entity.stamina || !this.entity.stamina.consume(rollStaminaCost)) {

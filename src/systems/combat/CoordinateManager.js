@@ -54,8 +54,12 @@ class CoordinateManager {
 
         units.forEach(unit => {
             if (unit && unit.active) {
-                totalX += unit.x;
-                totalY += unit.y;
+                // [신규] 부모 컨테이너(운반 중인 투사체 등)가 있는 경우 월드 좌표로 변환
+                const worldX = unit.parentContainer ? (unit.parentContainer.x + unit.x) : unit.x;
+                const worldY = unit.parentContainer ? (unit.parentContainer.y + unit.y) : unit.y;
+                
+                totalX += worldX;
+                totalY += worldY;
                 count++;
             }
         });
@@ -83,10 +87,14 @@ class CoordinateManager {
 
         units.forEach(unit => {
             if (unit && unit.active) {
-                minX = Math.min(minX, unit.x);
-                maxX = Math.max(maxX, unit.x);
-                minY = Math.min(minY, unit.y);
-                maxY = Math.max(maxY, unit.y);
+                // [신규] 부모 컨테이너가 있는 경우 월드 좌표로 보정하여 카메라가 튀지 않게 함
+                const worldX = unit.parentContainer ? (unit.parentContainer.x + unit.x) : unit.x;
+                const worldY = unit.parentContainer ? (unit.parentContainer.y + unit.y) : unit.y;
+
+                minX = Math.min(minX, worldX);
+                maxX = Math.max(maxX, worldX);
+                minY = Math.min(minY, worldY);
+                maxY = Math.max(maxY, worldY);
                 count++;
             }
         });

@@ -10,6 +10,7 @@ import AquaBurstProjectile from '../../entities/projectiles/common/AquaBurstProj
 import FireBurstProjectile from '../../entities/projectiles/skills/FireBurstProjectile.js';
 import ImSorryProjectile from '../../entities/projectiles/skills/ImSorryProjectile.js';
 import MeleeProjectile from '../../entities/projectiles/common/MeleeProjectile.js';
+import HeroDashProjectile from '../../entities/projectiles/skills/HeroDashProjectile.js';
 
 /**
  * 투사체 매니저 (Projectile Manager)
@@ -58,6 +59,7 @@ class ProjectileManager {
         this.registerProjectile('fire_burst', FireBurstProjectile);
         this.registerProjectile('im_sorry_emoji', ImSorryProjectile);
         this.registerProjectile('melee', MeleeProjectile);
+        this.registerProjectile('hero_dash', HeroDashProjectile);
 
         Logger.system("ProjectileManager: Initialized for scene.");
     }

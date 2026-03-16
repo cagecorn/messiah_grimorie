@@ -6,6 +6,7 @@ import phaserParticleManager from '../../graphics/PhaserParticleManager.js';
 import ultimateCutsceneManager from '../../../ui/UltimateCutsceneManager.js';
 import poolingManager from '../../../core/PoolingManager.js';
 import Invincible from '../effects/Invincible.js';
+import projectileManager from '../ProjectileManager.js';
 
 /**
  * 아렌 궁극기: 메시아를 위하여! (For Messiah!)
@@ -27,6 +28,7 @@ class ForMessiah {
 
         // [신규] 궁극기 컷씬 출력
         ultimateCutsceneManager.show('aren', 'For Messiah!');
+        owner.isBusy = true; // [추가] 시전 시작
 
         // [Robust Fix] 시전 전 기존 연출 트윈 제거 및 상태 초기화
         const scene = owner.scene;
@@ -109,7 +111,7 @@ class ForMessiah {
     }
 
     /**
-     * 강하 페이즈: 목표 지점에 충돌
+     * 강하 페이즈: 이제 아렌이 [투사체]가 되어 지면을 강타합니다.
      */
     playImpactPhase(owner, targetPos) {
         const scene = owner.scene;
@@ -124,26 +126,28 @@ class ForMessiah {
         owner.sprite.scaleY = baseScale * 4.0;
         owner.sprite.scaleX = baseScale * 0.5;
 
-        // 잔상 타이머
+        // [변경] 유닛-투사체 시스템 가동 (급강하)
+        // - 급강하 경로에 있는 적에게도 1.0배 물리 피해를 입힘
+        projectileManager.fire('hero_dash', owner, targetPos, {
+            speed: 3000, // 더 빠른 속도로 낙하
+            damageMultiplier: 1.0,
+            damageType: 'physical',
+            onComplete: () => {
+                // 확실하게 베이스 스케일 및 위치 복구
+                this.resetOwnerSprite(owner);
+                this.applyImpactEffect(owner, targetPos);
+            }
+        });
+
+        // 잔상 효과는 유닛 본체에 계속 붙어있으므로 타이머 유지 가능 (또는 HeroDashProjectile 내부에서 처리 가능)
         const ghostTimer = scene.time.addEvent({
             delay: 15,
             repeat: 20,
             callback: () => this.createGhost(owner)
         });
 
-        // 급강하
-        scene.tweens.add({
-            targets: owner,
-            y: targetPos.y,
-            duration: 200,
-            ease: 'Quint.in',
-            onComplete: () => {
-                ghostTimer.remove();
-                // 확실하게 베이스 스케일 및 위치 복구
-                this.resetOwnerSprite(owner);
-                this.applyImpactEffect(owner, targetPos);
-            }
-        });
+        // 투사체 수명에 맞춰 타이머 제거 (대략적인 시간 또는 투사체 콜백 활용)
+        scene.time.delayedCall(500, () => ghostTimer.remove());
     }
 
     /**
@@ -224,6 +228,11 @@ class ForMessiah {
         );
 
         Logger.info("ULTIMATE", `[Aren] For Messiah! applied to surroundings!`);
+
+        // [추가] 시전 후 0.5초간 'Busy' 상태 유지 (연계 씹힘 방지)
+        scene.time.delayedCall(500, () => {
+            if (owner.active) owner.isBusy = false;
+        });
     }
 
     /**

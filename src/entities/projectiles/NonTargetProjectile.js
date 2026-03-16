@@ -95,8 +95,14 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
         const dist = Phaser.Math.Distance.Between(this.x, this.y, this.targetPos.x, this.targetPos.y);
         const moveDist = (this.speed * delta) / 1000;
 
+        // [TRACE]
+        if (this.scene.time.now % 100 < 20) {
+            Logger.debug("PROJ_TRACE", `ID: ${this.id}, Pos: (${this.x.toFixed(1)}, ${this.y.toFixed(1)}), Dist: ${dist.toFixed(1)}, Active: ${this.active}`);
+        }
+
         // 1. 이동 로직 (기본은 지점으로 이동)
-        if (moveDist >= dist && !this.isPierce) {
+        if (moveDist >= dist) {
+            Logger.info("PROJ_TRACE", `ID: ${this.id} reached destination.`);
             this.setPosition(this.targetPos.x, this.targetPos.y);
             this.hitGround();
         } else {

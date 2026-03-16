@@ -31,6 +31,8 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     constructor(scene, x, y, logicEntity, spriteKey) {
         super(scene, x, y);
         this.poolType = null;
+        this.isBeingCarried = false; 
+        this.isBusy = false; // [신규] 스킬/궁극기 시전 중 다른 행동 제약용 상위 플래그
         scene.add.existing(this);
         this.init(x, y, logicEntity, spriteKey);
     }
