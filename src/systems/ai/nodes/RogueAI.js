@@ -21,14 +21,23 @@ class RogueAI {
         const opponents = (entity.team === 'mercenary') ? scene.enemies : scene.allies;
 
         // 2. 특수 타겟팅 (위자드, 힐러, 바드 우선 순우)
-        let target = this.findPriorityTarget(entity, opponents);
+        // [USER 요청] 타겟 고정(Stickiness): 현재 타겟이 이미 우선순위 클래스라면, 그 대상을 끝까지 추격함
+        let currentTarget = bb.get('target');
+        const priorityClasses = [ENTITY_CLASSES.WIZARD, ENTITY_CLASSES.HEALER, ENTITY_CLASSES.BARD];
         
-        if (!target) {
-            // 우선 순위 타겟이 없으면 가장 가까운 적
-            target = bb.get('target');
-        } else {
-            // 우선 순위 타겟으로 블랙보드 갱신
-            bb.set('target', target);
+        const isCurrentTargetPriority = currentTarget && 
+                                        currentTarget.logic.isAlive && 
+                                        priorityClasses.includes(currentTarget.logic.class.getClassName());
+
+        let target = currentTarget;
+
+        if (!isCurrentTargetPriority) {
+            // 현재 타겟이 우선순위 클래스가 아니거나 죽었을 때만 새로운 우선순위 타겟 탐색
+            const priorityTarget = this.findPriorityTarget(entity, opponents);
+            if (priorityTarget) {
+                target = priorityTarget;
+                bb.set('target', target);
+            }
         }
 
         if (!target || !target.logic.isAlive) {
