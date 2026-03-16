@@ -81,10 +81,11 @@ export default class EntityCombatComponent {
     playAttackAnimation(target, onHit) {
         const className = this.logic.class.getClassName();
         // [수정] 소드마스터(Ria)도 근접 클래스이므로 대쉬 공격을 수행하도록 포함
-        const isMelee = className === ENTITY_CLASSES.WARRIOR || 
-                        className === ENTITY_CLASSES.ROGUE || 
-                        className === ENTITY_CLASSES.SWORDMASTER ||
-                        (this.logic.type === 'monster' && className !== ENTITY_CLASSES.HEALER && className !== ENTITY_CLASSES.WIZARD && className !== ENTITY_CLASSES.ARCHER);
+        const isMelee = (className === ENTITY_CLASSES.WARRIOR || 
+                         className === ENTITY_CLASSES.ROGUE || 
+                         className === ENTITY_CLASSES.SWORDMASTER ||
+                         (this.logic.type === 'monster' && className !== ENTITY_CLASSES.HEALER && className !== ENTITY_CLASSES.WIZARD && className !== ENTITY_CLASSES.ARCHER)) &&
+                        !(this.entity.buffs && this.entity.buffs.getActiveBuffIds().includes('gale'));
 
         if (isMelee) {
             this.animationManager.playDashAttack(this.entity, target, onHit);

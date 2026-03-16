@@ -122,7 +122,7 @@ class CombatManager {
     /**
      * 투사체 발사 (원거리 공격)
      */
-    fireProjectile(type, attacker, target, multiplier = 1.0) {
+    fireProjectile(type, attacker, target, multiplier = 1.0, config = {}) {
         if (type === 'arrow') {
             projectileManager.fire('arrow', attacker, target, {
                 damageMultiplier: multiplier
@@ -154,7 +154,7 @@ class CombatManager {
         } else if (type === 'rapid_fire_container') {
             projectileManager.fire('rapid_fire_container', attacker, target, {
                 damageMultiplier: multiplier,
-                originalType: config.originalType
+                originalType: config.originalType || 'melee'
             });
         }
     }

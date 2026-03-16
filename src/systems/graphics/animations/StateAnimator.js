@@ -101,12 +101,18 @@ class StateAnimator {
             // [FIX] 기존 스프라이트 트윈(바빙 등) 확실히 제거하여 충돌 방지
             this.scene.tweens.killTweensOf(entity.sprite);
 
-            this.scene.tweens.add({
-                targets: entity.sprite,
-                y: 0,
-                duration: 200,
-                ease: 'Cubic.out'
-            });
+            // [수정] 대쉬 공격 등 다른 트윈이 시작될 때 충돌하지 않도록
+            // 200ms 동안 복귀하는 트윈은 Busy 상태가 아닐 때만 시작하거나 즉시 0으로 설정
+            if (!entity.isBusy) {
+                this.scene.tweens.add({
+                    targets: entity.sprite,
+                    y: 0,
+                    duration: 200,
+                    ease: 'Cubic.out'
+                });
+            } else {
+                entity.sprite.setY(0);
+            }
         }
     }
 }

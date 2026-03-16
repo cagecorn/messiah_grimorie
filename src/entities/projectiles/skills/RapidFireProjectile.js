@@ -23,12 +23,12 @@ export default class RapidFireProjectile extends TargetProjectile {
         const originalType = config.originalType || 'melee';
         const { SHOT_COUNT, INTERVAL } = BUFF_VALUES.RAPID_FIRE;
         
-        // 투사체 자체는 충돌 판정을 하지 않도록 설정 (자식들이 수행)
-        this.setActive(false); 
+        // 컨테이너 자체는 보이지 않게 처리 (자식들이 실제 투사체)
         this.setVisible(false);
+        this.setActive(true);
 
         // 정해진 횟수만큼 실제 투사체 생성 및 발사
-        // 첫 번째는 즉시, 나머지는 간격을 두고 발사
+        let shotsCompleted = 0;
         for (let i = 0; i < SHOT_COUNT; i++) {
             this.scene.time.delayedCall(i * INTERVAL, () => {
                 // 시전자나 타겟이 여전히 유효한지 확인
@@ -38,15 +38,15 @@ export default class RapidFireProjectile extends TargetProjectile {
                         damageType: this.damageType
                     });
                     
-                    // [연출] 컨테이너 기반이므로 위치를 시전자의 최신 위치에서 시작하게 유도 가능
-                    // (또는 이 컨테이너의 현재 위치에서 발사하게 할 수도 있음)
                     if (proj) {
+                        // 시전자의 최신 위치(또는 컨테이너 위치)에서 발사
                         proj.setPosition(this.owner.x, this.owner.y - 40);
                     }
                 }
                 
-                // 마지막 발사 후 컨테이너 정리
-                if (i === SHOT_COUNT - 1) {
+                shotsCompleted++;
+                // 마지막 발사가 완료되면 컨테이너 해제
+                if (shotsCompleted === SHOT_COUNT) {
                     this.destroyProjectile();
                 }
             });
