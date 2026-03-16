@@ -113,8 +113,8 @@ class HealthBar {
             this.lastMaxHP !== stats.maxHp ||
             this.lastShield !== combat.shield ||
             this.lastStaminaProgress !== stamProgress ||
-            this.lastSkillProgress !== stats.skillProgress ||
-            this.lastUltProgress !== stats.ultimateProgress ||
+            this.lastSkillProgress !== this.entity.skillProgress ||
+            this.lastUltProgress !== this.entity.ultimateProgress ||
             this.lastIsMonster !== this.entity.isMonster;
 
         if (isDirty) {
@@ -122,8 +122,8 @@ class HealthBar {
             this.lastMaxHP = stats.maxHp;
             this.lastShield = combat.shield;
             this.lastStaminaProgress = stamProgress;
-            this.lastSkillProgress = stats.skillProgress;
-            this.lastUltProgress = stats.ultimateProgress;
+            this.lastSkillProgress = this.entity.skillProgress;
+            this.lastUltProgress = this.entity.ultimateProgress;
             this.lastIsMonster = this.entity.isMonster;
         }
 
@@ -164,12 +164,12 @@ class HealthBar {
         }
 
         // 4. 스킬 바
-        HealthBarPainter.drawSubBar(ctx, 2*res, currentY, (this.width-4)*res, 3*res, stats.skillProgress, 'skill', res);
+        HealthBarPainter.drawSubBar(ctx, 2*res, currentY, (this.width-4)*res, 3*res, this.entity.skillProgress, 'skill', res);
         currentY += 4 * res;
 
         // 5. 궁극기 바 (몬스터 제외)
         if (!isMonster) {
-            HealthBarPainter.drawSubBar(ctx, 2*res, currentY, (this.width-4)*res, 3*res, stats.ultimateProgress, 'ultimate', res);
+            HealthBarPainter.drawSubBar(ctx, 2*res, currentY, (this.width-4)*res, 3*res, this.entity.ultimateProgress, 'ultimate', res);
         }
 
         // 6. 결과물을 스프라이트 텍스처로 반영

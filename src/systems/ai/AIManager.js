@@ -73,6 +73,8 @@ class AIManager {
             if (!entity.logic.isAlive) return;
 
             const entityId = entity.logic.id;
+            const className = entity.logic.class.getClassName();
+            const id = entity.logic.baseId || entity.logic.id.split('_')[0];
 
             // 1. 블랙보드 초기화 (없을 경우)
             blackboardManager.initForEntity(entityId);
@@ -134,9 +136,6 @@ class AIManager {
             }
 
             // 3. 클래스별 AI 노드 실행 (매 프레임 실행하여 이동은 부드럽게 유지)
-            const className = entity.logic.class.getClassName();
-            const id = entity.logic.baseId || entity.logic.id.split('_')[0]; // [FIX] baseId 우선 사용
-            
             let node = this.aiNodes[className];
             
             // [신규] 특정 유닛 전용 AI 오버라이드 (모듈화 준수)

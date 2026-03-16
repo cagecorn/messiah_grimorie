@@ -250,17 +250,37 @@ class CombatManager {
         const isAlly = attackerEntity.team === targetEntity.team;
         const className = attackerEntity.logic.class.getClassName();
 
+        if (attackerEntity.logic.isTotem) {
+            // [핵심] 토템 전용 평타 로직 (isAlly보다 우선순위 높임)
+            const totemId = attackerEntity.logic.id;
+            if (totemId.includes('fire_totem')) {
+                fireBurst.execute(attackerEntity);
+            } else if (totemId.includes('healing_totem')) {
+                massHeal.execute(attackerEntity);
+            } else {
+                // 정령 토템: 위자드 투사체 기본 발사
+                this.fireProjectile('wizard', attackerEntity, targetEntity, 1.0, { damageType: 'magic' });
+            }
+            return;
+        }
+
         if (isAlly && className === 'healer') {
             this.processHeal(attackerEntity, targetEntity, 1.0);
         } else if (isAlly && className === 'bard') {
             this.processInspiration(attackerEntity, targetEntity, 1.0);
         } else if (!isAlly) {
             let projectileType = 'melee';
-            if (className === 'healer') projectileType = 'light';
-            else if (className === 'wizard') projectileType = 'wizard';
-            else if (className === 'archer') projectileType = 'arrow';
-            else if (className === 'totemist') {
-                // [신규] 토템술사: 평타 시 사거리 내 무작위 위치 또는 타겟 주변에 토템 소환
+            let damageType = 'physical';
+
+            if (className === 'healer') {
+                projectileType = 'light';
+                damageType = 'magic';
+            } else if (className === 'wizard') {
+                projectileType = 'wizard';
+                damageType = 'magic';
+            } else if (className === 'archer') {
+                projectileType = 'arrow';
+            } else if (className === 'totemist') {
                 this.spawnNormalTotem(attackerEntity, targetEntity);
                 return;
             }
@@ -269,26 +289,12 @@ class CombatManager {
             const rapidFireBuff = attackerEntity.buffs && attackerEntity.buffs.activeBuffs.find(b => b.id === 'rapidfire' || b.id === 'rapid_fire');
             
             if (rapidFireBuff) {
-                // 단일 컨테이너 발사 (컨테이너 내부에서 5발 복제 로직 수행)
                 this.fireProjectile('rapid_fire_container', attackerEntity, targetEntity, 1.0, { 
-                    originalType: projectileType 
+                    originalType: projectileType,
+                    damageType: damageType
                 });
             } else {
-                // 일반 발사
-                this.fireProjectile(projectileType, attackerEntity, targetEntity, 1.0);
-            }
-        } else if (attackerEntity.logic.isTotem) {
-            // [신규] 토템 전용 평타 로직
-            const totemId = attackerEntity.logic.id;
-            if (totemId.includes('fire_totem')) {
-                // [FIX] 화염 토템: 전용 스킬(FireBurst) 실행
-                fireBurst.execute(attackerEntity);
-            } else if (totemId.includes('healing_totem')) {
-                // [FIX] 치유 토템: 전용 스킬(MassHeal) 실행
-                massHeal.execute(attackerEntity);
-            } else {
-                // 정령 토템: 위자드 투사체 기본 발사
-                this.fireProjectile('wizard', attackerEntity, targetEntity, 1.0);
+                this.fireProjectile(projectileType, attackerEntity, targetEntity, 1.0, { damageType });
             }
         }
     }

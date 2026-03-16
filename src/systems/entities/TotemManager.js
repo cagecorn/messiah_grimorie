@@ -74,7 +74,14 @@ class TotemManager {
         const totemId = InstanceIDManager.generate(type === 'spirit' ? 'spirit_totem' : (type === 'fire' ? 'fire_totem' : 'healing_totem'));
         
         // 2. [핵심] 주인의 마법 공격력 100% 전이
-        const masterMAtk = owner.getTotalMAtk();
+        let masterMAtk = owner.getTotalMAtk();
+        
+        // [안전장치] 만약 주인의 MAtk이 0이라면(초기화 지연 등), 레지스트리 데이터의 기본값 호출 시도
+        if (masterMAtk <= 0) {
+            masterMAtk = owner.stats.baseStats[STAT_KEYS.M_ATK] || 25;
+            Logger.warn("TOTEM_MANAGER", `Joojoo's MAtk is 0. Using fallback: ${masterMAtk}`);
+        }
+
         const baseStats = { ...data.baseStats };
         baseStats[STAT_KEYS.M_ATK] = masterMAtk; 
         

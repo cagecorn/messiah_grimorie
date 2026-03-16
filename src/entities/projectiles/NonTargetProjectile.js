@@ -57,7 +57,7 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
         this.owner = owner;
         this.damageMultiplier = config.damageMultiplier || 1.0;
         this.speed = config.speed || 400;
-        this.damageType = config.damageType || 'magic';
+        this.damageType = config.damageType || this.damageType || 'magic';
         this.isPierce = config.isPierce || false;
         this.hitTargets.clear();
         this.collisionRadius = config.collisionRadius || 40;

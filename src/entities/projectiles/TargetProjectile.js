@@ -61,7 +61,7 @@ export default class TargetProjectile extends Phaser.GameObjects.Container {
         this.target = target;
         this.damageMultiplier = config.damageMultiplier || 1.0;
         this.speed = config.speed || 500;
-        this.damageType = config.damageType || 'physical';
+        this.damageType = config.damageType || this.damageType || 'physical';
         
         this.id = instanceIDManager.generate(`proj_target_${owner.id}`);
 

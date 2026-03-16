@@ -147,6 +147,28 @@ class SkillManager {
             logic: fireTotem
         });
 
+        // 화염 토템 (Fire Totem)
+        this.skills.set('fire_totem', {
+            id: 'fire_burst',
+            name: 'Fire Burst',
+            nameKey: 'skill_fire_burst_name',
+            description: 'Fires a fire ball that explodes on impact.',
+            descriptionKey: 'skill_fire_burst_desc',
+            cooldown: 8000, 
+            logic: fireBurst
+        });
+
+        // 치유 토템 (Healing Totem)
+        this.skills.set('healing_totem', {
+            id: 'mass_heal',
+            name: 'Mass Heal',
+            nameKey: 'skill_mass_heal_name',
+            description: 'Heals all allies by 1.5x MAtk.',
+            descriptionKey: 'skill_mass_heal_desc',
+            cooldown: 10000, 
+            logic: massHeal
+        });
+
         // 고블린 (Goblin) - 스킬 없음
         this.skills.set('goblin', {
             hasSkill: false
