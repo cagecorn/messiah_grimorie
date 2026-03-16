@@ -1,3 +1,5 @@
+import { STATS } from './TechnicalConstants.js';
+
 /**
  * 엔티티 상수 (Entity Constants)
  * 역할: 전역 엔티티 시스템에서 사용되는 스탯 키 및 클래스 정의
@@ -24,8 +26,8 @@ export const STAT_KEYS = {
     RES_LIGHTNING: 'lightningRes',
     SHIELD: 'shield',
     DR: 'bonusDR',
-    STAMINA: 'stamina',
-    STAM_REGEN: 'stamRegen'
+    STAMINA: STATS.STAMINA,
+    STAM_REGEN: STATS.STAM_REGEN
 };
 
 export const ENTITY_CLASSES = {
@@ -33,7 +35,8 @@ export const ENTITY_CLASSES = {
     ARCHER: 'archer',
     HEALER: 'healer',
     WIZARD: 'wizard',
-    BARD: 'bard'
+    BARD: 'bard',
+    ROGUE: 'rogue'
 };
 
 /**
@@ -83,6 +86,17 @@ export const CLASS_GROWTH = {
         [STAT_KEYS.M_DEF]: 1.2,
         [STAT_KEYS.SPEED]: 1.1,
         [STAT_KEYS.STAMINA]: 1.2,
+        [STAT_KEYS.STAM_REGEN]: 0.2
+    },
+    [ENTITY_CLASSES.ROGUE]: {
+        [STAT_KEYS.ATK]: 2.5,
+        [STAT_KEYS.ATK_SPD]: 0.03,
+        [STAT_KEYS.SPEED]: 1.3,
+        [STAT_KEYS.CRIT]: 0.01,
+        [STAT_KEYS.MAX_HP]: 1.5,
+        [STAT_KEYS.DEF]: 0.8,
+        [STAT_KEYS.M_DEF]: 1.0,
+        [STAT_KEYS.STAMINA]: 1.5,
         [STAT_KEYS.STAM_REGEN]: 0.2
     }
 };

@@ -98,6 +98,9 @@ class StateAnimator {
             entity.idleBobbingTween.stop();
             entity.idleBobbingTween = null;
 
+            // [FIX] 기존 스프라이트 트윈(바빙 등) 확실히 제거하여 충돌 방지
+            this.scene.tweens.killTweensOf(entity.sprite);
+
             this.scene.tweens.add({
                 targets: entity.sprite,
                 y: 0,

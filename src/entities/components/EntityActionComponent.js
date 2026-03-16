@@ -3,6 +3,7 @@ import animationManager from '../../systems/graphics/AnimationManager.js';
 import phaserParticleManager from '../../systems/graphics/PhaserParticleManager.js';
 import soundManager from '../../systems/SoundManager.js';
 import fxManager from '../../systems/graphics/FXManager.js';
+import { STAMINA } from '../../core/TechnicalConstants.js';
 
 /**
  * 엔티티 액션 컴포넌트 (Entity Action Component)
@@ -46,7 +47,7 @@ export default class EntityActionComponent {
     roll(direction) {
         if (this.isRolling || this.actionCooldown > 0 || this.entity.isBeingCarried) return false;
 
-        const rollStaminaCost = 30; // 기본 소모량
+        const rollStaminaCost = STAMINA.ROLL_COST;
         if (!this.entity.stamina || !this.entity.stamina.consume(rollStaminaCost)) {
             Logger.debug("ACTION", `${this.entity.logic.name} - 스태미나 부족으로 구르기 실패`);
             return false;

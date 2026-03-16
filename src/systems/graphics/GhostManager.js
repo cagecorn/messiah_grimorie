@@ -19,8 +19,8 @@ class PooledGhost extends Phaser.GameObjects.Sprite {
     show(source, lifeTime = 300, tint = 0xffffff, alpha = 0.5) {
         if (!source) return;
 
-        // 원본이 컨테이너라면 메인 스프라이트를 추출
-        const targetSprite = source.mainSprite || source;
+        // 원본이 컨테이너라면 메인 스프라이트를 추출 (CombatEntity의 경우 get sprite() 존재)
+        const targetSprite = source.sprite || source.mainSprite || source;
         if (!targetSprite || !targetSprite.texture) return;
 
         // 텍스처 및 프레임 복제
@@ -31,23 +31,21 @@ class PooledGhost extends Phaser.GameObjects.Sprite {
         const worldPos = source.getWorldTransformMatrix();
         this.setPosition(worldPos.tx, worldPos.ty);
         
-        // 회전 및 스케일은 컨테이너 것을 따름 (메인 스프라이트가 개별 회전할 수도 있으므로 고려 필요하나 일단 컨테이너 기준)
+        // 회전 및 스케일은 컨테이너 것을 따름
         this.setRotation(source.rotation);
-        
-        // 컨테이너의 경우 scaleX/Y가 전체 크기이므로 이를 따름
         this.setScale(source.scaleX, source.scaleY);
         
-        // flipX, origin 등은 컨테이너에 프록시된 메서드가 있을 것임
-        if (typeof source.flipX !== 'undefined') {
-            this.setFlipX(source.flipX);
-        } else if (targetSprite.flipX !== 'undefined') {
+        // flipX, origin 복제 (스프라이트 기준 우선)
+        if (typeof targetSprite.flipX !== 'undefined') {
             this.setFlipX(targetSprite.flipX);
+        } else if (typeof source.flipX !== 'undefined') {
+            this.setFlipX(source.flipX);
         }
 
-        if (typeof source.originX !== 'undefined') {
-            this.setOrigin(source.originX, source.originY);
-        } else if (typeof targetSprite.originX !== 'undefined') {
+        if (typeof targetSprite.originX !== 'undefined') {
             this.setOrigin(targetSprite.originX, targetSprite.originY);
+        } else if (typeof source.originX !== 'undefined') {
+            this.setOrigin(source.originX, source.originY);
         }
         
         // 시각적 설정

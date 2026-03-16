@@ -8,6 +8,7 @@ import aquaBurst from './skills/AquaBurst.js';
 import fireBurst from './skills/FireBurst.js';
 import sleepingBubble from './skills/SleepingBubble.js';
 import stoneSkin from './skills/StoneSkin.js';
+import stealth from './skills/Stealth.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -108,6 +109,17 @@ class SkillManager {
             descriptionKey: 'skill_stone_skin_desc',
             cooldown: 12000, // 12 seconds
             logic: stoneSkin
+        });
+
+        // 자인 (Zayn)
+        this.skills.set('zayn', {
+            id: 'stealth',
+            name: 'Stealth',
+            nameKey: 'skill_stealth_name',
+            description: 'Hides for a while, becoming untargetable.',
+            descriptionKey: 'skill_stealth_desc',
+            cooldown: 15000, // 15 seconds
+            logic: stealth
         });
 
         // 고블린 (Goblin) - 스킬 없음

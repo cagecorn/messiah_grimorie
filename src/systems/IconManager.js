@@ -76,6 +76,7 @@ class IconManager {
         if (lowerId.includes('inspiration')) return 'inspiration';
         if (lowerId.includes('stoneskin')) return 'stoneskin';
         if (lowerId.includes('song_of_protection')) return 'shield';
+        if (lowerId === 'stealth' || lowerId === 'stealthed') return 'stealth_icon';
         
         return lowerId;
     }

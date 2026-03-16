@@ -7,6 +7,7 @@ import uiManager from '../ui/UIManager.js';
 import formationManager from '../systems/FormationManager.js';
 import assetPathManager from '../core/AssetPathManager.js';
 import emojiManager from '../core/EmojiManager.js';
+import dungeonRoundManager from '../systems/dungeons/DungeonRoundManager.js';
 
 export default class BootScene extends Phaser.Scene {
     constructor() {
@@ -77,6 +78,7 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('song_of_protection', assetPathManager.getPath('images', 'song_of_protection'));
         this.load.image('shield_effect', assetPathManager.getPath('images', 'shield_effect'));
         this.load.image('melee_effect', assetPathManager.getPath('images', 'melee_effect'));
+        this.load.image('cloning_effect', assetPathManager.getPath('images', 'cloning_effect'));
         
         // [신규] 세이렌 및 아쿠아 버스트 관련
         this.load.image('siren_sprite', assetPathManager.getSummonPath('siren'));
@@ -90,7 +92,7 @@ export default class BootScene extends Phaser.Scene {
         }
         
         // 아이콘들을 명시적인 키값으로 로드 (UI 및 HealthBar에서 이 키를 사용함)
-        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music'];
+        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music', 'stealth_icon'];
         iconKeys.forEach(key => {
             const path = assetPathManager.getPath('images', key);
             if (path) this.load.image(key, path);
@@ -128,6 +130,7 @@ export default class BootScene extends Phaser.Scene {
         await inventoryManager.initialize();
 
         await formationManager.initialize();
+        dungeonRoundManager.initialize(); // [신규] 기록 동기화
 
         const starterModule = await import('../systems/StarterPackManager.js');
         await starterModule.default.checkAndAward();

@@ -23,6 +23,7 @@ import PooledShieldEffect from './effects/PooledShieldEffect.js';
 import PooledAquaExplosion from './effects/PooledAquaExplosion.js';
 import PooledFireExplosion from './effects/PooledFireExplosion.js';
 import PooledStoneSkinEffect from './effects/PooledStoneSkinEffect.js';
+import PooledCloningEffect from './effects/PooledCloningEffect.js';
 
 /**
  * 애니메이션 매니저 (Animation Manager)
@@ -62,6 +63,7 @@ class AnimationManager {
         poolingManager.registerPool('aqua_explosion_fx', () => new PooledAquaExplosion(this.scene), 10, true);
         poolingManager.registerPool('fire_explosion_fx', () => new PooledFireExplosion(this.scene), 20, true);
         poolingManager.registerPool('stone_skin_overlay_fx', () => new PooledStoneSkinEffect(this.scene), 5, true);
+        poolingManager.registerPool('cloning_effect', () => new PooledCloningEffect(this.scene), 10, true);
 
         Logger.system("AnimationManager: Facade ready with Modular Animators.");
     }

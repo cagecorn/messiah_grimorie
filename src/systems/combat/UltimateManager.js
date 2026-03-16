@@ -4,6 +4,7 @@ import summonGuardianAngel from './skills/SummonGuardianAngel.js';
 import meteorStrike from './skills/MeteorStrike.js';
 import summonSiren from './skills/SummonSiren.js';
 import imSorry from './skills/ImSorry.js';
+import cloning from './skills/Cloning.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -79,6 +80,16 @@ class UltimateManager {
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: imSorry
+        });
+
+        // 자인 (Zayn)
+        this.ultimates.set('zayn', {
+            id: 'zayn_ult',
+            nameKey: 'ult_zayn_name',
+            descriptionKey: 'ult_zayn_desc',
+            chargeMax: 100,
+            chargeSpeedBase: 1.2,
+            logic: cloning
         });
 
         // 고블린(몬스터)은 궁극기 없음

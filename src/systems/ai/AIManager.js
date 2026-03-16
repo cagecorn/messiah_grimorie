@@ -14,6 +14,9 @@ import LuteAI from './nodes/LuteAI.js';
 import EllaAI from './nodes/EllaAI.js';
 import MerlinAI from './nodes/MerlinAI.js';
 import SeraAI from './nodes/SeraAI.js';
+import RogueAI from './nodes/RogueAI.js';
+import ZaynAI from './nodes/ZaynAI.js';
+import CloningAI from './nodes/CloningAI.js';
 import GoblinWizardAI from './nodes/GoblinWizardAI.js';
 import ProjectileSensor from './nodes/ProjectileSensor.js';
 import ProjectileClassifier from './nodes/ProjectileClassifier.js';
@@ -36,7 +39,8 @@ class AIManager {
             [ENTITY_CLASSES.ARCHER]: RangedAI,
             [ENTITY_CLASSES.HEALER]: HealerAI,
             [ENTITY_CLASSES.WIZARD]: WizardAI,
-            [ENTITY_CLASSES.BARD]: BardAI
+            [ENTITY_CLASSES.BARD]: BardAI,
+            [ENTITY_CLASSES.ROGUE]: RogueAI
         };
 
         // [신규] AI 성능 및 안정성 필드
@@ -123,7 +127,9 @@ class AIManager {
             let node = this.aiNodes[className];
             
             // [신규] 특정 유닛 전용 AI 오버라이드 (모듈화 준수)
-            if (id === 'siren') {
+            if (id === 'zayn' || id === 'zayn_clone') {
+                node = ZaynAI;
+            } else if (id === 'siren') {
                 node = SirenAI;
             } else if (id === 'aren') {
                 node = ArenAI;
@@ -167,6 +173,9 @@ class AIManager {
 
         opponents.forEach(opp => {
             if (!opp.logic.isAlive) return;
+
+            // [신규] 은신 상태 유닛은 타겟팅에서 제외
+            if (opp.logic.status.states && opp.logic.status.states.stealthed) return;
 
             const dist = Phaser.Math.Distance.Between(entity.x, entity.y, opp.x, opp.y);
             if (dist < minDist) {

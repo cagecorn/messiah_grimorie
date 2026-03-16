@@ -277,7 +277,7 @@ class HealthBar {
         const buffIds = (this.targetEntity.logic && this.targetEntity.logic.buffs) ? this.targetEntity.logic.buffs.getActiveBuffIds() : [];
         const hasShield = (this.targetEntity.logic && this.targetEntity.logic.shields && this.targetEntity.logic.shields.getTotalShield() > 0);
         
-        const activeIds = [...new Set([...statusIds, ...buffIds])];
+        const activeIds = [...new Set([...statusIds.map(id => id === 'stealthed' ? 'stealth' : id), ...buffIds])];
         if (hasShield) activeIds.push('shield');
         
         return activeIds.sort().join('|');

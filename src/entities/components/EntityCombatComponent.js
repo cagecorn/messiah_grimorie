@@ -57,6 +57,9 @@ export default class EntityCombatComponent {
         const atkSpd = this.logic.getTotalAtkSpd();
         this.attackCooldown = 1000 / Math.max(0.1, atkSpd);
 
+        // [FIX] 공격 수행 중임을 표시하여 아이들 바빙 및 이동 AI 간섭 방지
+        this.entity.isBusy = true;
+
         this.playAttackAnimation(target, () => {
             this.combatManager.executeNormalAttack(this.entity, target);
         });
@@ -68,13 +71,17 @@ export default class EntityCombatComponent {
     playAttackAnimation(target, onHit) {
         const className = this.logic.class.getClassName();
         // [FIX] 몬스터도 클래스 머신이 적용되어 있으므로, 힐러/마법사/궁수 아키타입은 대쉬를 생략합니다.
-        const isMelee = className === 'warrior' || (this.logic.type === 'monster' && className !== 'healer' && className !== 'wizard' && className !== 'archer');
+        const isMelee = className === 'warrior' || className === 'rogue' || (this.logic.type === 'monster' && className !== 'healer' && className !== 'wizard' && className !== 'archer');
 
         if (isMelee) {
             this.animationManager.playDashAttack(this.entity, target, onHit);
         } else {
             // 원거리/서포터 클래스는 대쉬 없이 제자리에서 공격
-            this.entity.scene.time.delayedCall(100, onHit);
+            this.entity.scene.time.delayedCall(100, () => {
+                onHit();
+                // [FIX] 원거리 유닛은 히트 직후 Busy 해제 (대쉬 리턴이 없으므로)
+                this.entity.isBusy = false;
+            });
         }
     }
 

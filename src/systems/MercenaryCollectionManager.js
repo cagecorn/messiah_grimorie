@@ -8,6 +8,7 @@ import ellaDB from './persistence/EllaIndexDBManager.js';
 import merlinDB from './persistence/MerlinIndexDBManager.js';
 import luteDB from './persistence/LuteIndexDBManager.js';
 import silviDB from './persistence/SilviIndexDBManager.js';
+import zaynDB from './persistence/ZaynIndexDBManager.js';
 
 /**
  * 용병 수집 매니저 (Mercenary Collection Manager)
@@ -28,7 +29,8 @@ class MercenaryCollectionManager {
             ella: ellaDB,
             merlin: merlinDB,
             lute: luteDB,
-            silvi: silviDB
+            silvi: silviDB,
+            zayn: zaynDB
         };
     }
 

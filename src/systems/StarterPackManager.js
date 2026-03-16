@@ -30,7 +30,7 @@ class StarterPackManager {
             Logger.system("STARTER_PACK: New user detected! Awarding starter mercenaries.");
 
             // [하드코딩 제거] 시스템적으로 지급할 용병 ID 리스트
-            const starterMercs = ['aren', 'ella', 'sera', 'merlin', 'lute', 'silvi'];
+            const starterMercs = ['aren', 'ella', 'sera', 'merlin', 'lute', 'silvi', 'zayn'];
             
             for (const id of starterMercs) {
                 await mercenaryCollectionManager.addMercenary(id, 1);
@@ -39,7 +39,7 @@ class StarterPackManager {
             // 지급 완료 기록 저장
             await indexDBManager.save('messiahData', { id: this.packId, claimed: true, claimedAt: Date.now() });
             
-            Logger.info("STARTER_PACK", "Successfully awarded 6 starter mercenaries.");
+            Logger.info("STARTER_PACK", `Successfully awarded ${starterMercs.length} starter mercenaries.`);
             EventBus.emit('STARTER_PACK_AWARDED');
         } catch (err) {
             Logger.error("STARTER_PACK", `Failed to award starter pack: ${err.message}`);

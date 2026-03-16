@@ -134,6 +134,9 @@ export default class EntitySkillComponent {
     gainUltimateCharge(points, applyMultiplier = true) {
         if (!this.hasUltimate || !this.logic.isAlive || this.ultimateProgress >= 1.0) return;
 
+        // [USER 요청] 자인이 궁극기를 사용한 동안 궁극기 게이지 보충 금지
+        if (this.entity.isUltActive) return;
+
         const multiplier = applyMultiplier ? (this.logic.stats.get('ultChargeSpeed') || 1.0) : 1.0;
         const gain = (points / 100) * multiplier;
 

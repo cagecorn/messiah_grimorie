@@ -25,6 +25,8 @@ export const STATS = {
     FIRE_RES: 'fireRes',           // 불 저항력 (%)
     ICE_RES: 'iceRes',             // 얼음 저항력 (%)
     LIGHTNING_RES: 'lightningRes', // 번개 저항력 (%)
+    STAMINA: 'stamina',           // 스태미나 (행동력)
+    STAM_REGEN: 'stamRegen',       // 스태미나 초당 회복량
     ID: 'id'                       // 엔티티 고유 식별자
 };
 //#endregion
@@ -37,7 +39,8 @@ export const CLASSES = {
     ARCHER: 'archer',
     HEALER: 'healer',
     WIZARD: 'wizard',
-    BARD: 'bard'
+    BARD: 'bard',
+    ROGUE: 'rogue'
 };
 
 // 기공(Base Increase): 모든 클래스 공통 기본 성장치
@@ -52,7 +55,8 @@ export const CLASS_SCALING_TRAITS = {
     [CLASSES.ARCHER]: [STATS.ATK, STATS.ATK_SPD, STATS.ACC, STATS.EVA],
     [CLASSES.HEALER]: [STATS.MATK, STATS.MDEF],
     [CLASSES.WIZARD]: [STATS.MATK, STATS.MDEF, STATS.ACC],
-    [CLASSES.BARD]: [STATS.HP, STATS.ATK, STATS.MATK, STATS.DEF, STATS.MDEF] // 균등 성장 (폭은 낮음)
+    [CLASSES.BARD]: [STATS.HP, STATS.ATK, STATS.MATK, STATS.DEF, STATS.MDEF],
+    [CLASSES.ROGUE]: [STATS.ATK, STATS.ATK_SPD, STATS.SPEED, STATS.CRIT]
 };
 
 // 예외 처리: 특정 요건(예: 성기사 컨셉의 분)에 따른 고유 성장 테이블
@@ -81,7 +85,9 @@ export const BONUS_STATS = {
     CAST_SPD: 'bonusCastSpd',
     ULT_CHARGE: 'bonusUltChargeSpeed',
     MAX_HP: 'bonusMaxHp',
-    MAX_HP_MULT: 'bonusMaxHpMult'
+    MAX_HP_MULT: 'bonusMaxHpMult',
+    STAMINA: 'bonusStamina',
+    STAM_REGEN: 'bonusStamRegen'
 };
 
 // 통합 Getter 표준 명칭
@@ -118,6 +124,16 @@ export const SUMMON_SCALING = {
         const getterName = GETTERS[statKey.toUpperCase()];
         return master[getterName] ? master[getterName]() : master[statKey];
     }
+};
+//#endregion
+
+//#region 🔋 [구역 6] 스태미나 시스템 (Stamina System)
+// 스태미나 소모량 및 기본 수치를 관리합니다.
+export const STAMINA = {
+    DEFAULT_MAX: 100,        // 기본 최대 스태미나
+    DEFAULT_REGEN: 10,      // 기본 초당 재생량
+    JUMP_COST: 30,          // 점프(급습) 소모량
+    ROLL_COST: 30           // 구르기(회피) 소모량
 };
 //#endregion
 

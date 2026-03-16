@@ -173,8 +173,23 @@ class CombatManager {
         const target = targetEntity.logic;
         
         let damage = 0;
+        let isCrit = false;
+
         if (type === 'physical') {
-            damage = COMBAT.calcPhysicalDamage(attacker.getTotalAtk(), multiplier);
+            const baseAtk = attacker.getTotalAtk();
+            const critRate = attacker.getTotalCrit ? attacker.getTotalCrit() : (attacker.stats.get('crit') || 0);
+            isCrit = Math.random() < critRate;
+
+            // [ROGUE 특화] 로그 클래스는 기본 배율 가산 및 치명타 배율 강화
+            const className = attacker.class ? attacker.class.getClassName() : '';
+            if (className === 'rogue') {
+                multiplier *= 1.5; // 기본 1.5배
+                if (isCrit) multiplier *= 2.0; // 치명타 시 2배 추가
+            } else if (isCrit) {
+                multiplier *= 1.5; // 일반 클래스 치명타 1.5배
+            }
+
+            damage = COMBAT.calcPhysicalDamage(baseAtk, multiplier);
         } else {
             damage = COMBAT.calcMagicEffect(attacker.getTotalMAtk(), multiplier);
         }
@@ -186,13 +201,13 @@ class CombatManager {
                 Logger.info("AQUA_SIREN", `[${attacker.name}] deals ${damage.toFixed(1)} magic damage to ${target.name} (MAtk: ${attacker.getTotalMAtk()}, Mult: ${multiplier})`);
             }
 
-            Logger.info("COMBAT_MANAGER", `Processing ${type} damage: ${attacker.name} (Atk:${attacker.getTotalAtk()}, MAtk:${attacker.getTotalMAtk()}) -> ${target.name} (${damage}) ${projectileId ? `[Proj: ${projectileId}]` : ''}`);
+            Logger.info("COMBAT_MANAGER", `Processing ${type} damage: ${attacker.name} (Atk:${attacker.getTotalAtk()}, MAtk:${attacker.getTotalMAtk()}) -> ${target.name} (${damage.toFixed(1)}) ${isCrit ? '[CRIT!]' : ''} ${projectileId ? `[Proj: ${projectileId}]` : ''}`);
             targetEntity.takeDamage(damage, attackerEntity);
             
             // 데미지 기록 (투사체 ID가 있으면 함께 기록)
             damageCalculationManager.recordDamage(attacker, target, damage, type, projectileId);
             
-            fxManager.showDamageText(targetEntity.x, targetEntity.y, damage, type);
+            fxManager.showDamageText(targetEntity.x, targetEntity.y, damage, isCrit ? 'crit' : type);
             fxManager.showImpactEffect(targetEntity, type);
 
             if (type === 'physical') {

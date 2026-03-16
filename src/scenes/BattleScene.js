@@ -35,8 +35,8 @@ export default class BattleScene extends Phaser.Scene {
         this.stageId = null;
         this.allies = [];
         this.enemies = [];
-        this.isIntermission = false;
         this.roundTimer = null;
+        this.isTransitioning = false; // [신규] 명시적 초기화
     }
 
     init(data) {
@@ -88,6 +88,7 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('aqua_explosion_effect', assetPathManager.getPath('images', 'aqua_explosion_effect'));
         this.load.image('fire_burst_projectile', assetPathManager.getPath('images', 'fire_burst_projectile'));
         this.load.image('fire_explosion_effect', assetPathManager.getPath('images', 'fire_explosion_effect'));
+        this.load.image('cloning_effect', assetPathManager.getPath('images', 'cloning_effect'));
 
         // [신규] 상태 이상 아이콘 프리로드 (키값을 텍스처 키로 사용)
         const statusIcons = ['knockback', 'airborne', 'stunned', 'burned', 'invincible'];
@@ -120,8 +121,10 @@ export default class BattleScene extends Phaser.Scene {
     async create() {
         Logger.system(`BattleScene: Started (${this.stageId})`);
         
-        // 라운드 초기화
-        dungeonRoundManager.setCurrentRound(1);
+        // 라운드 초기화 (이미 1이면 유지, 전사 시 1로 강제됨)
+        const round = dungeonRoundManager.getCurrentRound() || 1;
+        dungeonRoundManager.setCurrentRound(round);
+        EventBus.emit('ROUND_STARTED', { round: round }); // [HUD 동기화]
         const world = measurementManager.world;
         this.physics.world.setBounds(0, 0, world.width, world.height);
         this.cameras.main.setBounds(0, 0, world.width, world.height);
@@ -319,13 +322,15 @@ export default class BattleScene extends Phaser.Scene {
             
             // [USER 요청] 1라운드로 초기화
             dungeonRoundManager.setCurrentRound(1);
+            EventBus.emit('ROUND_STARTED', { round: 1 }); // HUD 즉시 갱신
             
             this.isTransitioning = true;
             
-            // 나중에 로비나 던전 선택 화면으로 나가는 로직으로 확장할 수 있음
-            // 현재는 2초 뒤 씬을 다시 시작하거나 알림을 띄우는 용도로 사용
-            this.time.delayedCall(2000, () => {
-                // 임시로 BattleScene 재시작 (1라운드로)
+            // [FIX] 모든 물리 및 타이머 중지
+            this.physics.pause();
+            
+            this.time.delayedCall(1500, () => {
+                Logger.info("BATTLE", "Restarting scene...");
                 this.scene.restart({ stageId: this.stageId });
             });
         }

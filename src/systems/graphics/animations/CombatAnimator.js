@@ -125,6 +125,9 @@ class CombatAnimator {
     playDashAttack(entity, target, onHit) {
         if (!this.scene || !entity || !target || !entity.sprite) return;
 
+        // [FIX] 공격 대쉬 시작 전 아이들 바빙 중지
+        this.am.stopIdleBobbing(entity);
+
         const dx = target.x - entity.x;
         const dy = target.y - entity.y;
         const dashX = dx * 0.4;
@@ -152,7 +155,11 @@ class CombatAnimator {
                     x: 0,
                     y: 0,
                     duration: 200,
-                    ease: 'Back.out'
+                    ease: 'Back.out',
+                    onComplete: () => {
+                        // [FIX] 대쉬-리턴 시퀀스가 완전히 종료된 후 Busy 해제
+                        entity.isBusy = false;
+                    }
                 });
             }
         });

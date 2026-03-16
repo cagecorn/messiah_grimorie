@@ -17,6 +17,7 @@ import './styles/formation.css';
 import './styles/graphics.css';
 import './styles/scene_transition.css';
 import './ui/styles/MessiahInventory.css';
+import devCommandManager from './systems/DevCommandManager.js';
 
 import displayManager from './core/DisplayManager.js';
 import measurementManager from './core/MeasurementManager.js';
@@ -82,7 +83,10 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-// [신규] 전역 접근성 확보 (ExperienceManager 등에서 씬 조회를 위해 필요)
+// [신규] 전역 접근성 확보
 window.game = game;
+
+// [신규] 개발자 명령어 매니저 초기화
+devCommandManager.init();
 
 export default game;

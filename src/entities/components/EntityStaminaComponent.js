@@ -1,5 +1,6 @@
 import Logger from '../../utils/Logger.js';
 import { STAT_KEYS } from '../../core/EntityConstants.js';
+import { STAMINA } from '../../core/TechnicalConstants.js';
 
 /**
  * 엔티티 스태미나 컴포넌트 (Entity Stamina Component)
@@ -15,7 +16,7 @@ export default class EntityStaminaComponent {
         this.logic = entity.logic;
         
         // 1. 초기화 (logic.stats에서 가져옴)
-        this.maxStamina = this.logic.stats.get(STAT_KEYS.STAMINA) || 100;
+        this.maxStamina = this.logic.stats.get(STAT_KEYS.STAMINA) || STAMINA.DEFAULT_MAX;
         this.currentStamina = this.maxStamina;
         this.isExhausted = false;
     }
@@ -25,7 +26,7 @@ export default class EntityStaminaComponent {
      */
     reset() {
         this.logic = this.entity.logic;
-        this.maxStamina = this.logic.stats.get(STAT_KEYS.STAMINA) || 100;
+        this.maxStamina = this.logic.stats.get(STAT_KEYS.STAMINA) || STAMINA.DEFAULT_MAX;
         this.currentStamina = this.maxStamina;
         this.isExhausted = false;
     }
@@ -38,7 +39,7 @@ export default class EntityStaminaComponent {
 
         // 1. 스태미나 자동 회복
         if (this.currentStamina < this.maxStamina) {
-            const regen = this.logic.stats.get(STAT_KEYS.STAM_REGEN) || 10; // 기본 초당 10
+            const regen = this.logic.stats.get(STAT_KEYS.STAM_REGEN) || STAMINA.DEFAULT_REGEN;
             const amount = (regen * delta) / 1000;
             
             this.currentStamina = Math.min(this.maxStamina, this.currentStamina + amount);

@@ -15,8 +15,8 @@ class MeleeAI {
     static execute(entity, bb, delta) {
         if (!entity.logic.isAlive) return;
 
-        // [Robust Fix] 행동 불가 상태(stunned, airborne 등)일 경우 AI 사고 중단
-        if (entity.status && entity.status.isUnableToAct()) {
+        // [Robust Fix] 행동 불가 상태(stunned, airborne 등) 또는 행동 중(isBusy)일 경우 AI 사고 중단
+        if ((entity.status && entity.status.isUnableToAct()) || entity.isBusy) {
             entity.moveDirection = { x: 0, y: 0 };
             return;
         }

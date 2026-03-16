@@ -84,11 +84,17 @@ export default class EntityVisualComponent {
     updateIdleState() {
         if (!this.entity.active || !this.entity.logic.isAlive) return;
 
+        // [신규] 은신 상태 시각화 (반투명 처리)
+        const targetAlpha = this.entity.isStealthed ? 0.4 : (this.entity.logic.isSpecial ? 0.6 : 1.0);
+        if (this.sprite && this.sprite.alpha !== targetAlpha) {
+            this.sprite.setAlpha(targetAlpha);
+        }
+
         // 1. 상태 판정 (물리적 이동 중이거나 행동 불가인 경우 제외)
         const isMoving = this.entity.body && this.entity.body.speed > 5;
         const isUnableToAct = this.entity.status && this.entity.status.isUnableToAct();
         
-        const isIdleNow = !isMoving && !isUnableToAct;
+        const isIdleNow = !isMoving && !isUnableToAct && !this.entity.isBusy && !this.entity.isJumping;
 
         if (isIdleNow !== this.isIdle) {
             this.isIdle = isIdleNow;

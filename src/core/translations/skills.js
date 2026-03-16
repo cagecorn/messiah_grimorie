@@ -28,7 +28,13 @@ export default {
         'ult_lute_name': 'Summon: Siren',
         'ult_lute_desc': 'Summons a Siren to assist in battle. Subsequent uses change the Siren\'s skill to Sleeping Bubble.',
         'ult_silvi_name': "I'm Sorry!!",
-        'ult_silvi_desc': 'Goes on a rampage, dealing multi-hit AOE damage to nearby enemies.'
+        'ult_silvi_desc': 'Goes on a rampage, dealing multi-hit AOE damage to nearby enemies.',
+        'ult_zayn_name': 'Cloning',
+        'ult_zayn_desc': 'Creates clones of himself to confuse and attack enemies.',
+        
+        'status_title_stealth': 'Stealth',
+        'status_desc_stealth': 'Hiding from enemies. Untargetable.',
+        'status_desc_unknown': 'Mysterious effect.'
     },
     ko: {
         'skill_charge_attack_name': '차지 어택',
@@ -59,6 +65,12 @@ export default {
         'ult_lute_name': '소환: 세이렌',
         'ult_lute_desc': '전투를 돕는 세이렌을 소환합니다. 그 이후 사용하면 세이렌의 스킬이 수면 방울로 바뀝니다.',
         'ult_silvi_name': '죄송합니다!!',
-        'ult_silvi_desc': '마구 날뛰며 주변에 광역 다단 히트 피해를 입힙니다.'
+        'ult_silvi_desc': '마구 날뛰며 주변에 광역 다단 히트 피해를 입힙니다.',
+        'ult_zayn_name': '클로닝',
+        'ult_zayn_desc': '자신의 분신을 소환하여 적을 교란하고 공격합니다.',
+        
+        'status_title_stealth': '은신',
+        'status_desc_stealth': '적들로부터 몸을 숨깁니다. 타겟팅 대상에서 제외됩니다.',
+        'status_desc_unknown': '알 수 없는 효과입니다.'
     }
 };
