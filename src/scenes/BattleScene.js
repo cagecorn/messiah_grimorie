@@ -188,6 +188,11 @@ export default class BattleScene extends Phaser.Scene {
             const aiModule = await import('../systems/ai/AIManager.js');
             this.aiManager = aiModule.default;
 
+            // [신규] 토템 매니저 초기화
+            const totemModule = await import('../systems/entities/TotemManager.js');
+            this.totemManager = totemModule.default;
+            this.totemManager.init(this);
+
             Logger.info("BATTLE", "Combat managers loaded and initialized.");
 
             // 초기 유닛 스폰 실행

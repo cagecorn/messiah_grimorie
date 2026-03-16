@@ -10,6 +10,8 @@ import sleepingBubble from './skills/SleepingBubble.js';
 import stoneSkin from './skills/StoneSkin.js';
 import stealth from './skills/Stealth.js';
 import windBlade from './skills/WindBlade.js';
+import fireTotem from './skills/FireTotem.js';
+import healingTotem from './skills/HealingTotem.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -132,6 +134,17 @@ class SkillManager {
             descriptionKey: 'skill_stealth_desc',
             cooldown: 15000, // 15 seconds
             logic: stealth
+        });
+
+        // 주주 (Joojoo)
+        this.skills.set('joojoo', {
+            id: 'fire_totem_summon',
+            name: 'Fire Totem Summon',
+            nameKey: 'skill_fire_totem_name',
+            description: 'Summons a Fire Totem that explodes on densest enemy area.',
+            descriptionKey: 'skill_fire_totem_desc',
+            cooldown: 10000, 
+            logic: fireTotem
         });
 
         // 고블린 (Goblin) - 스킬 없음

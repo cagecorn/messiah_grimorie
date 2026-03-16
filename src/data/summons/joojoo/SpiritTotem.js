@@ -1,4 +1,4 @@
-import { STAT_KEYS } from '../../../core/EntityConstants.js';
+import { ENTITY_CLASSES, STAT_KEYS } from '../../../core/EntityConstants.js';
 
 /**
  * 정령 토템 (Spirit Totem) - 주주의 기본 공격형 토템
@@ -7,6 +7,7 @@ import { STAT_KEYS } from '../../../core/EntityConstants.js';
 export default {
     id: 'spirit_totem',
     name: 'Spirit Totem',
+    className: ENTITY_CLASSES.WIZARD,
     spriteKey: 'spirit_totem_sprite',
     baseStats: {
         [STAT_KEYS.MAX_HP]: 50,

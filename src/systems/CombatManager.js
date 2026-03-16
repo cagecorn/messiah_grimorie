@@ -10,10 +10,7 @@ import BardProjectile from '../entities/projectiles/common/BardProjectile.js';
 import AquaBurstProjectile from '../entities/projectiles/common/AquaBurstProjectile.js';
 import fxManager from './graphics/FXManager.js';
 import summonManager from './entities/SummonManager.js';
-import TotemLogic from '../entities/TotemEntity.js';
-import SpiritTotemData from '../data/summons/joojoo/SpiritTotem.js';
-import FireTotemData from '../data/summons/joojoo/FireTotem.js';
-import HealingTotemData from '../data/summons/joojoo/HealingTotem.js';
+import totemManager from './entities/TotemManager.js';
 import fireBurst from './combat/skills/FireBurst.js';
 import massHeal from './combat/skills/MassHeal.js';
 
@@ -229,8 +226,12 @@ class CombatManager {
                 soundManager.playMusicHit();
             }
 
-            if (!isUltimate && attackerEntity.gainUltimateCharge) {
-                attackerEntity.gainUltimateCharge(1);
+            if (!isUltimate) {
+                // [FIX] 토템 등 소환수의 경우 주인(master)에게 궁극기 게이지 전이
+                const charger = attackerEntity.logic.master || attackerEntity;
+                if (charger && charger.gainUltimateCharge) {
+                    charger.gainUltimateCharge(1);
+                }
             }
 
             if (targetEntity.gainUltimateCharge) {
@@ -304,6 +305,13 @@ class CombatManager {
         if (targetEntity && targetEntity.heal) {
             Logger.info("COMBAT_MANAGER", `Processing HEAL: ${healer.name} -> ${target.name} (${healAmount.toFixed(1)})`);
             targetEntity.heal(healAmount);
+
+            // [FIX] 힐 시에도 궁극기 게이지 충전 (토템의 경우 주인에게 전이)
+            const charger = healerEntity.logic.master || healerEntity;
+            if (charger && charger.gainUltimateCharge) {
+                charger.gainUltimateCharge(1);
+            }
+
             damageCalculationManager.recordHeal(healer, target, healAmount);
             fxManager.showDamageText(targetEntity.x, targetEntity.y, Math.floor(healAmount), 'heal');
             fxManager.showHealEffect(targetEntity);
@@ -427,96 +435,36 @@ class CombatManager {
         Logger.info("COMBAT_MANAGER", "CombatManager cleared for new scene.");
     }
 
-    /**
-     * [신규] 토템술사 평타형 토템 소환
-     */
     spawnNormalTotem(owner, target) {
         if (!owner.scene) return;
 
-        // 본체 마법 공격력의 100% 전이
-        const mAtk = owner.logic.getTotalMAtk();
+        // [FIX] 타겟 근처가 아닌, 시전자(주주) 주변 설치
+        const spawnX = owner.x + (owner.flipX ? -60 : 60) + (Math.random() - 0.5) * 40;
+        const spawnY = owner.y + (Math.random() - 0.5) * 40;
+
+        const totem = totemManager.spawnTotem('spirit', owner, spawnX, spawnY);
         
-        // SpiritTotemData의 기본 데이터 복제 및 스탯 조정
-        const totemLogic = new TotemLogic({
-            ...SpiritTotemData,
-            id: `totem_${owner.logic.id}_${Date.now()}`,
-            level: owner.logic.level,
-            master: owner,
-            baseStats: {
-                ...SpiritTotemData.baseStats,
-                [STAT_KEYS.M_ATK]: mAtk // 100% 전이
-            }
-        });
-
-        // 타겟과 시전자 사이의 적절한 위치에 소환
-        const spawnX = target.x + (Math.random() - 0.5) * 40;
-        const spawnY = target.y + (Math.random() - 0.5) * 40;
-
-        const totem = summonManager.spawnSummon(
-            owner.scene, 
-            totemLogic, 
-            owner.team, 
-            spawnX, 
-            spawnY, 
-            SpiritTotemData.spriteKey
-        );
-
         if (totem) {
-            // 토템은 5초 후 자동 소멸
-            owner.scene.time.delayedCall(5000, () => {
-                summonManager.removeSummon(totemLogic.id);
-            });
-            
-            // 소환 효과음 및 이펙트
             fxManager.showImpactEffect(totem, 'magic');
-            Logger.info("TOTEMIST", `Spawned Spirit Totem (MAtk: ${mAtk}) at (${spawnX.toFixed(1)}, ${spawnY.toFixed(1)})`);
+            Logger.info("TOTEMIST", `Spawned Spirit Totem at (${spawnX.toFixed(1)}, ${spawnY.toFixed(1)})`);
         }
     }
 
-    /**
-     * [신규] 특수 토템(화염/치유) 소환
-     */
     spawnSpecialTotem(owner, type) {
         if (!owner.scene) return;
 
-        const data = type === 'fire' ? FireTotemData : HealingTotemData;
-        const mAtk = owner.logic.getTotalMAtk();
-        
-        const totemLogic = new TotemLogic({
-            ...data,
-            id: `${data.id}_${owner.logic.id}_${Date.now()}`,
-            level: owner.logic.level,
-            master: owner,
-            baseStats: {
-                ...data.baseStats,
-                [STAT_KEYS.M_ATK]: mAtk * (type === 'fire' ? 1.5 : 1.2) // 특수 토템은 보너스 계수 적용
-            }
-        });
+        // [FIX] 시전자 주변 적절한 위치 (약간 앞쪽 또는 주변)
+        const spawnX = owner.x + (owner.flipX ? -100 : 100);
+        const spawnY = owner.y + (Math.random() - 0.5) * 80;
 
-        // 시전자 주변 적절한 위치 (약간 앞쪽)
-        const spawnX = owner.x + (owner.flipX ? -80 : 80);
-        const spawnY = owner.y + (Math.random() - 0.5) * 60;
-
-        const totem = summonManager.spawnSummon(
-            owner.scene, 
-            totemLogic, 
-            owner.team, 
-            spawnX, 
-            spawnY, 
-            data.spriteKey
-        );
+        const totem = totemManager.spawnTotem(type, owner, spawnX, spawnY);
 
         if (totem) {
-            // 특수 토템은 12초간 지속
-            owner.scene.time.delayedCall(12000, () => {
-                summonManager.removeSummon(totemLogic.id);
-            });
-            
             fxManager.showImpactEffect(totem, 'magic');
             // 화염 토템의 경우 붉은색 틴트 가산
             if (type === 'fire' && totem.sprite) totem.sprite.setTint(0xff6600);
 
-            Logger.info("TOTEMIST", `Spawned ${data.name} (MAtk: ${totemLogic.stats.get(STAT_KEYS.M_ATK).toFixed(1)}) at (${spawnX.toFixed(1)}, ${spawnY.toFixed(1)})`);
+            Logger.info("TOTEMIST", `Spawned ${type} Totem at (${spawnX.toFixed(1)}, ${spawnY.toFixed(1)})`);
         }
     }
 }

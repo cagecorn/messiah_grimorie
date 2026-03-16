@@ -83,8 +83,10 @@ class AIManager {
             cooldown -= delta;
 
             if (cooldown <= 0) {
-                // 타겟팅 (가장 가까운 적 찾기 - 히스테리시스 적용)
-                const opponents = (entity.team === 'mercenary') ? enemies : allies;
+                // 타겟팅 (가장 가까운 적/아군 찾기 - 히스테리시스 적용)
+                const isHealer = className === ENTITY_CLASSES.HEALER;
+                const opponents = (entity.team === 'mercenary') ? (isHealer ? allies : enemies) : (isHealer ? enemies : allies);
+                
                 const currentTarget = bb.get('target');
                 const newTarget = this.findNearestTargetWithHysteresis(entity, currentTarget, opponents);
 

@@ -6,6 +6,7 @@ import summonSiren from './skills/SummonSiren.js';
 import imSorry from './skills/ImSorry.js';
 import cloning from './skills/Cloning.js';
 import battoJutsu from './skills/BattoJutsu.js';
+import healingTotem from './skills/HealingTotem.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -101,6 +102,16 @@ class UltimateManager {
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: battoJutsu
+        });
+
+        // 주주 (Joojoo)
+        this.ultimates.set('joojoo', {
+            id: 'joojoo_ult',
+            nameKey: 'ult_joojoo_name',
+            descriptionKey: 'ult_joojoo_desc',
+            chargeMax: 100,
+            chargeSpeedBase: 1.0,
+            logic: healingTotem
         });
 
         // 고블린(몬스터)은 궁극기 없음

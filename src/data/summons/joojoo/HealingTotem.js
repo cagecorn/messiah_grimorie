@@ -1,4 +1,4 @@
-import { STAT_KEYS } from '../../../core/EntityConstants.js';
+import { ENTITY_CLASSES, STAT_KEYS } from '../../../core/EntityConstants.js';
 
 /**
  * 치유 토템 (Healing Totem) - 주주의 궁극기 토템
@@ -7,6 +7,7 @@ import { STAT_KEYS } from '../../../core/EntityConstants.js';
 export default {
     id: 'healing_totem',
     name: 'Healing Totem',
+    className: ENTITY_CLASSES.HEALER,
     spriteKey: 'healing_totem_sprite',
     baseStats: {
         [STAT_KEYS.MAX_HP]: 150,

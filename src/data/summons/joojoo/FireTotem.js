@@ -1,4 +1,4 @@
-import { STAT_KEYS } from '../../../core/EntityConstants.js';
+import { ENTITY_CLASSES, STAT_KEYS } from '../../../core/EntityConstants.js';
 
 /**
  * 화염 토템 (Fire Totem) - 주주의 시그니처 스킬 토템
@@ -7,6 +7,7 @@ import { STAT_KEYS } from '../../../core/EntityConstants.js';
 export default {
     id: 'fire_totem',
     name: 'Fire Totem',
+    className: ENTITY_CLASSES.WIZARD,
     spriteKey: 'fire_totem_sprite',
     baseStats: {
         [STAT_KEYS.MAX_HP]: 100,
