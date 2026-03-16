@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import TargetProjectileContainer from '../TargetProjectileContainer.js';
+import TargetProjectile from '../TargetProjectile.js';
 import phaserParticleManager from '../../../systems/graphics/PhaserParticleManager.js';
 
 /**
@@ -7,9 +7,9 @@ import phaserParticleManager from '../../../systems/graphics/PhaserParticleManag
  * 역할: [힐러 전용 일직선 추적 및 타격]
  * 특성: 타겟(Target) - 적을 끝까지 추격함.
  */
-export default class LightProjectile extends TargetProjectileContainer {
+export default class LightProjectile extends TargetProjectile {
     constructor(scene, x, y) {
-        super(scene, x, y);
+        super(scene, x, y, null);
         this.damageType = 'magic';
         
         // 3중 레이어 스프라이트 생성

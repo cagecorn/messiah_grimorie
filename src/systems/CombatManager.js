@@ -147,6 +147,10 @@ class CombatManager {
             projectileManager.fire('aqua_burst', attacker, target, {
                 damageMultiplier: multiplier
             });
+        } else if (type === 'melee') {
+            projectileManager.fire('melee', attacker, target, {
+                damageMultiplier: multiplier
+            });
         }
     }
 
@@ -231,7 +235,8 @@ class CombatManager {
             } else if (className === 'archer') {
                 this.fireProjectile('arrow', attackerEntity, targetEntity, 1.0);
             } else {
-                this.processDamage(attackerEntity, targetEntity, 1.0, 'physical');
+                // [신규] 근접 평타도 투사체 시스템으로 단일화 (확장성 확보)
+                this.fireProjectile('melee', attackerEntity, targetEntity, 1.0);
             }
         }
     }

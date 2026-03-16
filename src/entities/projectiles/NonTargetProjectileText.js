@@ -9,15 +9,9 @@ import layerManager from '../../ui/LayerManager.js';
  * 논타겟 텍스트 투사체 베이스 (Non-Target Text Projectile Base)
  * 역할: [이모지나 텍스트를 발사하는 유도되지 않는 투사체의 공통 로직 관리]
  */
-export default class NonTargetProjectileText extends Phaser.GameObjects.Text {
+export default class NonTargetProjectileText extends Phaser.GameObjects.Container {
     constructor(scene, x, y, text, style) {
-        super(scene, x, y, text, style || { 
-            fontSize: '48px', 
-            fontFamily: 'Arial, sans-serif',
-            fill: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 4
-        });
+        super(scene, x, y);
         
         this.owner = null;
         this.targetPos = { x: 0, y: 0 };
@@ -29,8 +23,36 @@ export default class NonTargetProjectileText extends Phaser.GameObjects.Text {
         this.hitTargets = new Set();
         this.collisionRadius = 40;
 
-        this.setOrigin(0.5, 0.5);
+        // 메인 텍스트 생성 (컨테이너 기반)
+        this.mainText = scene.add.text(0, 0, text, style || { 
+            fontSize: '48px', 
+            fontFamily: 'Arial, sans-serif',
+            fill: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 4
+        });
+        this.mainText.setOrigin(0.5, 0.5);
+        this.add(this.mainText);
+
         scene.add.existing(this);
+    }
+
+    /**
+     * 텍스트 관련 대리자 메서드 (Proxy methods)
+     */
+    setText(value) {
+        if (this.mainText) this.mainText.setText(value);
+        return this;
+    }
+
+    setOrigin(x, y) {
+        if (this.mainText) this.mainText.setOrigin(x, y);
+        return this;
+    }
+
+    setColor(color) {
+        if (this.mainText) this.mainText.setColor(color);
+        return this;
     }
 
     launch(owner, target, config = {}) {

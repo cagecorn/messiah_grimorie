@@ -17,20 +17,38 @@ class PooledGhost extends Phaser.GameObjects.Sprite {
      * 원본 스프라이트의 상태를 복제하여 잔상 표시
      */
     show(source, lifeTime = 300, tint = 0xffffff, alpha = 0.5) {
-        if (!source || !source.texture) return;
+        if (!source) return;
+
+        // 원본이 컨테이너라면 메인 스프라이트를 추출
+        const targetSprite = source.mainSprite || source;
+        if (!targetSprite || !targetSprite.texture) return;
 
         // 텍스처 및 프레임 복제
-        this.setTexture(source.texture.key, source.frame.name);
+        this.setTexture(targetSprite.texture.key, targetSprite.frame.name);
         
         // 위치 및 변형 복제
-        // source가 Container일 수도 있고 Sprite일 수도 있으므로 world position 고려
+        // source(컨테이너)의 world transform을 사용해야 함
         const worldPos = source.getWorldTransformMatrix();
         this.setPosition(worldPos.tx, worldPos.ty);
         
+        // 회전 및 스케일은 컨테이너 것을 따름 (메인 스프라이트가 개별 회전할 수도 있으므로 고려 필요하나 일단 컨테이너 기준)
         this.setRotation(source.rotation);
+        
+        // 컨테이너의 경우 scaleX/Y가 전체 크기이므로 이를 따름
         this.setScale(source.scaleX, source.scaleY);
-        this.setFlipX(source.flipX);
-        this.setOrigin(source.originX, source.originY);
+        
+        // flipX, origin 등은 컨테이너에 프록시된 메서드가 있을 것임
+        if (typeof source.flipX !== 'undefined') {
+            this.setFlipX(source.flipX);
+        } else if (targetSprite.flipX !== 'undefined') {
+            this.setFlipX(targetSprite.flipX);
+        }
+
+        if (typeof source.originX !== 'undefined') {
+            this.setOrigin(source.originX, source.originY);
+        } else if (typeof targetSprite.originX !== 'undefined') {
+            this.setOrigin(targetSprite.originX, targetSprite.originY);
+        }
         
         // 시각적 설정
         this.setTint(tint);

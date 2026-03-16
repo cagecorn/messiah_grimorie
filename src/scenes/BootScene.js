@@ -76,6 +76,7 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('bard_projectile_effect', assetPathManager.getPath('images', 'bard_projectile_effect'));
         this.load.image('song_of_protection', assetPathManager.getPath('images', 'song_of_protection'));
         this.load.image('shield_effect', assetPathManager.getPath('images', 'shield_effect'));
+        this.load.image('melee_effect', assetPathManager.getPath('images', 'melee_effect'));
         
         // [신규] 세이렌 및 아쿠아 버스트 관련
         this.load.image('siren_sprite', assetPathManager.getSummonPath('siren'));

@@ -9,9 +9,9 @@ import layerManager from '../../ui/LayerManager.js';
  * 타겟 투사체 베이스 (Target Projectile Base)
  * 역할: [유도(Homing) 기능이 있는 투사체의 공통 로직 관리]
  */
-export default class TargetProjectile extends Phaser.GameObjects.Sprite {
+export default class TargetProjectile extends Phaser.GameObjects.Container {
     constructor(scene, x, y, texture) {
-        super(scene, x, y, texture);
+        super(scene, x, y);
         
         this.owner = null;
         this.target = null;
@@ -25,9 +25,32 @@ export default class TargetProjectile extends Phaser.GameObjects.Sprite {
         this.duration = 0;
         this.startX = 0;
         this.startY = 0;
+
+        // 메인 스프라이트 생성 (컨테이너 기반)
+        if (texture) {
+            this.mainSprite = scene.add.sprite(0, 0, texture);
+            this.add(this.mainSprite);
+        }
         
-        this.setOrigin(0.5, 0.5);
         scene.add.existing(this);
+    }
+
+    /**
+     * 스프라이트 관련 대리자 메서드 (Proxy methods)
+     */
+    setFlipX(value) {
+        if (this.mainSprite) this.mainSprite.setFlipX(value);
+        return this;
+    }
+
+    setFrame(frame) {
+        if (this.mainSprite) this.mainSprite.setFrame(frame);
+        return this;
+    }
+
+    setOrigin(x, y) {
+        if (this.mainSprite) this.mainSprite.setOrigin(x, y);
+        return this;
     }
 
     /**

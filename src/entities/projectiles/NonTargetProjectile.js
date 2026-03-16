@@ -9,9 +9,9 @@ import layerManager from '../../ui/LayerManager.js';
  * 논타겟 투사체 베이스 (Non-Target Projectile Base)
  * 역할: [지점 타겟팅 및 스킬샷 기능이 있는 투사체의 공통 로직 관리]
  */
-export default class NonTargetProjectile extends Phaser.GameObjects.Sprite {
+export default class NonTargetProjectile extends Phaser.GameObjects.Container {
     constructor(scene, x, y, texture) {
-        super(scene, x, y, texture);
+        super(scene, x, y);
         
         this.owner = null;
         this.targetPos = { x: 0, y: 0 };
@@ -23,8 +23,31 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Sprite {
         this.hitTargets = new Set();
         this.collisionRadius = 40;
 
-        this.setOrigin(0.5, 0.5);
+        // 메인 스프라이트 생성 (컨테이너 기반)
+        if (texture) {
+            this.mainSprite = scene.add.sprite(0, 0, texture);
+            this.add(this.mainSprite);
+        }
+
         scene.add.existing(this);
+    }
+
+    /**
+     * 스프라이트 관련 대리자 메서드 (Proxy methods)
+     */
+    setFlipX(value) {
+        if (this.mainSprite) this.mainSprite.setFlipX(value);
+        return this;
+    }
+
+    setFrame(frame) {
+        if (this.mainSprite) this.mainSprite.setFrame(frame);
+        return this;
+    }
+
+    setOrigin(x, y) {
+        if (this.mainSprite) this.mainSprite.setOrigin(x, y);
+        return this;
     }
 
     /**

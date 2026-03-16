@@ -38,6 +38,7 @@ class AssetPathManager {
             invincible: `${this.basePath}icon/invincible_icon.png`,
             stoneskin: `${this.basePath}icon/stone_skin_icon.png`,
             stone_skin_effect: `${this.basePath}effect/stone_skin_effect.png`,
+            melee_effect: `${this.basePath}effect/melee_effect.png`,
             
             // 버프/디버프 아이콘 표준 키셋
             shield: `${this.basePath}icon/shield_icon.png`,
