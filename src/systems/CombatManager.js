@@ -391,6 +391,16 @@ class CombatManager {
         this.units.delete(unit); 
         Logger.info("COMBAT_MANAGER", `Unit Deregistered: ${unit.logic.name}`);
     }
+
+    /**
+     * [신규] 매니저 초기화 (씬 재시작 시 stale 데이터 제거)
+     */
+    clear() {
+        this.units.clear();
+        if (this.grid) this.grid.clear();
+        this.centerOfMass = { x: 0, y: 0 };
+        Logger.info("COMBAT_MANAGER", "CombatManager cleared for new scene.");
+    }
 }
 
 const combatManager = new CombatManager();

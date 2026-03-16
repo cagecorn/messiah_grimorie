@@ -21,6 +21,7 @@ import experienceManager from '../systems/combat/ExperienceManager.js';
 import lootManager from '../systems/combat/LootManager.js';
 import lootInteractionManager from '../systems/combat/LootInteractionManager.js';
 import dungeonRoundManager from '../systems/dungeons/DungeonRoundManager.js';
+import timeManager from '../core/TimeManager.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -41,6 +42,7 @@ export default class BattleScene extends Phaser.Scene {
 
     init(data) {
         this.stageId = data.stageId || 'cursed_forest';
+        this.isTransitioning = false; // [FIX] 재시작 시 플래그 반드시 초기화
         Logger.info("BATTLE_SCENE", `Initializing battle for stage: ${this.stageId}`);
     }
 
@@ -139,6 +141,10 @@ export default class BattleScene extends Phaser.Scene {
             });
         }
 
+        // [FIX] 전사 후 재시작 시 멈춰있던 물리 엔진 및 전역 시간 재개
+        this.physics.resume();
+        timeManager.resume();
+
         // [SYSTEM] 매니저 레이어 동적 로드 및 초기화
         await this.initializeManagers();
 
@@ -153,6 +159,7 @@ export default class BattleScene extends Phaser.Scene {
         this.events.once('shutdown', () => {
             if (this.projectileManager) this.projectileManager.clear();
             if (this.aiManager) this.aiManager.clear();
+            combatManager.clear(); // [FIX] 컴뱃 매니저의 유닛 참조들 제거
             shadowManager.cleanup(); // [FIX] 씬이 바뀔 때 잔여 그림자 완벽 제거
             portraitHUDManager.clear();
         });
