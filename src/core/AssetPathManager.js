@@ -57,7 +57,12 @@ class AssetPathManager {
             
             // [신규] 고블린 위자드 에셋
             goblin_wizard: `${this.basePath}characters/enemies/goblin_wizard_sprite.png`,
-            goblin_wizard_cutscene: `${this.basePath}characters/enemies/goblin_wizard_cutscene.png`
+            goblin_wizard_cutscene: `${this.basePath}characters/enemies/goblin_wizard_cutscene.png`,
+
+            // [신규] 토템술사 주주 관련 조산
+            spirit_totem: `${this.basePath}totem/spirit_totem_sprite.png`,
+            fire_totem: `${this.basePath}totem/fire_totem_sprite.png`,
+            healing_totem: `${this.basePath}totem/healing_totem_sprite.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)

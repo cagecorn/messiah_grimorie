@@ -37,7 +37,8 @@ export const ENTITY_CLASSES = {
     WIZARD: 'wizard',
     BARD: 'bard',
     ROGUE: 'rogue',
-    SWORDMASTER: 'swordmaster'
+    SWORDMASTER: 'swordmaster',
+    TOTEMIST: 'totemist'
 };
 
 /**
@@ -108,6 +109,13 @@ export const CLASS_GROWTH = {
         [STAT_KEYS.M_DEF]: 1.0,
         [STAT_KEYS.STAMINA]: 1.5,
         [STAT_KEYS.STAM_REGEN]: 0.2
+    },
+    [ENTITY_CLASSES.TOTEMIST]: {
+        [STAT_KEYS.M_ATK]: 2.5,    // 위자드급 화력
+        [STAT_KEYS.MAX_HP]: 2.0,   // 위자드(1.2)보다 훨씬 튼튼함
+        [STAT_KEYS.DEF]: 1.5,      // 전사급 방어력 (설치 시 안정성)
+        [STAT_KEYS.SPEED]: 0.8,    // 매우 느린 이동속도 (치명적 단점)
+        [STAT_KEYS.STAM_REGEN]: 0.5 // 토템 설치를 위한 빠른 기력 회복
     }
 };
 

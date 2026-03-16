@@ -104,6 +104,10 @@ export default class BootScene extends Phaser.Scene {
         // [신규] 실비 스프라이트 및 사운드 프리로드
         this.load.image('merc_silvi_sprite', assetPathManager.getMercenaryPath('silvi', 'sprite'));
         this.load.image('merc_ria_sprite', assetPathManager.getMercenaryPath('ria', 'sprite'));
+        this.load.image('merc_joojoo_sprite', assetPathManager.getMercenaryPath('joojoo', 'sprite'));
+        this.load.image('spirit_totem_sprite', assetPathManager.getPath('images', 'spirit_totem'));
+        this.load.image('fire_totem_sprite', assetPathManager.getPath('images', 'fire_totem'));
+        this.load.image('healing_totem_sprite', assetPathManager.getPath('images', 'healing_totem'));
         this.load.audio('stone_skin_sfx', assetPathManager.getPath('audio', 'stone_skin_sfx'));
         this.load.audio('roll_sfx', assetPathManager.getPath('audio', 'roll_sfx'));
     }

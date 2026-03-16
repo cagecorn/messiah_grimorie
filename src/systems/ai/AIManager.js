@@ -25,6 +25,9 @@ import GroupLeashAI from './nodes/GroupLeashAI.js';
 import ActionSelector from './nodes/ActionSelector.js';
 import RollingNode from './nodes/RollingNode.js';
 import RiaAI from './nodes/RiaAI.js';
+import StationaryAI from './nodes/StationaryAI.js';
+import TotemistAI from './nodes/TotemistAI.js';
+import JoojooAI from './nodes/JoojooAI.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -41,7 +44,8 @@ class AIManager {
             [ENTITY_CLASSES.HEALER]: HealerAI,
             [ENTITY_CLASSES.WIZARD]: WizardAI,
             [ENTITY_CLASSES.BARD]: BardAI,
-            [ENTITY_CLASSES.ROGUE]: RogueAI
+            [ENTITY_CLASSES.ROGUE]: RogueAI,
+            [ENTITY_CLASSES.TOTEMIST]: TotemistAI
         };
 
         // [신규] AI 성능 및 안정성 필드
@@ -154,6 +158,10 @@ class AIManager {
                 node = GoblinWizardAI;
             } else if (id === 'ria') {
                 node = RiaAI;
+            } else if (id === 'joojoo') {
+                node = JoojooAI;
+            } else if (entity.logic.isTotem) {
+                node = StationaryAI;
             }
 
             if (node) {

@@ -9,6 +9,13 @@ import ArrowProjectile from '../entities/projectiles/common/ArrowProjectile.js';
 import BardProjectile from '../entities/projectiles/common/BardProjectile.js';
 import AquaBurstProjectile from '../entities/projectiles/common/AquaBurstProjectile.js';
 import fxManager from './graphics/FXManager.js';
+import summonManager from './entities/SummonManager.js';
+import TotemLogic from '../entities/TotemEntity.js';
+import SpiritTotemData from '../data/summons/joojoo/SpiritTotem.js';
+import FireTotemData from '../data/summons/joojoo/FireTotem.js';
+import HealingTotemData from '../data/summons/joojoo/HealingTotem.js';
+import fireBurst from './combat/skills/FireBurst.js';
+import massHeal from './combat/skills/MassHeal.js';
 
 /**
  * 공간 분할 격자 (Spatial Partitioning Grid)
@@ -251,6 +258,11 @@ class CombatManager {
             if (className === 'healer') projectileType = 'light';
             else if (className === 'wizard') projectileType = 'wizard';
             else if (className === 'archer') projectileType = 'arrow';
+            else if (className === 'totemist') {
+                // [신규] 토템술사: 평타 시 사거리 내 무작위 위치 또는 타겟 주변에 토템 소환
+                this.spawnNormalTotem(attackerEntity, targetEntity);
+                return;
+            }
 
             // [신규] 리아 궁극기: 속사(Rapid Fire) 대응 (모든 클래스 적용)
             const rapidFireBuff = attackerEntity.buffs && attackerEntity.buffs.activeBuffs.find(b => b.id === 'rapidfire' || b.id === 'rapid_fire');
@@ -263,6 +275,19 @@ class CombatManager {
             } else {
                 // 일반 발사
                 this.fireProjectile(projectileType, attackerEntity, targetEntity, 1.0);
+            }
+        } else if (attackerEntity.logic.isTotem) {
+            // [신규] 토템 전용 평타 로직
+            const totemId = attackerEntity.logic.id;
+            if (totemId.includes('fire_totem')) {
+                // [FIX] 화염 토템: 전용 스킬(FireBurst) 실행
+                fireBurst.execute(attackerEntity);
+            } else if (totemId.includes('healing_totem')) {
+                // [FIX] 치유 토템: 전용 스킬(MassHeal) 실행
+                massHeal.execute(attackerEntity);
+            } else {
+                // 정령 토템: 위자드 투사체 기본 발사
+                this.fireProjectile('wizard', attackerEntity, targetEntity, 1.0);
             }
         }
     }
@@ -400,6 +425,99 @@ class CombatManager {
         if (this.grid) this.grid.clear();
         this.centerOfMass = { x: 0, y: 0 };
         Logger.info("COMBAT_MANAGER", "CombatManager cleared for new scene.");
+    }
+
+    /**
+     * [신규] 토템술사 평타형 토템 소환
+     */
+    spawnNormalTotem(owner, target) {
+        if (!owner.scene) return;
+
+        // 본체 마법 공격력의 100% 전이
+        const mAtk = owner.logic.getTotalMAtk();
+        
+        // SpiritTotemData의 기본 데이터 복제 및 스탯 조정
+        const totemLogic = new TotemLogic({
+            ...SpiritTotemData,
+            id: `totem_${owner.logic.id}_${Date.now()}`,
+            level: owner.logic.level,
+            master: owner,
+            baseStats: {
+                ...SpiritTotemData.baseStats,
+                [STAT_KEYS.M_ATK]: mAtk // 100% 전이
+            }
+        });
+
+        // 타겟과 시전자 사이의 적절한 위치에 소환
+        const spawnX = target.x + (Math.random() - 0.5) * 40;
+        const spawnY = target.y + (Math.random() - 0.5) * 40;
+
+        const totem = summonManager.spawnSummon(
+            owner.scene, 
+            totemLogic, 
+            owner.team, 
+            spawnX, 
+            spawnY, 
+            SpiritTotemData.spriteKey
+        );
+
+        if (totem) {
+            // 토템은 5초 후 자동 소멸
+            owner.scene.time.delayedCall(5000, () => {
+                summonManager.removeSummon(totemLogic.id);
+            });
+            
+            // 소환 효과음 및 이펙트
+            fxManager.showImpactEffect(totem, 'magic');
+            Logger.info("TOTEMIST", `Spawned Spirit Totem (MAtk: ${mAtk}) at (${spawnX.toFixed(1)}, ${spawnY.toFixed(1)})`);
+        }
+    }
+
+    /**
+     * [신규] 특수 토템(화염/치유) 소환
+     */
+    spawnSpecialTotem(owner, type) {
+        if (!owner.scene) return;
+
+        const data = type === 'fire' ? FireTotemData : HealingTotemData;
+        const mAtk = owner.logic.getTotalMAtk();
+        
+        const totemLogic = new TotemLogic({
+            ...data,
+            id: `${data.id}_${owner.logic.id}_${Date.now()}`,
+            level: owner.logic.level,
+            master: owner,
+            baseStats: {
+                ...data.baseStats,
+                [STAT_KEYS.M_ATK]: mAtk * (type === 'fire' ? 1.5 : 1.2) // 특수 토템은 보너스 계수 적용
+            }
+        });
+
+        // 시전자 주변 적절한 위치 (약간 앞쪽)
+        const spawnX = owner.x + (owner.flipX ? -80 : 80);
+        const spawnY = owner.y + (Math.random() - 0.5) * 60;
+
+        const totem = summonManager.spawnSummon(
+            owner.scene, 
+            totemLogic, 
+            owner.team, 
+            spawnX, 
+            spawnY, 
+            data.spriteKey
+        );
+
+        if (totem) {
+            // 특수 토템은 12초간 지속
+            owner.scene.time.delayedCall(12000, () => {
+                summonManager.removeSummon(totemLogic.id);
+            });
+            
+            fxManager.showImpactEffect(totem, 'magic');
+            // 화염 토템의 경우 붉은색 틴트 가산
+            if (type === 'fire' && totem.sprite) totem.sprite.setTint(0xff6600);
+
+            Logger.info("TOTEMIST", `Spawned ${data.name} (MAtk: ${totemLogic.stats.get(STAT_KEYS.M_ATK).toFixed(1)}) at (${spawnX.toFixed(1)}, ${spawnY.toFixed(1)})`);
+        }
     }
 }
 

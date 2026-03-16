@@ -10,6 +10,7 @@ import luteDB from './persistence/LuteIndexDBManager.js';
 import silviDB from './persistence/SilviIndexDBManager.js';
 import zaynDB from './persistence/ZaynIndexDBManager.js';
 import riaDB from './persistence/riaIndexDB.js';
+import joojooDB from './persistence/JoojooIndexDBManager.js';
 
 /**
  * 용병 수집 매니저 (Mercenary Collection Manager)
@@ -32,7 +33,8 @@ class MercenaryCollectionManager {
             lute: luteDB,
             silvi: silviDB,
             zayn: zaynDB,
-            ria: riaDB
+            ria: riaDB,
+            joojoo: joojooDB
         };
     }
 

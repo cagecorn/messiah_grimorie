@@ -40,7 +40,8 @@ export const CLASSES = {
     HEALER: 'healer',
     WIZARD: 'wizard',
     BARD: 'bard',
-    ROGUE: 'rogue'
+    ROGUE: 'rogue',
+    TOTEMIST: 'totemist'
 };
 
 // 기공(Base Increase): 모든 클래스 공통 기본 성장치
