@@ -30,21 +30,21 @@ class SpawnManager {
             const entity = new CombatEntity(scene, 0, 0, dummyLogic, 'enemy_goblin_sprite');
             entity.poolType = 'monster_goblin';
             return entity;
-        }, 15);
+        }, 15, true); // [FIX] overwrite: true로 등록하여 씬 재시작 시 새로운 씬 참조로 갱신
 
         poolingManager.registerPool('monster_goblin_shaman', () => {
             const dummyLogic = monsterManager.spawn('goblin_shaman', { level: 1 });
             const entity = new CombatEntity(scene, 0, 0, dummyLogic, 'enemy_goblin_shaman_sprite');
             entity.poolType = 'monster_goblin_shaman';
             return entity;
-        }, 10);
+        }, 10, true);
 
         poolingManager.registerPool('monster_goblin_wizard', () => {
             const dummyLogic = monsterManager.spawn('goblin_wizard', { level: 1 });
             const entity = new CombatEntity(scene, 0, 0, dummyLogic, 'enemy_goblin_wizard_sprite');
             entity.poolType = 'monster_goblin_wizard';
             return entity;
-        }, 5);
+        }, 5, true);
 
         Logger.system("SpawnManager: Pooling registered for Goblins, Shamans, and Wizards.");
     }
@@ -70,6 +70,7 @@ class SpawnManager {
             // 2. 논리 엔티티 생성
             const logicEntity = mercenaryManager.createFromRegistry(mercId, {
                 level: level,
+                exp: ownedData ? (ownedData.exp || 0) : 0, // [FIX] 경험치 연동 누락 수정
                 stars: stars
             });
 

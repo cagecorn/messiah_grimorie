@@ -48,13 +48,15 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         this.alpha = 1;
         this.setPosition(x, y);
 
-        // 1. 물리 엔진 등록
-        if (!this.body) {
-            this.scene.physics.add.existing(this);
-            this.body.setCollideWorldBounds(true);
-            this.body.setCircle(20, -20, -45);
-        } else {
-            this.body.setEnable(true);
+        // 1. 물리 엔진 등록 (씬 재시작 시점에 physics가 로드되지 않았을 수 있으므로 방어 처리)
+        if (this.scene.physics) {
+            if (!this.body) {
+                this.scene.physics.add.existing(this);
+                this.body.setCollideWorldBounds(true);
+                this.body.setCircle(20, -20, -45);
+            } else {
+                this.body.setEnable(true);
+            }
         }
 
         // 2. 비주얼 컴포넌트 우선 초기화 (스프라이트 생성)
@@ -109,7 +111,11 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         // 5. 모든 컴포넌트 준비 완료 후 외부 매니저(HUD, 그림자 등) 연결
         this.visual.attachManagers();
 
-        // [신규] 컴뱃 매니저에 유닛 등록 (AOE 스킬 등이 탐색할 수 있도록)
+        // [보안] 풀링에서 꺼낸 객체를 현재 활성화된 씬의 엔티티 레이어에 다시 정렬
+        this.scene.add.existing(this);
+        layerManager.assignToLayer(this, 'entities');
+
+        // [복구] 컴뱃 매니저에 유닛 등록 (이게 빠져서 (0,0)으로 끌려가는 버그 발생)
         combatManager.addUnit(this);
 
         Logger.info("COMBAT_ENTITY", `Initialized ${this.logic.name} (Modular) at (${Math.round(this.x)}, ${Math.round(this.y)})`);

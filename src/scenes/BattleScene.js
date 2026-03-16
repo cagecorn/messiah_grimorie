@@ -298,8 +298,37 @@ export default class BattleScene extends Phaser.Scene {
         // [신규] 아이템 획득 인터랙션 업데이트
         lootInteractionManager.update();
 
+        // [신규] 패배 조건 체크 (모든 아군 전사 시)
+        this.checkGameOver();
+
         // [ROUND CONTROL] 라운드 종료 체크
         this.checkRoundProgression();
+    }
+
+    /**
+     * [신규] 패배 조건 체크 및 라운드 초기화
+     */
+    checkGameOver() {
+        if (this.isTransitioning || this.isIntermission) return;
+
+        // 살아있는 아군이 한 명도 없을 때
+        const aliveAllies = this.allies.filter(a => a.active && a.logic?.isAlive);
+        
+        if (this.allies.length > 0 && aliveAllies.length === 0) {
+            Logger.warn("BATTLE", "All allies defeated! Resetting to Round 1.");
+            
+            // [USER 요청] 1라운드로 초기화
+            dungeonRoundManager.setCurrentRound(1);
+            
+            this.isTransitioning = true;
+            
+            // 나중에 로비나 던전 선택 화면으로 나가는 로직으로 확장할 수 있음
+            // 현재는 2초 뒤 씬을 다시 시작하거나 알림을 띄우는 용도로 사용
+            this.time.delayedCall(2000, () => {
+                // 임시로 BattleScene 재시작 (1라운드로)
+                this.scene.restart({ stageId: this.stageId });
+            });
+        }
     }
 
     /**
