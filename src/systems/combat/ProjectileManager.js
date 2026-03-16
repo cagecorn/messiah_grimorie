@@ -11,6 +11,7 @@ import FireBurstProjectile from '../../entities/projectiles/skills/FireBurstProj
 import ImSorryProjectile from '../../entities/projectiles/skills/ImSorryProjectile.js';
 import MeleeProjectile from '../../entities/projectiles/common/MeleeProjectile.js';
 import HeroDashProjectile from '../../entities/projectiles/skills/HeroDashProjectile.js';
+import RapidFireProjectile from '../../entities/projectiles/skills/RapidFireProjectile.js';
 
 /**
  * 투사체 매니저 (Projectile Manager)
@@ -60,6 +61,7 @@ class ProjectileManager {
         this.registerProjectile('im_sorry_emoji', ImSorryProjectile);
         this.registerProjectile('melee', MeleeProjectile);
         this.registerProjectile('hero_dash', HeroDashProjectile);
+        this.registerProjectile('rapid_fire_container', RapidFireProjectile);
 
         Logger.system("ProjectileManager: Initialized for scene.");
     }

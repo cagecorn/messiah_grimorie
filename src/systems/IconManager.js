@@ -76,9 +76,9 @@ class IconManager {
         if (lowerId.includes('inspiration')) return 'inspiration';
         if (lowerId.includes('stoneskin')) return 'stoneskin';
         if (lowerId.includes('song_of_protection')) return 'shield';
-        if (lowerId === 'stealth' || lowerId === 'stealthed') return 'stealth_icon';
-        if (lowerId === 'gale') return 'gale_icon';
-        if (lowerId === 'rapidfire' || lowerId === 'rapid_fire') return 'snapshot_icon';
+        if (lowerId.includes('stealth')) return 'stealth_icon';
+        if (lowerId.includes('gale')) return 'gale_icon';
+        if (lowerId.includes('rapidfire') || lowerId.includes('rapid_fire')) return 'snapshot_icon';
         
         return lowerId;
     }

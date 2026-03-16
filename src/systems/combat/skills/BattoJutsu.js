@@ -1,10 +1,11 @@
 import Logger from '../../../utils/Logger.js';
 import { BUFF_VALUES } from '../../../core/TechnicalConstants.js';
+import { STAT_KEYS } from '../../../core/EntityConstants.js';
 import fxManager from '../../graphics/FXManager.js';
 
 /**
  * 발도술 (Battō-jutsu) - 리아의 궁극기
- * 역할: [자신에게 '속사(Rapid Fire)' 버프를 걸어 공격 횟수를 5회로 증가시킴]
+ * 역할: [자신에게 '속사(Rapid Fire)' 및 '질풍(Gale)' 버프 적용]
  */
 class BattoJutsu {
     constructor() {
@@ -18,15 +19,41 @@ class BattoJutsu {
     execute(owner) {
         if (!owner || !owner.active) return;
 
-        Logger.info("ULTIMATE", `[Ria] Battō-jutsu activated!`);
+        Logger.info("ULTIMATE", `[Ria] Battō-jutsu activated! (Full Buff Set)`);
 
         const duration = BUFF_VALUES.RAPID_FIRE.DURATION;
+        const rangeBonus = BUFF_VALUES.GALE.RANGE_BONUS;
+        const minRangeBonus = BUFF_VALUES.GALE.MIN_RANGE_BONUS;
 
         if (owner.buffs) {
+            // 1. 속사 (복제 투사체 5연발)
             owner.buffs.addBuff({
                 id: 'rapidfire',
-                key: 'atk', // 실제 스탯 영향보다는 ID 체크용 (현재 시스템 구조상 key가 필요함)
+                key: 'atk', 
                 value: 0,
+                type: 'add',
+                duration: duration
+            });
+
+            // 2. 질풍 (사거리 대폭 증가)
+            owner.buffs.addBuff({
+                id: 'gale',
+                key: STAT_KEYS.ATK_RANGE,
+                value: rangeBonus,
+                type: 'add',
+                duration: duration
+            });
+            owner.buffs.addBuff({
+                id: 'gale_min',
+                key: STAT_KEYS.RANGE_MIN,
+                value: minRangeBonus,
+                type: 'add',
+                duration: duration
+            });
+            owner.buffs.addBuff({
+                id: 'gale_max',
+                key: STAT_KEYS.RANGE_MAX,
+                value: rangeBonus,
                 type: 'add',
                 duration: duration
             });
