@@ -4,6 +4,7 @@ import Logger from '../../../utils/Logger.js';
 import layerManager from '../../../ui/LayerManager.js';
 import ghostManager from '../../../systems/graphics/GhostManager.js';
 import phaserParticleManager from '../../../systems/graphics/PhaserParticleManager.js';
+import Airborne from '../../../systems/combat/effects/Airborne.js';
 
 /**
  * 🚀 히어로 돌진 투사체 (Hero Dash Projectile)
