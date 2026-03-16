@@ -2,6 +2,8 @@ import Logger from '../../../utils/Logger.js';
 import { BUFF_VALUES } from '../../../core/TechnicalConstants.js';
 import { STAT_KEYS } from '../../../core/EntityConstants.js';
 import fxManager from '../../graphics/FXManager.js';
+import ultimateCutsceneManager from '../../../ui/UltimateCutsceneManager.js';
+import localizationManager from '../../../core/LocalizationManager.js';
 
 /**
  * 발도술 (Battō-jutsu) - 리아의 궁극기
@@ -18,6 +20,10 @@ class BattoJutsu {
      */
     execute(owner) {
         if (!owner || !owner.active) return;
+
+        // [신규] 궁극기 컷씬 출력
+        const ultName = localizationManager.t('ult_ria_name');
+        ultimateCutsceneManager.show('ria', ultName);
 
         Logger.info("ULTIMATE", `[Ria] Battō-jutsu activated! (Full Buff Set)`);
 
