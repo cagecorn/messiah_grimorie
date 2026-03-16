@@ -242,16 +242,32 @@ class CombatManager {
         } else if (isAlly && className === 'bard') {
             this.processInspiration(attackerEntity, targetEntity, 1.0);
         } else if (!isAlly) {
-            // [USER 요청] 힐러는 빛의 투사체(light) 발사
-            if (className === 'healer') {
-                this.fireProjectile('light', attackerEntity, targetEntity, 1.0);
-            } else if (className === 'wizard') {
-                this.fireProjectile('wizard', attackerEntity, targetEntity, 1.0);
-            } else if (className === 'archer') {
-                this.fireProjectile('arrow', attackerEntity, targetEntity, 1.0);
-            } else {
-                // [신규] 근접 평타도 투사체 시스템으로 단일화 (확장성 확보)
-                this.fireProjectile('melee', attackerEntity, targetEntity, 1.0);
+            let projectileType = 'melee';
+            if (className === 'healer') projectileType = 'light';
+            else if (className === 'wizard') projectileType = 'wizard';
+            else if (className === 'archer') projectileType = 'arrow';
+
+            // 첫 번째 발사
+            this.fireProjectile(projectileType, attackerEntity, targetEntity, 1.0);
+
+            // [신규] 리아 궁극기: 속사(Rapid Fire) 대응 (모든 클래스 적용)
+            const rapidFireBuff = attackerEntity.buffs && attackerEntity.buffs.activeBuffs.find(b => b.id === 'rapidfire' || b.id === 'rapid_fire');
+            if (rapidFireBuff) {
+                const { SHOT_COUNT, INTERVAL } = BUFF_VALUES.RAPID_FIRE;
+                for (let i = 1; i < SHOT_COUNT; i++) {
+                    this.scene.time.delayedCall(i * INTERVAL, () => {
+                        if (attackerEntity.active && targetEntity.active && attackerEntity.logic.isAlive && targetEntity.logic.isAlive) {
+                            // 발사 시점의 클래스 상태 재확인 (변신 등 대비)
+                            const currentClass = attackerEntity.logic.class.getClassName();
+                            let currentType = 'melee';
+                            if (currentClass === 'healer') currentType = 'light';
+                            else if (currentClass === 'wizard') currentType = 'wizard';
+                            else if (currentClass === 'archer') currentType = 'arrow';
+
+                            this.fireProjectile(currentType, attackerEntity, targetEntity, 1.0);
+                        }
+                    });
+                }
             }
         }
     }

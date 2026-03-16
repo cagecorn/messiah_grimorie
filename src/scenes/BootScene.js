@@ -79,6 +79,7 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('shield_effect', assetPathManager.getPath('images', 'shield_effect'));
         this.load.image('melee_effect', assetPathManager.getPath('images', 'melee_effect'));
         this.load.image('cloning_effect', assetPathManager.getPath('images', 'cloning_effect'));
+        this.load.image('battojutsu_effect', assetPathManager.getPath('images', 'battojutsu_effect'));
         
         // [신규] 세이렌 및 아쿠아 버스트 관련
         this.load.image('siren_sprite', assetPathManager.getSummonPath('siren'));
@@ -92,7 +93,7 @@ export default class BootScene extends Phaser.Scene {
         }
         
         // 아이콘들을 명시적인 키값으로 로드 (UI 및 HealthBar에서 이 키를 사용함)
-        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music', 'stealth_icon', 'gale_icon'];
+        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music', 'stealth_icon', 'gale_icon', 'snapshot_icon'];
         iconKeys.forEach(key => {
             const path = assetPathManager.getPath('images', key);
             if (path) this.load.image(key, path);

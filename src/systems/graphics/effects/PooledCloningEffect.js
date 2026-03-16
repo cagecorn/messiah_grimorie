@@ -10,6 +10,7 @@ export default class PooledCloningEffect extends Phaser.GameObjects.Sprite {
         super(scene, 0, 0, 'cloning_effect');
         this.scene = scene;
         this.setVisible(false);
+        this.scene.add.existing(this);
     }
 
     /**

@@ -24,6 +24,7 @@ import PooledAquaExplosion from './effects/PooledAquaExplosion.js';
 import PooledFireExplosion from './effects/PooledFireExplosion.js';
 import PooledStoneSkinEffect from './effects/PooledStoneSkinEffect.js';
 import PooledCloningEffect from './effects/PooledCloningEffect.js';
+import PooledBattoJutsuEffect from './effects/PooledBattoJutsuEffect.js';
 
 /**
  * 애니메이션 매니저 (Animation Manager)
@@ -64,6 +65,7 @@ class AnimationManager {
         poolingManager.registerPool('fire_explosion_fx', () => new PooledFireExplosion(this.scene), 20, true);
         poolingManager.registerPool('stone_skin_overlay_fx', () => new PooledStoneSkinEffect(this.scene), 5, true);
         poolingManager.registerPool('cloning_effect', () => new PooledCloningEffect(this.scene), 10, true);
+        poolingManager.registerPool('battojutsu_effect', () => new PooledBattoJutsuEffect(this.scene), 5, true);
 
         Logger.system("AnimationManager: Facade ready with Modular Animators.");
     }
@@ -84,6 +86,13 @@ class AnimationManager {
     playExplosion(x, y, scale) { this.special.playExplosion(x, y, scale); }
     playAquaExplosion(x, y) { this.special.playAquaExplosion(x, y); }
     playFireExplosion(x, y) { this.special.playFireExplosion(x, y); }
+
+    playBattoJutsuEffect(x, y) {
+        const effect = poolingManager.get('battojutsu_effect');
+        if (effect) {
+            effect.show(x, y);
+        }
+    }
 
     // ⚔️ Combat
     playHitEffect(target, type) { this.combat.playHitEffect(target, type); }

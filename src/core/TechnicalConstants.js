@@ -147,6 +147,11 @@ export const BUFF_VALUES = {
         DURATION: 8000,
         RANGE_BONUS: 220,
         MIN_RANGE_BONUS: 100
+    },
+    RAPID_FIRE: {
+        DURATION: 12000,
+        SHOT_COUNT: 5,
+        INTERVAL: 80
     }
 };
 //#endregion

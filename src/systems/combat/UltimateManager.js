@@ -5,6 +5,7 @@ import meteorStrike from './skills/MeteorStrike.js';
 import summonSiren from './skills/SummonSiren.js';
 import imSorry from './skills/ImSorry.js';
 import cloning from './skills/Cloning.js';
+import battoJutsu from './skills/BattoJutsu.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -90,6 +91,16 @@ class UltimateManager {
             chargeMax: 100,
             chargeSpeedBase: 1.2,
             logic: cloning
+        });
+
+        // 리아 (Ria)
+        this.ultimates.set('ria', {
+            id: 'ria_ult',
+            nameKey: 'ult_ria_name',
+            descriptionKey: 'ult_ria_desc',
+            chargeMax: 100,
+            chargeSpeedBase: 1.0,
+            logic: battoJutsu
         });
 
         // 고블린(몬스터)은 궁극기 없음

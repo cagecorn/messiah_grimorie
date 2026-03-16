@@ -38,6 +38,12 @@ export default {
         'status_desc_stealth': 'Hiding from enemies. Untargetable.',
         'status_title_gale': 'Gale',
         'status_desc_gale': 'Increased attack range. Can fire sword winds.',
+        
+        'ult_ria_name': 'Battō-jutsu',
+        'ult_ria_desc': 'Temporary increases focus, firing 5 sequential shots with each basic attack.',
+        'status_title_rapid_fire': 'Rapid Fire',
+        'status_desc_rapid_fire': 'Attacks fire multiple times in rapid succession.',
+
         'status_desc_unknown': 'Mysterious effect.'
     },
     ko: {
@@ -79,6 +85,12 @@ export default {
         'status_desc_stealth': '적들로부터 몸을 숨깁니다. 타겟팅 대상에서 제외됩니다.',
         'status_title_gale': '질풍',
         'status_desc_gale': '공격 사거리가 크게 증가하여 먼 곳의 적도 공격할 수 있습니다.',
+
+        'ult_ria_name': '발도술',
+        'ult_ria_desc': '일시적으로 집중력이 극대화되어, 모든 평타 공격 시 5연속 화살/검기를 발사합니다.',
+        'status_title_rapid_fire': '속사',
+        'status_desc_rapid_fire': '공격 시 여러 발의 투사체를 연속해서 발사합니다.',
+
         'status_desc_unknown': '알 수 없는 효과입니다.'
     }
 };

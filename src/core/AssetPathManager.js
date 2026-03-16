@@ -40,8 +40,10 @@ class AssetPathManager {
             stone_skin_effect: `${this.basePath}effect/stone_skin_effect.png`,
             melee_effect: `${this.basePath}effect/melee_effect.png`,
             cloning_effect: `${this.basePath}effect/cloning_effect.png`,
+            battojutsu_effect: `${this.basePath}effect/battojutsu_effect.png`,
             stealth_icon: `${this.basePath}icon/stealth_icon.png`,
             gale_icon: `${this.basePath}icon/gale_icon.png`,
+            snapshot_icon: `${this.basePath}icon/snapshot_icon.png`,
             
             // [신규] 자인 (Zayn) 에셋
             zayn_sprite: `${this.basePath}characters/party/zayn_sprite.png`,

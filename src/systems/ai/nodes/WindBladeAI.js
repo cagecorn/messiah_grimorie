@@ -1,4 +1,4 @@
-import Logger from './MeleeAI.js'; // MeleeAI 등을 참고하여 작성
+import Logger from '../../../utils/Logger.js';
 
 /**
  * 윈드 블레이드 AI 노드 (Wind Blade AI Node)
@@ -18,16 +18,10 @@ class WindBladeAI {
             return;
         }
 
-        // 스킬 가용성 확인
-        const skillProgress = entity.skillProgress;
-        if (skillProgress >= 100) {
-            const skillData = entity.skillData;
-            if (skillData && skillData.logic) {
-                skillData.logic.execute(entity);
-                // 스킬 사용 후 게이지 리셋은 SkillManager나 EntitySkillComponent에서 처리하지만
-                // 명시적으로 여기서 하기도 함 (기록용)
-                entity.skillProgress = 0;
-            }
+        // 스킬 가용성 확인 및 사용 (EntitySkillComponent 프록시 활용)
+        if (entity.isSkillReady('windblade')) {
+            entity.useSkill('windblade');
+            Logger.info("RIA_AI", `${entity.logic.name} activated Wind Blade!`);
         }
     }
 }

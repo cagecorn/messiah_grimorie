@@ -105,6 +105,14 @@ class FXManager {
     }
 
     /**
+     * 리아 발도술 효과 출력 (신규)
+     */
+    showBattoJutsuEffect(x, y) {
+        if (!this.isInitialized) return;
+        animationManager.playBattoJutsuEffect(x, y);
+    }
+
+    /**
      * 수면 상태 시각 효과 (ZZZ 파티클)
      */
     showSleepEffect(target, duration) {

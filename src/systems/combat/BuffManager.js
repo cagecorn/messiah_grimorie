@@ -87,7 +87,14 @@ class BuffManager {
      * 현재 활성화된 버프의 ID 목록(중복 제거)을 반환합니다.
      */
     getActiveBuffIds() {
-        const ids = this.activeBuffs.map(b => b.id.split('_')[0]); // 'inspiration_matk' -> 'inspiration'
+        // [수정] 언더스코어가 있다고 무조건 자르지 않고, 특정 접두어(inspiration 등)일 때만 처리하도록 하거나
+        // 아니면 그냥 전체 ID를 유지하되 중복만 제거하도록 변경 (아이콘 매니저에서 처리하는 것이 안전)
+        const ids = this.activeBuffs.map(b => {
+            const id = b.id;
+            // inspiration_atk 같은 경우만 'inspiration'으로 합침
+            if (id.startsWith('inspiration_')) return 'inspiration';
+            return id;
+        });
         return [...new Set(ids)];
     }
 }

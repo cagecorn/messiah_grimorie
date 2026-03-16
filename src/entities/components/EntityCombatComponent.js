@@ -1,5 +1,5 @@
 import Logger from '../../utils/Logger.js';
-import { STAT_KEYS } from '../../core/EntityConstants.js';
+import { STAT_KEYS, ENTITY_CLASSES } from '../../core/EntityConstants.js';
 import EventBus, { EVENTS } from '../../core/EventBus.js';
 
 /**
@@ -80,8 +80,11 @@ export default class EntityCombatComponent {
      */
     playAttackAnimation(target, onHit) {
         const className = this.logic.class.getClassName();
-        // [FIX] 몬스터도 클래스 머신이 적용되어 있으므로, 힐러/마법사/궁수 아키타입은 대쉬를 생략합니다.
-        const isMelee = className === 'warrior' || className === 'rogue' || (this.logic.type === 'monster' && className !== 'healer' && className !== 'wizard' && className !== 'archer');
+        // [수정] 소드마스터(Ria)도 근접 클래스이므로 대쉬 공격을 수행하도록 포함
+        const isMelee = className === ENTITY_CLASSES.WARRIOR || 
+                        className === ENTITY_CLASSES.ROGUE || 
+                        className === ENTITY_CLASSES.SWORDMASTER ||
+                        (this.logic.type === 'monster' && className !== ENTITY_CLASSES.HEALER && className !== ENTITY_CLASSES.WIZARD && className !== ENTITY_CLASSES.ARCHER);
 
         if (isMelee) {
             this.animationManager.playDashAttack(this.entity, target, onHit);

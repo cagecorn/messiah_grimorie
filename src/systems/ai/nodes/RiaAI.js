@@ -2,6 +2,7 @@ import MeleeAI from './MeleeAI.js';
 import RangedAI from './RangedAI.js';
 import ProjectileSensor from './ProjectileSensor.js';
 import WindBladeAI from './WindBladeAI.js';
+import BattoJutsuAI from './BattoJutsuAI.js';
 import Logger from '../../../utils/Logger.js';
 import actionTextManager from '../../graphics/ActionTextManager.js';
 
@@ -13,8 +14,9 @@ class RiaAI {
     static execute(entity, bb, delta) {
         if (!entity.logic.isAlive) return;
 
-        // 0. 스킬(Wind Blade) 로직 실행
+        // 0. 스킬 및 궁극기 로직 실행
         WindBladeAI.execute(entity, bb);
+        BattoJutsuAI.execute(entity, bb);
 
         // 1. 투사체 패링(Parry) 로직
         const PARRY_RANGE = 120; // 패링 가능 반경

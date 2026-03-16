@@ -9,6 +9,7 @@ import merlinDB from './persistence/MerlinIndexDBManager.js';
 import luteDB from './persistence/LuteIndexDBManager.js';
 import silviDB from './persistence/SilviIndexDBManager.js';
 import zaynDB from './persistence/ZaynIndexDBManager.js';
+import riaDB from './persistence/riaIndexDB.js';
 
 /**
  * 용병 수집 매니저 (Mercenary Collection Manager)
@@ -30,7 +31,8 @@ class MercenaryCollectionManager {
             merlin: merlinDB,
             lute: luteDB,
             silvi: silviDB,
-            zayn: zaynDB
+            zayn: zaynDB,
+            ria: riaDB
         };
     }
 
