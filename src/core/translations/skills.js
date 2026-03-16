@@ -18,6 +18,10 @@ export default {
         'skill_stone_skin_desc': 'Reduces incoming damage by 25%.',
         'skill_wind_blade_name': 'Wind Blade',
         'skill_wind_blade_desc': 'Temporary increases attack range to fire sword winds.',
+        'skill_fire_totem_name': 'Summon Fire Totem',
+        'skill_fire_totem_desc': 'Summons a Fire Totem that explodes on densest enemy area.',
+        'skill_fire_burst_name': 'Fire Burst',
+        'skill_fire_burst_desc': 'Fires a fire ball that explodes on impact.',
         
         'ult_aren_name': 'For Messiah!',
         'ult_aren_desc': 'Jumps high into the air and creates a wide-area impact, launching enemies into the air.',
@@ -33,6 +37,8 @@ export default {
         'ult_silvi_desc': 'Goes on a rampage, dealing multi-hit AOE damage to nearby enemies.',
         'ult_zayn_name': 'Cloning',
         'ult_zayn_desc': 'Creates clones of himself to confuse and attack enemies.',
+        'ult_joojoo_name': 'Summon Healing Totem',
+        'ult_joojoo_desc': 'Summons a Healing Totem that emits a powerful healing aura.',
         
         'status_title_stealth': 'Stealth',
         'status_desc_stealth': 'Hiding from enemies. Untargetable.',
@@ -65,6 +71,10 @@ export default {
         'skill_stone_skin_desc': '받는 피해를 25% 감소시킵니다.',
         'skill_wind_blade_name': '윈드 블레이드',
         'skill_wind_blade_desc': '공격 사거리를 크게 증가시켜 멀리서도 검기를 날립니다.',
+        'skill_fire_totem_name': '화염 토템 소환',
+        'skill_fire_totem_desc': '적들이 밀집된 지역에 자폭하는 화염 토템을 소환합니다.',
+        'skill_fire_burst_name': '파이어 버스트',
+        'skill_fire_burst_desc': '화염구를 발사하여 범위 피해를 입힙니다.',
 
         'ult_aren_name': '포 메시아!',
         'ult_aren_desc': '공중으로 크게 점프 후, 넓은 범위에 충돌을 일으켜 적들을 공중으로 띄웁니다',
@@ -80,6 +90,8 @@ export default {
         'ult_silvi_desc': '마구 날뛰며 주변에 광역 다단 히트 피해를 입힙니다.',
         'ult_zayn_name': '클로닝',
         'ult_zayn_desc': '자신의 분신을 소환하여 적을 교란하고 공격합니다.',
+        'ult_joojoo_name': '치유 토템 소환',
+        'ult_joojoo_desc': '강력한 치유의 오라를 내뿜는 치유 토템을 소환합니다.',
         
         'status_title_stealth': '은신',
         'status_desc_stealth': '적들로부터 몸을 숨깁니다. 타겟팅 대상에서 제외됩니다.',

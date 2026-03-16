@@ -24,6 +24,7 @@ export default {
         'ui_class_healer': 'Healer',
         'ui_class_wizard': 'Wizard',
         'ui_class_bard': 'Bard',
+        'ui_class_totemist': 'Totemist',
         'ui_class_unknown': 'Unknown',
         
         'ui_info_no_equip': 'No equipment information available.',
@@ -66,6 +67,7 @@ export default {
         'ui_class_healer': '치유사',
         'ui_class_wizard': '마법사',
         'ui_class_bard': '음유시인',
+        'ui_class_totemist': '토템술사',
         'ui_class_unknown': '미확인',
         
         'ui_info_no_equip': '장착 정보가 없습니다.',
