@@ -133,7 +133,8 @@ export const STAMINA = {
     DEFAULT_MAX: 100,        // 기본 최대 스태미나
     DEFAULT_REGEN: 10,      // 기본 초당 재생량
     JUMP_COST: 30,          // 점프(급습) 소모량
-    ROLL_COST: 30           // 구르기(회피) 소모량
+    ROLL_COST: 30,          // 구르기(회피) 소모량
+    PARRY_COST: 15          // 패링(반사) 소모량
 };
 //#endregion
 

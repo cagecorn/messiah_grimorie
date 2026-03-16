@@ -36,7 +36,8 @@ export const ENTITY_CLASSES = {
     HEALER: 'healer',
     WIZARD: 'wizard',
     BARD: 'bard',
-    ROGUE: 'rogue'
+    ROGUE: 'rogue',
+    SWORDMASTER: 'swordmaster'
 };
 
 /**
@@ -52,6 +53,15 @@ export const CLASS_GROWTH = {
         [STAT_KEYS.M_DEF]: 0.8,
         [STAT_KEYS.STAMINA]: 2.0, // 고함량
         [STAT_KEYS.STAM_REGEN]: 0.1 // 보통
+    },
+    [ENTITY_CLASSES.SWORDMASTER]: {
+        [STAT_KEYS.ATK]: 2.3, // 로그와 전사 사이
+        [STAT_KEYS.DEF]: 1.2,
+        [STAT_KEYS.MAX_HP]: 2.2,
+        [STAT_KEYS.M_ATK]: 0.5,
+        [STAT_KEYS.M_DEF]: 1.0,
+        [STAT_KEYS.STAMINA]: 2.5, // 패링을 위해 스태미나 대량 보유
+        [STAT_KEYS.STAM_REGEN]: 0.3 // 빠른 회복
     },
     [ENTITY_CLASSES.ARCHER]: {
         [STAT_KEYS.ATK]: 1.8,

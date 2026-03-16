@@ -11,6 +11,9 @@ class ProjectileEvasion {
     static execute(entity, analysis) {
         if (!analysis || !analysis.isThreat) return false;
 
+        // [소드마스터 예외] 소드마스터는 제자리에 서서 투사체를 반사하므로 이동 회피 안 함
+        if (entity.logic.class.getClassName() === 'swordmaster') return false;
+
         // 논타겟인 경우만 이동 회피 (타겟팅은 이동해도 맞으므로)
         if (analysis.type === 'nonTele' && analysis.dodgeDir) {
             entity.moveDirection = analysis.dodgeDir;

@@ -154,6 +154,33 @@ export default class TargetProjectile extends Phaser.GameObjects.Container {
 
     onHit(target) {}
 
+    /**
+     * 투사체 반사 (Reflection/Parry)
+     * @param {CombatEntity} reflector 반사 시전자
+     * @param {CombatEntity} newTarget 새로운 유도 대상
+     */
+    reflect(reflector, newTarget) {
+        if (!this.active) return;
+        
+        this.owner = reflector;
+        this.target = newTarget;
+        
+        // 시간 및 비행 데이터 초기화
+        this.elapsedTime = 0;
+        this.startX = this.x;
+        this.startY = this.y;
+        
+        const dist = Phaser.Math.Distance.Between(this.x, this.y, this.target.x, this.target.y);
+        this.duration = (dist / this.speed) * 1000;
+
+        // 반사 비주얼 피드백 (약간의 푸른빛 또는 효과 추가 가능)
+        if (this.mainSprite) {
+            this.mainSprite.setTint(0x00ffff);
+        }
+
+        Logger.info("PROJ", `Projectile ${this.id} reflected by ${reflector.logic.name} towards ${newTarget.logic.name}.`);
+    }
+
     destroyProjectile() {
         projectileManager.release(this);
     }

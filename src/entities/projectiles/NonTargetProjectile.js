@@ -178,6 +178,28 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
     onHit(target) {}
     onHitGround() {}
 
+    /**
+     * 투사체 반사 (Reflection/Parry)
+     * @param {CombatEntity} reflector 반사 시전자
+     * @param {object} newTargetPos 새로운 목표 좌표
+     */
+    reflect(reflector, newTargetPos) {
+        if (!this.active) return;
+
+        this.owner = reflector;
+        this.targetPos = { x: newTargetPos.x, y: newTargetPos.y };
+        
+        // 관통형인 경우 기존에 맞았던 적 리스트 초기화 (반사되었으므로 다시 적을 맞출 수 있음)
+        this.hitTargets.clear();
+
+        // 반사 비주얼 피드백
+        if (this.mainSprite) {
+            this.mainSprite.setTint(0x00ffff);
+        }
+
+        Logger.info("PROJ", `NonTarget Projectile ${this.id} reflected by ${reflector.logic.name} towards (${newTargetPos.x}, ${newTargetPos.y}).`);
+    }
+
     explode() {
         this.destroyProjectile();
     }

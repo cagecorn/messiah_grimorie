@@ -13,6 +13,9 @@ export default class RollingNode {
     execute(entity, threats) {
         if (!entity || !entity.active || entity.isRolling()) return false;
 
+        // [소드마스터 예외] 소드마스터는 투사체를 피하지 않고 패링하므로 구르지 않음
+        if (entity.logic.class.getClassName() === 'swordmaster') return false;
+
         // 1. 투사체 위협 분석 (Classifier 활용)
         // 센서에서 온 원본 투사체 리스트를 하나씩 분석하여 가장 위험한 것을 찾음
         let activeThreat = null;

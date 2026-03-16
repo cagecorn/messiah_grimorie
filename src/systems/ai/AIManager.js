@@ -24,6 +24,7 @@ import ProjectileEvasion from './nodes/ProjectileEvasion.js';
 import GroupLeashAI from './nodes/GroupLeashAI.js';
 import ActionSelector from './nodes/ActionSelector.js';
 import RollingNode from './nodes/RollingNode.js';
+import RiaAI from './nodes/RiaAI.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -151,6 +152,8 @@ class AIManager {
                 node = SeraAI;
             } else if (id === 'goblin_wizard') {
                 node = GoblinWizardAI;
+            } else if (id === 'ria') {
+                node = RiaAI;
             }
 
             if (node) {
