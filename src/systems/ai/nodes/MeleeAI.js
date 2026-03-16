@@ -40,7 +40,15 @@ class MeleeAI {
             const dx = target.x - entity.x;
             const dy = target.y - entity.y;
             
-            const angle = Math.atan2(dy, dx);
+            let angle = Math.atan2(dy, dx);
+
+            // [신규] 전술적 오프셋 적용 (분신 등이 겹치지 않게 측면으로 접근 유도)
+            if (entity.ai_tacticalOffset) {
+                // 거리가 가까울수록 오프셋 영향력을 높여서 파고드는 느낌 강화 (히스테리시스 방지)
+                const factor = Phaser.Math.Clamp(400 / (dist + 50), 0.3, 1.2);
+                angle += entity.ai_tacticalOffset * factor;
+            }
+            
             entity.moveDirection = {
                 x: Math.cos(angle),
                 y: Math.sin(angle)

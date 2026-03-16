@@ -40,7 +40,13 @@ class JumpNode {
         const startY = entity.y;
         
         // 타겟의 살짝 앞쪽으로 도착지 설정
-        const angle = Phaser.Math.Angle.Between(startX, startY, target.x, target.y);
+        let angle = Phaser.Math.Angle.Between(startX, startY, target.x, target.y);
+        
+        // [신규] 전술적 오프셋 적용 (분신 등이 겹치지 않게 다른 각도로 착지 유도)
+        if (entity.ai_tacticalOffset) {
+            angle += entity.ai_tacticalOffset * 0.8;
+        }
+
         const targetX = target.x - Math.cos(angle) * 50;
         const targetY = target.y - Math.sin(angle) * 50;
 

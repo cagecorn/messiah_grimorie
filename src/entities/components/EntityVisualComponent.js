@@ -85,7 +85,9 @@ export default class EntityVisualComponent {
         if (!this.entity.active || !this.entity.logic.isAlive) return;
 
         // [신규] 은신 상태 시각화 (반투명 처리)
-        const targetAlpha = this.entity.isStealthed ? 0.4 : (this.entity.logic.isSpecial ? 0.6 : 1.0);
+        // [FIX] 'isSpecial'은 가디언 엔젤 등 모든 소환물에 적용되므로, 자인 분신(zayn_clone)만 특정하여 적용
+        const isZaynClone = this.entity.logic.baseId === 'zayn_clone';
+        const targetAlpha = this.entity.isStealthed ? 0.4 : (isZaynClone ? 0.6 : 1.0);
         if (this.sprite && this.sprite.alpha !== targetAlpha) {
             this.sprite.setAlpha(targetAlpha);
         }

@@ -100,6 +100,9 @@ class Cloning {
         );
 
         if (clone) {
+            // [신규] 전술적 오프셋 부여 (자인과 겹치지 않게 측면으로 유도)
+            clone.ai_tacticalOffset = (index === 0 ? 0.7 : -0.7);
+
             // 은신 효과를 본체처럼 받도록 설정 가능
             if (clone.sprite) {
                 clone.sprite.setAlpha(0.6);
