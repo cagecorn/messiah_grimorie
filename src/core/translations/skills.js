@@ -16,6 +16,8 @@ export default {
         'skill_sleeping_bubble_desc': 'Fires a water bubble that puts enemies to sleep.',
         'skill_stone_skin_name': 'Stone Skin',
         'skill_stone_skin_desc': 'Reduces incoming damage by 25%.',
+        'skill_wind_blade_name': 'Wind Blade',
+        'skill_wind_blade_desc': 'Temporary increases attack range to fire sword winds.',
         
         'ult_aren_name': 'For Messiah!',
         'ult_aren_desc': 'Jumps high into the air and creates a wide-area impact, launching enemies into the air.',
@@ -34,6 +36,8 @@ export default {
         
         'status_title_stealth': 'Stealth',
         'status_desc_stealth': 'Hiding from enemies. Untargetable.',
+        'status_title_gale': 'Gale',
+        'status_desc_gale': 'Increased attack range. Can fire sword winds.',
         'status_desc_unknown': 'Mysterious effect.'
     },
     ko: {
@@ -53,6 +57,8 @@ export default {
         'skill_sleeping_bubble_desc': '적을 잠들게 하는 물방울을 발사합니다.',
         'skill_stone_skin_name': '스톤 스킨',
         'skill_stone_skin_desc': '받는 피해를 25% 감소시킵니다.',
+        'skill_wind_blade_name': '윈드 블레이드',
+        'skill_wind_blade_desc': '공격 사거리를 크게 증가시켜 멀리서도 검기를 날립니다.',
 
         'ult_aren_name': '포 메시아!',
         'ult_aren_desc': '공중으로 크게 점프 후, 넓은 범위에 충돌을 일으켜 적들을 공중으로 띄웁니다',
@@ -71,6 +77,8 @@ export default {
         
         'status_title_stealth': '은신',
         'status_desc_stealth': '적들로부터 몸을 숨깁니다. 타겟팅 대상에서 제외됩니다.',
+        'status_title_gale': '질풍',
+        'status_desc_gale': '공격 사거리가 크게 증가하여 먼 곳의 적도 공격할 수 있습니다.',
         'status_desc_unknown': '알 수 없는 효과입니다.'
     }
 };

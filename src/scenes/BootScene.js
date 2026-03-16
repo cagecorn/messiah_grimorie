@@ -92,7 +92,7 @@ export default class BootScene extends Phaser.Scene {
         }
         
         // 아이콘들을 명시적인 키값으로 로드 (UI 및 HealthBar에서 이 키를 사용함)
-        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music', 'stealth_icon'];
+        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music', 'stealth_icon', 'gale_icon'];
         iconKeys.forEach(key => {
             const path = assetPathManager.getPath('images', key);
             if (path) this.load.image(key, path);

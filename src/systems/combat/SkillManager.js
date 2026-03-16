@@ -9,6 +9,7 @@ import fireBurst from './skills/FireBurst.js';
 import sleepingBubble from './skills/SleepingBubble.js';
 import stoneSkin from './skills/StoneSkin.js';
 import stealth from './skills/Stealth.js';
+import windBlade from './skills/WindBlade.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -109,6 +110,17 @@ class SkillManager {
             descriptionKey: 'skill_stone_skin_desc',
             cooldown: 12000, // 12 seconds
             logic: stoneSkin
+        });
+
+        // 리아 (Ria)
+        this.skills.set('ria', {
+            id: 'windblade',
+            name: 'Wind Blade',
+            nameKey: 'skill_wind_blade_name',
+            description: 'Temporary increases attack range to fire sword winds.',
+            descriptionKey: 'skill_wind_blade_desc',
+            cooldown: 15000, // 15 seconds
+            logic: windBlade
         });
 
         // 자인 (Zayn)

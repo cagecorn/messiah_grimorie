@@ -5,7 +5,7 @@ export default {
     name: 'Ria',
     className: ENTITY_CLASSES.SWORDMASTER,
     isSpecial: false,
-    skill: 'WindBlade', // 추후 패링 완료 후 구현
+    skill: 'windblade', 
     level: 1,
     exp: 0,
     baseStats: {

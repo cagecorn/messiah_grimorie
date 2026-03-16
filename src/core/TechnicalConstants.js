@@ -87,7 +87,10 @@ export const BONUS_STATS = {
     MAX_HP: 'bonusMaxHp',
     MAX_HP_MULT: 'bonusMaxHpMult',
     STAMINA: 'bonusStamina',
-    STAM_REGEN: 'bonusStamRegen'
+    STAM_REGEN: 'bonusStamRegen',
+    ATK_RANGE: 'bonusAtkRange',
+    RANGE_MIN: 'bonusRangeMin',
+    RANGE_MAX: 'bonusRangeMax'
 };
 
 // 통합 Getter 표준 명칭
@@ -135,6 +138,16 @@ export const STAMINA = {
     JUMP_COST: 30,          // 점프(급습) 소모량
     ROLL_COST: 30,          // 구르기(회피) 소모량
     PARRY_COST: 15          // 패링(반사) 소모량
+};
+//#endregion
+
+//#region 🌀 [구역 7] 디버프/버프 세부 수치 (Status & Buff Details)
+export const BUFF_VALUES = {
+    GALE: {
+        DURATION: 8000,
+        RANGE_BONUS: 220,
+        MIN_RANGE_BONUS: 100
+    }
 };
 //#endregion
 

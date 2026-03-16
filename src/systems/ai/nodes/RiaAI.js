@@ -1,4 +1,9 @@
 import MeleeAI from './MeleeAI.js';
+import RangedAI from './RangedAI.js';
+import ProjectileSensor from './ProjectileSensor.js';
+import WindBladeAI from './WindBladeAI.js';
+import Logger from '../../../utils/Logger.js';
+import actionTextManager from '../../graphics/ActionTextManager.js';
 
 /**
  * 리아 전용 AI 노드 (Ria Specialized AI)
@@ -7,6 +12,9 @@ import MeleeAI from './MeleeAI.js';
 class RiaAI {
     static execute(entity, bb, delta) {
         if (!entity.logic.isAlive) return;
+
+        // 0. 스킬(Wind Blade) 로직 실행
+        WindBladeAI.execute(entity, bb);
 
         // 1. 투사체 패링(Parry) 로직
         const PARRY_RANGE = 120; // 패링 가능 반경
@@ -36,8 +44,17 @@ class RiaAI {
             }
         }
         
-        // 2. 기본 근접 공격/이동 로직 수행
-        MeleeAI.execute(entity, bb, delta);
+        // 2. 공격/이동 로직 수행
+        // [신규] '질풍(Gale)' 버프 여부에 따라 근접/원거리 AI 스위칭
+        const isGaleActive = entity.buffs && entity.buffs.getActiveBuffIds().includes('gale');
+        
+        if (isGaleActive) {
+            // 원거리 모드: 사거리를 유지하며 검기를 날림
+            RangedAI.execute(entity, bb, delta);
+        } else {
+            // 근접 모드: 평소처럼 파고들어 공격
+            MeleeAI.execute(entity, bb, delta);
+        }
     }
 
     /**
@@ -59,6 +76,9 @@ class RiaAI {
 
         // 비주얼 및 사운드 피드백
         if (entity.scene) {
+            // [신규] 머리 위 Parry! 텍스트 출력
+            actionTextManager.show(entity, 'Parry!', '#00ffff');
+
             // 스파크 이펙트 (기존 melee_effect 재활용)
             const spark = entity.scene.add.sprite(proj.x, proj.y, 'melee_effect');
             spark.setScale(0.5);

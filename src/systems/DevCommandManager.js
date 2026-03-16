@@ -33,6 +33,7 @@ class DevCommandManager {
         console.group("%c🛠️ Messiah Grimoire Dev Commands", "color: #00ff00; font-weight: bold; font-size: 14px;");
         console.log("%cdev.addMercenary(id, count)%c - 특정 용병 추가", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.addZayn()%c - 자인 즉시 지급 (자인 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
+        console.log("%cdev.addRia()%c - 리아 즉시 지급 (리아 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.clearData()%c - 모든 로컬 데이터 및 DB 초기화 (새로고침 필요)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.help()%c - 이 도움말 다시 보기", "font-weight: bold;", "font-weight: normal;");
         console.groupEnd();
@@ -58,6 +59,13 @@ class DevCommandManager {
      */
     addZayn() {
         this.addMercenary('zayn', 1);
+    }
+    
+    /**
+     * 리아 즉시 지급 단축키
+     */
+    addRia() {
+        this.addMercenary('ria', 1);
     }
 
     /**
