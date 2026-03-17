@@ -9,6 +9,7 @@ import SupportAnimator from './animations/SupportAnimator.js';
 import SpecialAnimator from './animations/SpecialAnimator.js';
 import CombatAnimator from './animations/CombatAnimator.js';
 import StateAnimator from './animations/StateAnimator.js';
+import FlyingAnimation from './animations/FlyingAnimation.js';
 
 // [이펙트 풀링 객체들]
 import PooledHitEffect from './effects/PooledHitEffect.js';
@@ -45,6 +46,7 @@ class AnimationManager {
         this.special = new SpecialAnimator(this);
         this.combat = new CombatAnimator(this);
         this.state = new StateAnimator(this);
+        this.flying = new FlyingAnimation(this);
     }
 
     //#region 🛠️ [초기화 세션]
@@ -113,6 +115,10 @@ class AnimationManager {
     playDeathAnimation(entity, onComplete) { this.state.playDeathAnimation(entity, onComplete); }
     playIdleBobbing(entity, className) { this.state.playIdleBobbing(entity, className); }
     stopIdleBobbing(entity) { this.state.stopIdleBobbing(entity); }
+
+    // 🕊️ Flying
+    playFlyingBobbing(entity) { this.flying.playFlyingBobbing(entity); }
+    stopFlyingBobbing(entity) { this.flying.stopFlyingBobbing(entity); }
     //#endregion
 
     /**

@@ -101,14 +101,17 @@ export default class BootScene extends Phaser.Scene {
 
         this.load.image('stone_skin_effect', assetPathManager.getPath('images', 'stone_skin_effect'));
         this.load.image('falling_impact_effect', assetPathManager.getPath('images', 'falling_impact_effect'));
+        this.load.image('bullet_projectile', assetPathManager.getPath('images', 'bullet_projectile'));
+        this.load.image('flying_icon', assetPathManager.getPath('images', 'flying_icon'));
 
         // [신규] 실비 스프라이트 및 사운드 프리로드
         this.load.image('merc_silvi_sprite', assetPathManager.getMercenaryPath('silvi', 'sprite'));
         this.load.image('merc_ria_sprite', assetPathManager.getMercenaryPath('ria', 'sprite'));
         this.load.image('merc_joojoo_sprite', assetPathManager.getMercenaryPath('joojoo', 'sprite'));
-        this.load.image('spirit_totem_sprite', assetPathManager.getPath('images', 'spirit_totem'));
-        this.load.image('fire_totem_sprite', assetPathManager.getPath('images', 'fire_totem'));
-        this.load.image('healing_totem_sprite', assetPathManager.getPath('images', 'healing_totem'));
+        this.load.image('zayn_sprite', assetPathManager.getPath('images', 'zayn_sprite'));
+        this.load.image('ria_sprite', assetPathManager.getPath('images', 'ria_sprite'));
+        this.load.image('joojoo_sprite', assetPathManager.getPath('images', 'joojoo_sprite'));
+        this.load.image('sein_sprite', assetPathManager.getPath('images', 'sein_sprite'));
         this.load.audio('stone_skin_sfx', assetPathManager.getPath('audio', 'stone_skin_sfx'));
         this.load.audio('roll_sfx', assetPathManager.getPath('audio', 'roll_sfx'));
     }

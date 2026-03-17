@@ -68,6 +68,14 @@ export default class BaseEntity {
      * @param {number} levelGain 증가한 레벨 수
      */
     applyGrowthForLevel(levelGain) {
+        // 1. [신규] 전역 공통 기본 성장 적용 (최소 생존력 보장)
+        Object.entries(GLOBAL_BASE_GROWTH).forEach(([statKey, weight]) => {
+            const increment = weight * levelGain;
+            const currentBase = this.stats.baseStats[statKey] || 0;
+            this.stats.update('base', statKey, currentBase + increment);
+        });
+
+        // 2. [기존] 클래스별 특화 성장 적용
         const growth = this.class.getGrowthValues();
         Object.entries(growth).forEach(([statKey, weight]) => {
             const increment = weight * levelGain;

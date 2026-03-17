@@ -20,6 +20,8 @@ import EntityVisualComponent from './components/EntityVisualComponent.js';
 import EntityCombatComponent from './components/EntityCombatComponent.js';
 import EntityActionComponent from './components/EntityActionComponent.js';
 import EntityStaminaComponent from './components/EntityStaminaComponent.js';
+import { ENTITY_CLASSES } from '../core/EntityConstants.js';
+import FlyingBuff from '../systems/combat/effects/FlyingBuff.js';
 
 import poolingManager from '../core/PoolingManager.js';
 
@@ -137,6 +139,11 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         import('../core/EntityManager.js').then(m => {
             m.default.register(this, this.team);
         });
+
+        // [FLYING] 플라잉맨 클래스는 탄생 시점부터 비행 상태 적용
+        if (this.logic.class && this.logic.class.getClassName() === ENTITY_CLASSES.FLYINGMAN) {
+            FlyingBuff.apply(this);
+        }
     }
 
     setupInteractions() {

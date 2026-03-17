@@ -12,6 +12,7 @@ import stealth from './skills/Stealth.js';
 import windBlade from './skills/WindBlade.js';
 import fireTotem from './skills/FireTotem.js';
 import healingTotem from './skills/HealingTotem.js';
+import tornadoShot from './skills/TornadoShot.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -145,6 +146,17 @@ class SkillManager {
             descriptionKey: 'skill_fire_totem_desc',
             cooldown: 10000, 
             logic: fireTotem
+        });
+
+        // 세인 (Sein)
+        this.skills.set('sein', {
+            id: 'tornado_shot',
+            name: 'Tornado Shot',
+            nameKey: 'skill_tornado_shot_name',
+            description: 'Fires a spiral of projectiles.',
+            descriptionKey: 'skill_tornado_shot_desc',
+            cooldown: 10000,
+            logic: tornadoShot
         });
 
         // 화염 토템 (Fire Totem)

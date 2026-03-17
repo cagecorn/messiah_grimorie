@@ -63,7 +63,14 @@ class AssetPathManager {
             spirit_totem: `${this.basePath}totem/spirit_totem_sprite.png`,
             fire_totem: `${this.basePath}totem/fire_totem_sprite.png`,
             healing_totem: `${this.basePath}totem/healing_totem_sprite.png`,
-            falling_impact_effect: `${this.basePath}effect/falling_impact_effect.png`
+            falling_impact_effect: `${this.basePath}effect/falling_impact_effect.png`,
+            bullet_projectile: `${this.basePath}effect/bullet_projectile.png`,
+            flying_icon: `${this.basePath}icon/flying_icon.png`,
+            
+            // [신규] 대기실/UI용 스프라이트 (중첩 로드 대응)
+            ria_sprite: `${this.basePath}characters/party/ria_sprite.png`,
+            joojoo_sprite: `${this.basePath}characters/party/joojoo_sprite.png`,
+            sein_sprite: `${this.basePath}characters/party/sein_sprite.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)

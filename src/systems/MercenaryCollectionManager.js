@@ -11,6 +11,7 @@ import silviDB from './persistence/SilviIndexDBManager.js';
 import zaynDB from './persistence/ZaynIndexDBManager.js';
 import riaDB from './persistence/riaIndexDB.js';
 import joojooDB from './persistence/JoojooIndexDBManager.js';
+import seinDB from './persistence/SeinIndexDBManager.js';
 
 /**
  * 용병 수집 매니저 (Mercenary Collection Manager)
@@ -34,7 +35,8 @@ class MercenaryCollectionManager {
             silvi: silviDB,
             zayn: zaynDB,
             ria: riaDB,
-            joojoo: joojooDB
+            joojoo: joojooDB,
+            sein: seinDB
         };
     }
 

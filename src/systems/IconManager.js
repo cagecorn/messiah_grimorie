@@ -21,7 +21,8 @@ class IconManager {
             'sleep': 'sleep_icon.png',
             'shield': 'shield_icon.png',
             'inspiration': 'inspiration_icon.png',
-            'stoneskin': 'stone_skin_icon.png'
+            'stoneskin': 'stone_skin_icon.png',
+            'flying': 'flying_icon.png'
         };
         
         this.defaultIcon = 'assets/icon/unknown.png';
@@ -79,6 +80,7 @@ class IconManager {
         if (lowerId.includes('stealth')) return 'stealth_icon';
         if (lowerId.includes('gale')) return 'gale_icon';
         if (lowerId.includes('rapidfire') || lowerId.includes('rapid_fire')) return 'snapshot_icon';
+        if (lowerId.includes('flying')) return 'flying_icon';
         
         return lowerId;
     }

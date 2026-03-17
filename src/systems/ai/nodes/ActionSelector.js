@@ -22,7 +22,10 @@ export default class ActionSelector {
      */
     evaluate(entity, threats, target) {
         // [1순위] 구르기 (생존)
-        if (this.rollingNode && threats && threats.length > 0) {
+        // [FLYING] 비행 중일 때는 구르기 불가 및 논타겟 위협 무시
+        const isFlying = entity.logic.status && entity.logic.status.states && entity.logic.status.states.flying;
+        
+        if (!isFlying && this.rollingNode && threats && threats.length > 0) {
             const success = this.rollingNode.execute(entity, threats);
             if (success) return 'roll';
         }

@@ -74,6 +74,12 @@ class StateAnimator {
     playIdleBobbing(entity, className) {
         if (!this.scene || !entity || !entity.sprite || entity.idleBobbingTween) return;
 
+        // [FLYING] 비행 중인 유닛은 전용 와이드 바빙 실행
+        if (entity.logic.status && entity.logic.status.states && entity.logic.status.states.flying) {
+            this.am.playFlyingBobbing(entity);
+            return;
+        }
+
         let amplitude = -4;
         let baseDuration = 1000;
 
@@ -95,6 +101,12 @@ class StateAnimator {
      */
     stopIdleBobbing(entity) {
         if (entity.idleBobbingTween) {
+            // [FLYING] 비행 중이면 전용 중지 로직 실행 (고도 복귀 포함)
+            if (entity.logic.status && entity.logic.status.states && entity.logic.status.states.flying) {
+                this.am.stopFlyingBobbing(entity);
+                return;
+            }
+
             entity.idleBobbingTween.stop();
             entity.idleBobbingTween = null;
 

@@ -9,7 +9,7 @@ export default {
     level: 1,
     exp: 0,
     baseStats: {
-        [STAT_KEYS.MAX_HP]: 120,
+        [STAT_KEYS.MAX_HP]: 160,
         [STAT_KEYS.ATK]: 15,
         [STAT_KEYS.M_ATK]: 0,
         [STAT_KEYS.DEF]: 12,

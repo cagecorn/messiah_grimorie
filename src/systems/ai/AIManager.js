@@ -29,6 +29,8 @@ import StationaryAI from './nodes/StationaryAI.js';
 import TotemistAI from './nodes/TotemistAI.js';
 import JoojooAI from './nodes/JoojooAI.js';
 import EliteMonsterAI from './nodes/EliteMonsterAI.js';
+import FlyingManAI from './nodes/FlyingManAI.js';
+import SeinAI from './nodes/SeinAI.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -46,7 +48,8 @@ class AIManager {
             [ENTITY_CLASSES.WIZARD]: WizardAI,
             [ENTITY_CLASSES.BARD]: BardAI,
             [ENTITY_CLASSES.ROGUE]: RogueAI,
-            [ENTITY_CLASSES.TOTEMIST]: TotemistAI
+            [ENTITY_CLASSES.TOTEMIST]: TotemistAI,
+            [ENTITY_CLASSES.FLYINGMAN]: FlyingManAI
         };
 
         // [신규] AI 성능 및 안정성 필드
@@ -164,6 +167,8 @@ class AIManager {
                 node = RiaAI;
             } else if (id === 'joojoo') {
                 node = JoojooAI;
+            } else if (id === 'sein') {
+                node = SeinAI;
             } else if (entity.logic.isTotem) {
                 node = StationaryAI;
             }

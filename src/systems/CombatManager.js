@@ -203,6 +203,14 @@ class CombatManager {
             damage = COMBAT.calcMagicEffect(attacker.getTotalMAtk(), multiplier);
         }
 
+        // [FLYING] 비행 중인 유닛은 논타겟 투사체에 면역
+        if (targetEntity.logic.status && targetEntity.logic.status.states && targetEntity.logic.status.states.flying) {
+            if (projectileId && projectileId.includes('nontarget')) {
+                Logger.info("COMBAT", `[IMMUNE] ${target.name} is flying and avoided non-target projectile: ${projectileId}`);
+                return;
+            }
+        }
+
         if (targetEntity && targetEntity.takeDamage) {
             // [DEBUG] 소환수(Siren) 또는 마법 데미지 전용 특화 로그 (사용자 요청: 필터링 용이성)
             const isSiren = attacker.name && attacker.name.toLowerCase().includes('siren');
