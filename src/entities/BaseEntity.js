@@ -8,6 +8,7 @@ import BuffManager from '../systems/combat/BuffManager.js';
 import StatusEffectManager from '../systems/combat/StatusEffectManager.js';
 import ElementalManager from '../systems/combat/ElementalManager.js';
 import ShieldManager from '../systems/combat/ShieldManager.js';
+import { GLOBAL_BASE_GROWTH } from '../core/EntityConstants.js';
 
 /**
  * 기본 엔티티 (Base Entity)

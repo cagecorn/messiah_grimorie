@@ -54,17 +54,20 @@ class AssetPathManager {
             inspiration: `${this.basePath}icon/inspiration_icon.png`,
             music: `${this.basePath}icon/music_icon.png`,
             sleep: `${this.basePath}icon/sleep_icon.png`,
+            slow: `${this.basePath}icon/slow_icon.png`,
             
             // [신규] 고블린 위자드 에셋
             goblin_wizard: `${this.basePath}characters/enemies/goblin_wizard_sprite.png`,
             goblin_wizard_cutscene: `${this.basePath}characters/enemies/goblin_wizard_cutscene.png`,
+            goblin_flyingman: `${this.basePath}characters/enemies/goblin_flyingman_sprite.png`,
 
             // [신규] 토템술사 주주 관련 조산
-            spirit_totem: `${this.basePath}totem/spirit_totem_sprite.png`,
-            fire_totem: `${this.basePath}totem/fire_totem_sprite.png`,
-            healing_totem: `${this.basePath}totem/healing_totem_sprite.png`,
+            spirit_totem_sprite: `${this.basePath}totem/spirit_totem_sprite.png`,
+            fire_totem_sprite: `${this.basePath}totem/fire_totem_sprite.png`,
+            healing_totem_sprite: `${this.basePath}totem/healing_totem_sprite.png`,
             falling_impact_effect: `${this.basePath}effect/falling_impact_effect.png`,
             bullet_projectile: `${this.basePath}effect/bullet_projectile.png`,
+            tornado_shot_projectile: `${this.basePath}effect/tornado_shot_projectile.png`,
             flying_icon: `${this.basePath}icon/flying_icon.png`,
             
             // [신규] 대기실/UI용 스프라이트 (중첩 로드 대응)

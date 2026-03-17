@@ -117,6 +117,35 @@ class GhostManager {
             ghost.show(source, lifeTime, tint, alpha);
         }
     }
+
+    /**
+     * 일정 시간 동안 주기적으로 잔상을 생성합니다. (Dash, Roll 등 연출용)
+     * @param {Phaser.GameObjects.GameObject} source 원본 객체
+     * @param {Object} options 설정 (duration, interval, tint, alpha)
+     */
+    startGhosting(source, options = {}) {
+        if (!this.isInitialized || !source || !this.scene) return null;
+
+        const {
+            duration = 500,
+            interval = 50,
+            lifeTime = 300,
+            tint = 0xffffff,
+            alpha = 0.4
+        } = options;
+
+        const timer = this.scene.time.addEvent({
+            delay: interval,
+            repeat: Math.floor(duration / interval),
+            callback: () => {
+                if (source && source.active) {
+                    this.spawnGhost(source, { lifeTime, tint, alpha });
+                }
+            }
+        });
+
+        return timer;
+    }
 }
 
 const ghostManager = new GhostManager();

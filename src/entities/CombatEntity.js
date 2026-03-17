@@ -229,6 +229,12 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     get skillData() { return this.skills.skillData; }
     get ultData() { return this.skills.ultData; }
 
+    // [ACTION 브릿지]
+    isRolling() { return this.actions && this.actions.isRolling; }
+    isDashing() { return this.actions && this.actions.isDashing; }
+    roll(dir) { return this.actions && this.actions.roll(dir); }
+    dash(dir) { return this.actions && this.actions.dash(dir); }
+
     set skillProgress(v) {
         this.skills.skillProgress = v;
         if (this.hpBar) this.hpBar.isDirty = true;

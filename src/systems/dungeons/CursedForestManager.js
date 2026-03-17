@@ -21,8 +21,8 @@ class CursedForestManager {
         };
 
         this.waves = [
-            { monsters: ['goblin'], count: 10 },
-            { monsters: ['goblin', 'goblin_shaman'], count: 15 }
+            { monsters: ['goblin', 'goblin_flyingman'], count: 10 },
+            { monsters: ['goblin', 'goblin_shaman', 'goblin_wizard', 'goblin_flyingman'], count: 15 }
         ];
 
         Logger.system(`CursedForestManager: Stage ${this.name} Ready.`);

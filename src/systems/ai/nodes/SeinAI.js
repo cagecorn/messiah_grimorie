@@ -1,8 +1,9 @@
 import FlyingManAI from './FlyingManAI.js';
+import TornadoShotAI from './TornadoShotAI.js';
 
 /**
  * 세인 AI 노드 (Sein AI Node)
- * 역할: [FlyingMan 공통 AI를 기반으로 전용 스킬 사용 제어]
+ * 역할: [플라잉맨 기본 기동 + 토네이도 샷 스킬 연계]
  */
 class SeinAI {
     /**
@@ -11,14 +12,20 @@ class SeinAI {
      * @param {number} delta 
      */
     static execute(entity, bb, delta) {
-        // 기본 이동 및 공격은 FlyingManAI를 따름
-        FlyingManAI.execute(entity, bb);
+        if (!entity.logic.isAlive) return;
 
-        // 스킬 사용 로직
-        const target = bb.get('target');
-        if (target && entity.canUseSkill()) {
-            entity.useSkill(target);
+        const enemies = (entity.team === 'mercenary') ? 
+            entity.scene.enemies : entity.scene.allies;
+
+        // 1. 스킬 사용 결정 (적 밀집 지역 노림)
+        if (TornadoShotAI.update(entity, enemies)) {
+            bb.set('state', 'skill');
+            return true;
         }
+
+        // 2. 기본 비행형 AI 행동 수행 (원거리 카이팅 등)
+        FlyingManAI.execute(entity, bb);
+        return true;
     }
 }
 

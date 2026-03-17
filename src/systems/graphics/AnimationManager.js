@@ -10,6 +10,7 @@ import SpecialAnimator from './animations/SpecialAnimator.js';
 import CombatAnimator from './animations/CombatAnimator.js';
 import StateAnimator from './animations/StateAnimator.js';
 import FlyingAnimation from './animations/FlyingAnimation.js';
+import DashAnimator from './animations/DashAnimator.js';
 
 // [이펙트 풀링 객체들]
 import PooledHitEffect from './effects/PooledHitEffect.js';
@@ -47,6 +48,7 @@ class AnimationManager {
         this.combat = new CombatAnimator(this);
         this.state = new StateAnimator(this);
         this.flying = new FlyingAnimation(this);
+        this.dash = new DashAnimator(this);
     }
 
     //#region 🛠️ [초기화 세션]
@@ -109,6 +111,7 @@ class AnimationManager {
     playHitEffect(target, type) { this.combat.playHitEffect(target, type); }
     playSkillDash(entity, targetPos, onComplete) { this.combat.playSkillDash(entity, targetPos, onComplete); }
     playRollAnimation(entity, duration) { this.combat.playRollAnimation(entity, duration); }
+    playDashAnimation(entity, duration) { this.dash.playDash(entity, duration); }
     playDashAttack(entity, target, onHit) { this.combat.playDashAttack(entity, target, onHit); }
 
     // 💀 State

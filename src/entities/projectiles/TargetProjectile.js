@@ -65,10 +65,16 @@ export default class TargetProjectile extends Phaser.GameObjects.Container {
         
         this.id = instanceIDManager.generate(`proj_target_${owner.id}`);
 
-        // 초기 위치 설정 (몸통 높이 보정)
-        this.setPosition(owner.x, owner.y - 40);
+        // 초기 위치 설정 (몸통 높이 보정 + 비행 고도 합산)
+        const zHeight = owner.zHeight || 0;
+        this.setPosition(owner.x, owner.y - zHeight - 40);
         this.startX = this.x;
         this.startY = this.y;
+
+        // [FIX] 색상 초기화 (반사되었던 투사체가 재사용될 때 파란색으로 남는 현상 방지)
+        if (this.mainSprite) {
+            this.mainSprite.clearTint();
+        }
         
         this.setActive(true);
         this.setVisible(true);

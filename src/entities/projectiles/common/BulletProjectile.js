@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import TargetProjectile from '../TargetProjectile.js';
-import graphicManager from '../../../systems/GraphicManager.js';
+import fxManager from '../../../systems/graphics/FXManager.js';
 
 /**
  * 불렛 투사체 (Bullet Projectile)
@@ -23,11 +23,7 @@ export default class BulletProjectile extends TargetProjectile {
      * 적중 시 효과 커스텀
      */
     onHit(target) {
-        // [USER 요청] PooledHitEffect 적용
-        graphicManager.playEffect('pooled_hit', {
-            x: this.x,
-            y: this.y,
-            scale: 0.6
-        });
+        // [FIX] 전용 FX 매니저를 통해 피격 이펙트 재생
+        fxManager.showImpactEffect(target, 'impact_effect');
     }
 }

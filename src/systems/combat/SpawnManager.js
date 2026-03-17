@@ -47,6 +47,13 @@ class SpawnManager {
             return entity;
         }, 5, true);
 
+        poolingManager.registerPool('monster_goblin_flyingman', () => {
+            const dummyLogic = monsterManager.spawn('goblin_flyingman', { level: 1 });
+            const entity = new CombatEntity(scene, 0, 0, dummyLogic, 'enemy_goblin_flyingman_sprite');
+            entity.poolType = 'monster_goblin_flyingman';
+            return entity;
+        }, 5, true);
+
         Logger.system("SpawnManager: Pooling registered for Goblins, Shamans, and Wizards.");
     }
     /**
@@ -103,12 +110,23 @@ class SpawnManager {
         // 기본 10마리 + 라운드당 2마리씩 추가
         const enemyCount = 10 + (round - 1) * 2;
         
-        // [USER 요청] 몬스터 ID 결정 (고블린 7 : 고블린 샤먼 3 비율)
+        // [USER 요청] 몬스터 ID 결정
         const monsterIds = [];
         for (let i = 0; i < enemyCount; i++) {
-            // 6:3:1 비율로 고블린, 샤먼, 위자드 분배
             const rand = Math.random();
-            const id = (rand < 0.6) ? 'goblin' : (rand < 0.9 ? 'goblin_shaman' : 'goblin_wizard');
+            let id;
+
+            if (stageId === 'cursed_forest') {
+                // 저주받은 숲: 고블린 6 : 샤먼 2 : 위자드 1 : 플라잉맨 1 비율로 밸런싱
+                // (고블린과 플라잉맨만 비교하면 대략 9:1에 가깝게 조정)
+                if (rand < 0.6) id = 'goblin';
+                else if (rand < 0.8) id = 'goblin_shaman';
+                else if (rand < 0.9) id = 'goblin_wizard';
+                else id = 'goblin_flyingman';
+            } else {
+                // 기본 분배
+                id = (rand < 0.6) ? 'goblin' : (rand < 0.9 ? 'goblin_shaman' : 'goblin_wizard');
+            }
             monsterIds.push(id);
         }
 
@@ -213,6 +231,18 @@ class SpawnManager {
             key: `enemy_goblin_wizard_sprite`,
             path: assetPathManager.getEnemyPath('goblin_wizard', 'sprite')
         });
+
+        assets.push({
+            type: 'monster',
+            id: 'goblin_flyingman',
+            key: `enemy_goblin_flyingman_sprite`,
+            path: assetPathManager.getEnemyPath('goblin_flyingman', 'sprite')
+        });
+
+        // [신규] 주주 토템 에셋 프리로드
+        assets.push({ type: 'summon', id: 'spirit_totem', key: 'spirit_totem_sprite', path: assetPathManager.getPath('images', 'spirit_totem_sprite') });
+        assets.push({ type: 'summon', id: 'fire_totem', key: 'fire_totem_sprite', path: assetPathManager.getPath('images', 'fire_totem_sprite') });
+        assets.push({ type: 'summon', id: 'healing_totem', key: 'healing_totem_sprite', path: assetPathManager.getPath('images', 'healing_totem_sprite') });
 
         return assets;
     }

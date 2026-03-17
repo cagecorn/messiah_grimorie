@@ -37,7 +37,6 @@ class FlyingAnimation {
         if (entity.idleBobbingTween) {
             entity.idleBobbingTween.stop();
             entity.idleBobbingTween = null;
-            this.scene.tweens.killTweensOf(entity.sprite);
             
             // 현재 고도로 부드럽게 복귀
             const baseHeight = entity.zHeight || 0;

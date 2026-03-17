@@ -72,8 +72,14 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
             this.targetPos = { x: config.targetPos.x, y: config.targetPos.y };
         }
 
-        // 발사 위치 설정
-        this.setPosition(owner.x, owner.y - 40);
+        // 발사 위치 설정 (비행 고도 합산)
+        const zHeight = owner.zHeight || 0;
+        this.setPosition(owner.x, owner.y - zHeight - 40);
+
+        // [FIX] 색상 초기화
+        if (this.mainSprite) {
+            this.mainSprite.clearTint();
+        }
         
         this.setActive(true);
         this.setVisible(true);

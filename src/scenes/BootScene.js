@@ -93,7 +93,7 @@ export default class BootScene extends Phaser.Scene {
         }
         
         // 아이콘들을 명시적인 키값으로 로드 (UI 및 HealthBar에서 이 키를 사용함)
-        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music', 'stealth_icon', 'gale_icon', 'snapshot_icon'];
+        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music', 'stealth_icon', 'gale_icon', 'snapshot_icon', 'slow'];
         iconKeys.forEach(key => {
             const path = assetPathManager.getPath('images', key);
             if (path) this.load.image(key, path);
@@ -102,6 +102,7 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('stone_skin_effect', assetPathManager.getPath('images', 'stone_skin_effect'));
         this.load.image('falling_impact_effect', assetPathManager.getPath('images', 'falling_impact_effect'));
         this.load.image('bullet_projectile', assetPathManager.getPath('images', 'bullet_projectile'));
+        this.load.image('tornado_shot_projectile', assetPathManager.getPath('images', 'tornado_shot_projectile'));
         this.load.image('flying_icon', assetPathManager.getPath('images', 'flying_icon'));
 
         // [신규] 실비 스프라이트 및 사운드 프리로드

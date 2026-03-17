@@ -23,6 +23,9 @@ export default {
         'skill_fire_burst_name': 'Fire Burst',
         'skill_fire_burst_desc': 'Fires a fire ball that explodes on impact.',
         
+        'skill_tornado_shot_name': 'Tornado Shot',
+        'skill_tornado_shot_desc': 'Fires a powerful shot that pierces through all enemies and slows them down.',
+        
         'ult_aren_name': 'For Messiah!',
         'ult_aren_desc': 'Jumps high into the air and creates a wide-area impact, launching enemies into the air.',
         'ult_ella_name': 'Threads of Fate',
@@ -50,6 +53,12 @@ export default {
         'status_title_rapid_fire': 'Rapid Fire',
         'status_desc_rapid_fire': 'Attacks fire multiple times in rapid succession.',
 
+        'status_title_flying': 'Flying',
+        'status_desc_flying': 'Hovering in the air, avoiding non-target projectiles.',
+
+        'status_title_slow': 'Slow',
+        'status_desc_slow': 'Movement speed reduced.',
+
         'status_desc_unknown': 'Mysterious effect.'
     },
     ko: {
@@ -75,6 +84,9 @@ export default {
         'skill_fire_totem_desc': '적들이 밀집된 지역에 자폭하는 화염 토템을 소환합니다.',
         'skill_fire_burst_name': '파이어 버스트',
         'skill_fire_burst_desc': '화염구를 발사하여 범위 피해를 입힙니다.',
+
+        'skill_tornado_shot_name': '토네이도 샷',
+        'skill_tornado_shot_desc': '모든 적을 관통하며 이동 속도를 늦추는 강력한 화살을 발사합니다.',
 
         'ult_aren_name': '포 메시아!',
         'ult_aren_desc': '공중으로 크게 점프 후, 넓은 범위에 충돌을 일으켜 적들을 공중으로 띄웁니다',
@@ -102,6 +114,12 @@ export default {
         'ult_ria_desc': '일시적으로 집중력이 극대화되어, 모든 평타 공격 시 5연속 화살/검기를 발사합니다.',
         'status_title_rapid_fire': '속사',
         'status_desc_rapid_fire': '공격 시 여러 발의 투사체를 연속해서 발사합니다.',
+
+        'status_title_flying': '비행',
+        'status_desc_flying': '공중에 떠서 지면의 논타겟 투사체 및 지상 공격을 회피합니다.',
+
+        'status_title_slow': '둔화',
+        'status_desc_slow': '이동 속도가 감소합니다.',
 
         'status_desc_unknown': '알 수 없는 효과입니다.'
     }

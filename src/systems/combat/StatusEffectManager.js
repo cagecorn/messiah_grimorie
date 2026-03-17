@@ -16,7 +16,8 @@ class StatusEffectManager {
             knockback: false,
             invincible: false,
             sleep: false,
-            flying: false
+            flying: false,
+            slow: false
         };
         this.timers = {};
     }

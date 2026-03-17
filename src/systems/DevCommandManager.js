@@ -35,6 +35,7 @@ class DevCommandManager {
         console.log("%cdev.addZayn()%c - 자인 즉시 지급 (자인 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.addRia()%c - 리아 즉시 지급 (리아 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.addJoojoo()%c - 주주 즉시 지급 (주주 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
+        console.log("%cdev.addSein()%c - 세인 즉시 지급 (세인 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.clearData()%c - 모든 로컬 데이터 및 DB 초기화 (새로고침 필요)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.help()%c - 이 도움말 다시 보기", "font-weight: bold;", "font-weight: normal;");
         console.groupEnd();
@@ -74,6 +75,13 @@ class DevCommandManager {
      */
     addJoojoo() {
         this.addMercenary('joojoo', 1);
+    }
+
+    /**
+     * 세인 즉시 지급 단축키
+     */
+    addSein() {
+        this.addMercenary('sein', 1);
     }
 
     /**

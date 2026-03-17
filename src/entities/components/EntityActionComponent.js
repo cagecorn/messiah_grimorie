@@ -18,6 +18,7 @@ export default class EntityActionComponent {
     constructor(entity) {
         this.entity = entity;
         this.isRolling = false;
+        this.isDashing = false; // [NEW] 대쉬 상태
         this.iFrameActive = false;
         this.actionCooldown = 0;
     }
@@ -27,8 +28,59 @@ export default class EntityActionComponent {
      */
     reset() {
         this.isRolling = false;
+        this.isDashing = false;
         this.iFrameActive = false;
         this.actionCooldown = 0;
+    }
+
+    /**
+     * 대쉬 실행 (Dash) - 비행 유닛용
+     * @param {Object} direction {x, y} 이동 방향
+     */
+    dash(direction) {
+        if (this.isRolling || this.isDashing || this.actionCooldown > 0) return false;
+
+        const dashStaminaCost = STAMINA.ROLL_COST; // 구르기와 동일한 30 소모
+        if (!this.entity.stamina || !this.entity.stamina.consume(dashStaminaCost)) return false;
+
+        this.startDash(direction);
+        return true;
+    }
+
+    /**
+     * 실제 대쉬 물리 및 연출 시작
+     */
+    startDash(direction) {
+        this.isDashing = true;
+        this.iFrameActive = false; // [REQ] 대쉬는 무적 시간 없음
+        this.actionCooldown = 1500; // 대쉬 쿨타임은 구르기보다 김 (무분별한 도주 방지)
+
+        const dashDuration = 400; // 더 빠르게 오랫동안 이동
+        const dashSpeed = 650;   // 구르기(400)보다 훨씬 빠름
+
+        // 1. 연출 실행 (AnimationManager 경유)
+        animationManager.playDashAnimation(this.entity, dashDuration);
+        fxManager.showActionText(this.entity, "DASH!", "#38bdf8");
+
+        // 2. 물리 가속
+        if (this.entity.body) {
+            this.entity.body.setVelocity(direction.x * dashSpeed, direction.y * dashSpeed);
+        }
+
+        // 3. 종료 타이머
+        this.entity.scene.time.delayedCall(dashDuration, () => {
+            this.finishDash();
+        });
+
+        Logger.debug("ACTION", `${this.entity.logic.name} - 대쉬 시작!`);
+    }
+
+    finishDash() {
+        this.isDashing = false;
+        if (this.entity.body) {
+            this.entity.body.setVelocity(0, 0);
+        }
+        Logger.debug("ACTION", `${this.entity.logic.name} - 대쉬 종료`);
     }
 
     /**

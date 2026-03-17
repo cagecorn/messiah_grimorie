@@ -151,14 +151,11 @@ class CombatManager {
             projectileManager.fire('aqua_burst', attacker, target, {
                 damageMultiplier: multiplier
             });
-        } else if (type === 'melee') {
-            projectileManager.fire('melee', attacker, target, {
-                damageMultiplier: multiplier
-            });
-        } else if (type === 'rapid_fire_container') {
-            projectileManager.fire('rapid_fire_container', attacker, target, {
+        } else {
+            // [Generic Fallback] Handle any other projectile types (bullet, tornado_shot, etc.)
+            projectileManager.fire(type, attacker, target, {
                 damageMultiplier: multiplier,
-                originalType: config.originalType || 'melee'
+                ...config
             });
         }
     }
@@ -272,28 +269,32 @@ class CombatManager {
             return;
         }
 
+        // [데이터 기반] 기본 투사체 정보 로드
+        let projectileType = attackerEntity.logic.projectile || 'melee';
+        let damageType = 'physical';
+
         if (isAlly && className === 'healer') {
             this.processHeal(attackerEntity, targetEntity, 1.0);
         } else if (isAlly && className === 'bard') {
             this.processInspiration(attackerEntity, targetEntity, 1.0);
-        } else if (!isAlly) {
-            let projectileType = 'melee';
-            let damageType = 'physical';
-
+        } else {
+            // [FIX] 몬스터 뿐만 아니라, 힐러/바드가 아닌 아군(세인 등)도 이 루틴을 타도록 함
+            
+            // 클래스별 특수 투사체 보정
             if (className === 'healer') {
-                projectileType = 'light';
+                projectileType = attackerEntity.logic.projectile || 'light';
                 damageType = 'magic';
             } else if (className === 'wizard') {
-                projectileType = 'wizard';
+                projectileType = attackerEntity.logic.projectile || 'wizard';
                 damageType = 'magic';
             } else if (className === 'archer') {
-                projectileType = 'arrow';
+                projectileType = attackerEntity.logic.projectile || 'arrow';
             } else if (className === 'totemist') {
                 this.spawnNormalTotem(attackerEntity, targetEntity);
                 return;
             }
 
-            // [신규] 리아 궁극기: 속사(Rapid Fire) 대응 (모든 클래스 적용)
+            // 실제 발사 시퀀스 (속사 대응)
             const rapidFireBuff = attackerEntity.buffs && attackerEntity.buffs.activeBuffs.find(b => b.id === 'rapidfire' || b.id === 'rapid_fire');
             
             if (rapidFireBuff) {

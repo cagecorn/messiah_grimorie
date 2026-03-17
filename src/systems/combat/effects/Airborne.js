@@ -19,6 +19,8 @@ class Airborne {
             target.status.applyEffect('airborne', duration);
         }
 
+        const startingHeight = target.zHeight || 0;
+        const maxHeight = startingHeight + height;
         const scene = target.scene;
         const riseTime = duration * 0.45;
         const fallTime = duration - riseTime;
@@ -26,8 +28,8 @@ class Airborne {
         // 2. 물리 연출 (제자리 중력 법칙 적용)
         // A. 수직 운동 (zHeight)
         scene.tweens.add({
-            targets: { val: 0 },
-            val: height,
+            targets: { val: startingHeight },
+            val: maxHeight,
             duration: riseTime,
             ease: 'Power2.easeOut', 
             onUpdate: (tween) => {
@@ -35,8 +37,8 @@ class Airborne {
             },
             onComplete: () => {
                 scene.tweens.add({
-                    targets: { val: height },
-                    val: 0,
+                    targets: { val: maxHeight },
+                    val: startingHeight,
                     duration: fallTime,
                     ease: 'Cubic.easeIn', 
                     onUpdate: (tween) => {
@@ -47,7 +49,7 @@ class Airborne {
                         if (scene.cameras.main) {
                             // scene.cameras.main.shake(100, 0.005); // [USER 요청] 카메라 쉐이크 비활성화
                         }
-                        Logger.info("CC", `${target.logic.name} slammed into the ground.`);
+                        Logger.info("CC", `${target.logic.name} returned to ${startingHeight}px height.`);
                     }
                 });
             }
