@@ -113,6 +113,14 @@ class FXManager {
     }
 
     /**
+     * 몬스터 낙하 충격 효과 출력
+     */
+    showFallingImpact(x, y) {
+        if (!this.isInitialized) return;
+        animationManager.playFallingImpact(x, y);
+    }
+
+    /**
      * 수면 상태 시각 효과 (ZZZ 파티클)
      */
     showSleepEffect(target, duration) {

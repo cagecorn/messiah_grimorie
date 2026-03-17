@@ -1,5 +1,6 @@
 import Logger from '../../../utils/Logger.js';
 import projectileManager from '../ProjectileManager.js';
+import fxManager from '../../graphics/FXManager.js';
 import aoeManager from '../AOEManager.js';
 import Airborne from '../effects/Airborne.js';
 import monsterPatternAnimationManager from '../../graphics/MonsterPatternAnimationManager.js';
@@ -52,6 +53,9 @@ class MonsterNonTargetSkill {
         if (!monster) return;
 
         Logger.info("SKILL", `${monster.logic.name} landed at (${pos.x.toFixed(1)}, ${pos.y.toFixed(1)})`);
+
+        // [신규] 시각적 충격 효과 출력
+        fxManager.showFallingImpact(pos.x, pos.y);
 
         // 1. 광역 데미지 (던져진 몬스터의 최대 체력 20% + 시전자 공격력 1.0배)
         const bonusDamage = Math.floor(monster.logic.stats.maxHp * 0.2);
