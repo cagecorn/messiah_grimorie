@@ -1,5 +1,6 @@
 import Logger from '../../../utils/Logger.js';
 import DashAI from './DashAI.js';
+import EscapeAI from './EscapeAI.js';
 
 /**
  * 액션 선택 노드 (Action Selector Node)
@@ -29,9 +30,16 @@ export default class ActionSelector {
             // [FLYING] 비행 중일 때는 구르기 대신 대쉬로 회피 (적이 근접했을 때)
             const opponents = (entity.team === 'mercenary') ? entity.scene.enemies : entity.scene.allies;
             if (DashAI.tick(entity, opponents)) return 'dash';
-        } else if (this.rollingNode && threats && threats.length > 0) {
-            const success = this.rollingNode.execute(entity, threats);
-            if (success) return 'roll';
+        } else {
+            // [SURVIVAL] 지상 유닛의 적 근접 시 구르기 탈출 (Healer, Wizard, Bard)
+            const opponents = (entity.team === 'mercenary') ? entity.scene.enemies : entity.scene.allies;
+            if (EscapeAI.tick(entity, opponents)) return 'roll';
+
+            // [PROJ EVASION] 기존 투사체 회피
+            if (this.rollingNode && threats && threats.length > 0) {
+                const success = this.rollingNode.execute(entity, threats);
+                if (success) return 'roll';
+            }
         }
 
         // 동작 중이면 AI 루틴 일시 중단
