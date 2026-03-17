@@ -217,7 +217,9 @@ class AIManager {
         // [USER 요청] "가장 가까운 적" 로직에 의한 급격한 방향 전환 방지
         // 현재 타겟이 있고, 새로운 타겟이 현재 타겟보다 20% 이상 가깝지 않으면 유지
         if (currentTarget && currentTarget.logic.isAlive && nearest !== currentTarget) {
-            if (minDist > currentDist * 0.8) {
+            // [FIX] 현재 타겟이 은신 상태가 되었다면 즉시 타겟을 포기함
+            const isCurrentTargetStealthed = currentTarget.logic.status.states && currentTarget.logic.status.states.stealthed;
+            if (!isCurrentTargetStealthed && minDist > currentDist * 0.8) {
                 return currentTarget;
             }
         }

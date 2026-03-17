@@ -54,7 +54,15 @@ class SpawnManager {
             return entity;
         }, 5, true);
 
-        Logger.system("SpawnManager: Pooling registered for Goblins, Shamans, and Wizards.");
+        // [신규] 고블린 로그 폴백 풀 등록
+        poolingManager.registerPool('monster_goblin_rogue', () => {
+            const dummyLogic = monsterManager.spawn('goblin_rogue', { level: 1 });
+            const entity = new CombatEntity(scene, 0, 0, dummyLogic, 'enemy_goblin_rogue_sprite');
+            entity.poolType = 'monster_goblin_rogue';
+            return entity;
+        }, 8, true);
+
+        Logger.system("SpawnManager: Pooling registered for Goblins, Shamans, Wizards, Rogues, and Flyingmen.");
     }
     /**
      * 아군 유닛 스폰 (편성된 유닛들)
@@ -117,9 +125,9 @@ class SpawnManager {
             let id;
 
             if (stageId === 'cursed_forest') {
-                // 저주받은 숲: 고블린 6 : 샤먼 2 : 위자드 1 : 플라잉맨 1 비율로 밸런싱
-                // (고블린과 플라잉맨만 비교하면 대략 9:1에 가깝게 조정)
-                if (rand < 0.6) id = 'goblin';
+                // 저주받은 숲: 고블린 50%, 로그 15%, 샤먼 15%, 위자드 10%, 플라잉맨 10% 비율로 밸런싱
+                if (rand < 0.5) id = 'goblin';
+                else if (rand < 0.65) id = 'goblin_rogue'; // [신규] 고블린 로그 추가
                 else if (rand < 0.8) id = 'goblin_shaman';
                 else if (rand < 0.9) id = 'goblin_wizard';
                 else id = 'goblin_flyingman';
@@ -237,6 +245,14 @@ class SpawnManager {
             id: 'goblin_flyingman',
             key: `enemy_goblin_flyingman_sprite`,
             path: assetPathManager.getEnemyPath('goblin_flyingman', 'sprite')
+        });
+
+        // [신규] 고블린 로그 프리로드 등록
+        assets.push({
+            type: 'monster',
+            id: 'goblin_rogue',
+            key: `enemy_goblin_rogue_sprite`,
+            path: assetPathManager.getEnemyPath('goblin_rogue', 'sprite')
         });
 
         // [신규] 주주 토템 에셋 프리로드

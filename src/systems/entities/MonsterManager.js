@@ -7,6 +7,7 @@ import goblin from '../../data/monsters/goblin.js';
 import goblin_shaman from '../../data/monsters/goblin_shaman.js';
 import goblin_wizard from '../../data/monsters/goblin_wizard.js';
 import goblin_flyingman from '../../data/monsters/goblin_flyingman.js';
+import goblin_rogue from '../../data/monsters/goblin_rogue.js'; // [NEW]
 
 /**
  * 몬스터 매니저 (Monster Manager)
@@ -21,7 +22,8 @@ class MonsterManager {
             goblin,
             goblin_shaman,
             goblin_wizard,
-            goblin_flyingman
+            goblin_flyingman,
+            goblin_rogue // [NEW]
         };
 
         Logger.system("MonsterManager: Registry initialized.");
