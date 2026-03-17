@@ -218,6 +218,14 @@ class SpawnManager {
             }
         });
 
+        // Viper 전용 스프라이트 강제 프리로드 (기본 용병 리스트에 없을 수도 있으므로)
+        assets.push({
+            type: 'mercenary',
+            id: 'viper',
+            key: 'merc_viper_sprite',
+            path: assetPathManager.getMercenaryPath('viper', 'sprite')
+        });
+
         // [USER 요청] 고블린과 샤먼 스프라이트 프리로드
         assets.push({
             type: 'monster',

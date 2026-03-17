@@ -23,8 +23,9 @@ export default {
         'skill_fire_burst_name': 'Fire Burst',
         'skill_fire_burst_desc': 'Fires a fire ball that explodes on impact.',
         
-        'skill_tornado_shot_name': 'Tornado Shot',
         'skill_tornado_shot_desc': 'Fires a powerful shot that pierces through all enemies and slows them down.',
+        'skill_sinking_shadow_name': 'Sinking Shadow',
+        'skill_sinking_shadow_desc': 'Sinks into shadow and strikes with AoE damage and airborne.',
         
         'ult_aren_name': 'For Messiah!',
         'ult_aren_desc': 'Jumps high into the air and creates a wide-area impact, launching enemies into the air.',
@@ -85,8 +86,9 @@ export default {
         'skill_fire_burst_name': '파이어 버스트',
         'skill_fire_burst_desc': '화염구를 발사하여 범위 피해를 입힙니다.',
 
-        'skill_tornado_shot_name': '토네이도 샷',
         'skill_tornado_shot_desc': '모든 적을 관통하며 이동 속도를 늦추는 강력한 화살을 발사합니다.',
+        'skill_sinking_shadow_name': '씽킹 섀도우',
+        'skill_sinking_shadow_desc': '자신의 그림자 속에 숨어 이동 후, 적들이 밀집한 지역에서 다시 튀어올라 범위 공격 및 에어본을 적용합니다.',
 
         'ult_aren_name': '포 메시아!',
         'ult_aren_desc': '공중으로 크게 점프 후, 넓은 범위에 충돌을 일으켜 적들을 공중으로 띄웁니다',

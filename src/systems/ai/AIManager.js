@@ -31,6 +31,7 @@ import JoojooAI from './nodes/JoojooAI.js';
 import EliteMonsterAI from './nodes/EliteMonsterAI.js';
 import FlyingManAI from './nodes/FlyingManAI.js';
 import SeinAI from './nodes/SeinAI.js';
+import ViperAI from './nodes/ViperAI.js'; // [NEW]
 
 /**
  * AI 매니저 (AI Manager)
@@ -169,6 +170,8 @@ class AIManager {
                 node = JoojooAI;
             } else if (id === 'sein') {
                 node = SeinAI;
+            } else if (id === 'viper') { // [NEW]
+                node = ViperAI;
             } else if (entity.logic.isTotem) {
                 node = StationaryAI;
             }

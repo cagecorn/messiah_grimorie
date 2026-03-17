@@ -13,6 +13,7 @@ import windBlade from './skills/WindBlade.js';
 import fireTotem from './skills/FireTotem.js';
 import healingTotem from './skills/HealingTotem.js';
 import tornadoShot from './skills/TornadoShot.js';
+import sinkingShadow from './skills/SinkingShadow.js'; // [NEW]
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -157,6 +158,17 @@ class SkillManager {
             descriptionKey: 'skill_tornado_shot_desc',
             cooldown: 10000,
             logic: tornadoShot
+        });
+
+        // 바이퍼 (Viper)
+        this.skills.set('viper', {
+            id: 'sinking_shadow',
+            name: 'Sinking Shadow',
+            nameKey: 'skill_sinking_shadow_name',
+            description: 'Sinks into shadow and strikes with AoE damage and airborne.',
+            descriptionKey: 'skill_sinking_shadow_desc',
+            cooldown: 5000,
+            logic: sinkingShadow
         });
 
         // 화염 토템 (Fire Totem)

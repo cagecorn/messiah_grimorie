@@ -15,6 +15,7 @@ import RapidFireProjectile from '../../entities/projectiles/skills/RapidFireProj
 import MonsterNonTargetProjectile from '../../entities/projectiles/MonsterNonTargetProjectile.js';
 import BulletProjectile from '../../entities/projectiles/common/BulletProjectile.js';
 import TornadoShotProjectile from '../../entities/projectiles/skills/TornadoShotProjectile.js';
+import ShadowProjectile from '../../entities/projectiles/skills/ShadowProjectile.js'; // [NEW]
 
 /**
  * 투사체 매니저 (Projectile Manager)
@@ -68,6 +69,7 @@ class ProjectileManager {
         this.registerProjectile('monster_nontarget', MonsterNonTargetProjectile);
         this.registerProjectile('bullet', BulletProjectile);
         this.registerProjectile('tornado_shot', TornadoShotProjectile);
+        this.registerProjectile('shadow_dive', ShadowProjectile); // [NEW]
 
         Logger.system("ProjectileManager: Initialized for scene.");
     }

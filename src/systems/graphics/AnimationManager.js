@@ -11,6 +11,7 @@ import CombatAnimator from './animations/CombatAnimator.js';
 import StateAnimator from './animations/StateAnimator.js';
 import FlyingAnimation from './animations/FlyingAnimation.js';
 import DashAnimator from './animations/DashAnimator.js';
+import SinkingAnimation from './animations/SinkingAnimation.js'; // [NEW]
 
 // [이펙트 풀링 객체들]
 import PooledHitEffect from './effects/PooledHitEffect.js';
@@ -49,6 +50,7 @@ class AnimationManager {
         this.state = new StateAnimator(this);
         this.flying = new FlyingAnimation(this);
         this.dash = new DashAnimator(this);
+        this.sinking = new SinkingAnimation(this); // [NEW]
     }
 
     //#region 🛠️ [초기화 세션]
@@ -122,6 +124,10 @@ class AnimationManager {
     // 🕊️ Flying
     playFlyingBobbing(entity) { this.flying.playFlyingBobbing(entity); }
     stopFlyingBobbing(entity) { this.flying.stopFlyingBobbing(entity); }
+
+    // 🌑 Shadow Dive [NEW]
+    playSinking(entity, duration, onComplete) { this.sinking.playSinking(entity, duration, onComplete); }
+    playEmerging(entity, duration, onComplete) { this.sinking.playEmerging(entity, duration, onComplete); }
     //#endregion
 
     /**
