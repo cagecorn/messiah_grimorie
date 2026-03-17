@@ -7,6 +7,7 @@ export default {
         arena: "Arena",
         raid: "Raid",
         mercenary: "Mercenary",
+        elite: "Elite",
         inventory: "Inventory",
         settings: "Settings",
         
@@ -43,6 +44,7 @@ export default {
         arena: "아레나",
         raid: "레이드",
         mercenary: "용병",
+        elite: "엘리트",
         inventory: "인벤토리",
         settings: "설정",
         

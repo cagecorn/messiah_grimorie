@@ -48,6 +48,16 @@ class MonsterManager {
             type: 'monster' // [FIX] 타입 명시
         };
 
+        // [USER 요청] 엘리트 몬스터의 경우 이름 앞에 'Elite' 접두사 추가
+        if (config.isElite) {
+            import('../../core/LocalizationManager.js').then(m => {
+                const prefix = m.default.t('elite');
+                config.name = `${prefix} ${config.name || baseData.name}`;
+            });
+            // 동기적으로도 일단 설정 (임시)
+            config.name = `Elite ${config.name || baseData.name}`;
+        }
+
         return this.createMonster(config);
     }
 

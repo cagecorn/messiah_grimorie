@@ -100,6 +100,7 @@ export default class BootScene extends Phaser.Scene {
         });
 
         this.load.image('stone_skin_effect', assetPathManager.getPath('images', 'stone_skin_effect'));
+        this.load.image('falling_impact_effect', assetPathManager.getPath('images', 'falling_impact_effect'));
 
         // [신규] 실비 스프라이트 및 사운드 프리로드
         this.load.image('merc_silvi_sprite', assetPathManager.getMercenaryPath('silvi', 'sprite'));

@@ -28,6 +28,7 @@ import RiaAI from './nodes/RiaAI.js';
 import StationaryAI from './nodes/StationaryAI.js';
 import TotemistAI from './nodes/TotemistAI.js';
 import JoojooAI from './nodes/JoojooAI.js';
+import EliteMonsterAI from './nodes/EliteMonsterAI.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -86,8 +87,7 @@ class AIManager {
 
             if (cooldown <= 0) {
                 // 타겟팅 (가장 가까운 적/아군 찾기 - 히스테리시스 적용)
-                const isHealer = className === ENTITY_CLASSES.HEALER;
-                const opponents = (entity.team === 'mercenary') ? (isHealer ? allies : enemies) : (isHealer ? enemies : allies);
+                const opponents = (entity.team === 'mercenary') ? enemies : allies;
                 
                 const currentTarget = bb.get('target');
                 const newTarget = this.findNearestTargetWithHysteresis(entity, currentTarget, opponents);
@@ -136,10 +136,13 @@ class AIManager {
             }
 
             // 3. 클래스별 AI 노드 실행 (매 프레임 실행하여 이동은 부드럽게 유지)
-            let node = this.aiNodes[className];
+            const baseNode = this.aiNodes[className];
+            let node = baseNode;
             
             // [신규] 특정 유닛 전용 AI 오버라이드 (모듈화 준수)
-            if (id === 'zayn' || id === 'zayn_clone') {
+            if (entity.logic.isElite) {
+                node = EliteMonsterAI;
+            } else if (id === 'zayn' || id === 'zayn_clone') {
                 node = ZaynAI;
             } else if (id === 'siren') {
                 node = SirenAI;
@@ -167,7 +170,11 @@ class AIManager {
 
             if (node) {
                 // AI 노드에서 엔티티의 moveDirection을 설정함
-                node.execute(entity, bb, delta);
+                if (entity.logic.isElite && node === EliteMonsterAI) {
+                    node.execute(entity, bb, delta, baseNode);
+                } else {
+                    node.execute(entity, bb, delta);
+                }
             } else {
                 // 기본 대기 상태
                 entity.moveDirection = { x: 0, y: 0 };
@@ -190,7 +197,7 @@ class AIManager {
         }
 
         opponents.forEach(opp => {
-            if (!opp.logic.isAlive) return;
+            if (!opp.logic.isAlive || opp === entity) return;
 
             // [신규] 은신 상태 유닛은 타겟팅에서 제외
             if (opp.logic.status.states && opp.logic.status.states.stealthed) return;

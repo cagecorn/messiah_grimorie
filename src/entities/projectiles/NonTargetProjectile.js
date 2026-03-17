@@ -61,6 +61,7 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
         this.isPierce = config.isPierce || false;
         this.hitTargets.clear();
         this.collisionRadius = config.collisionRadius || 40;
+        this.config = config; // [FIX] 서브클래스에서 onImpact 등에 접근할 수 있도록 저장
         
         this.id = instanceIDManager.generate(`proj_nontarget_${owner.id}`);
 

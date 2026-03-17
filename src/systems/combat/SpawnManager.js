@@ -7,6 +7,7 @@ import formationManager from '../FormationManager.js';
 import mercenaryManager from '../entities/MercenaryManager.js';
 import monsterManager from '../entities/MonsterManager.js';
 import dungeonRoundScalingManager from '../dungeons/DungeonRoundScalingManager.js';
+import eliteMonsterManager from '../entities/EliteMonsterManager.js';
 import Logger from '../../utils/Logger.js';
 
 /**
@@ -114,25 +115,48 @@ class SpawnManager {
         Logger.info("BATTLE_SPAWN", `Spawning ${enemyCount} enemies for Round ${round} (Level: ${monsterLevel})`);
 
         monsterIds.forEach((id, index) => {
-            // 1. 논리 엔티티 생성 (레벨 적용)
-            const logicEntity = monsterManager.spawn(id, { level: monsterLevel });
+            // 1. 논리 엔티티 설정 준비
+            let spawnConfig = { level: monsterLevel };
 
-            // 2. [DIVERSE SPAWN] 물리 위치 계산 (출현 각도 다양화)
+            // 2. [ELITE] 엘리트 출현 판정 및 강화 적용
+            const isElite = eliteMonsterManager.rollElite(round);
+            if (isElite) {
+                spawnConfig = eliteMonsterManager.applyEliteModifications(spawnConfig);
+            }
+
+            // 3. 논리 엔티티 생성
+            const logicEntity = monsterManager.spawn(id, spawnConfig);
+
+            // 2. [DIVERSE SPAWN] 물리 위치 계산 (전방위 360도 기습)
             const spawnType = Math.random();
             let x, y;
 
-            if (spawnType < 0.6) {
-                // 1. 우측 (정면 출현 - 60%)
-                x = Math.round(world.width * 0.85 - (index % 5) * 60 + (Math.random() - 0.5) * 200);
-                y = Math.round(world.height * 0.2 + (index * 40) + (Math.random() - 0.5) * 100);
+            if (spawnType < 0.4) {
+                // 1. 정면 기습 (우측 - 40%)
+                x = Math.round(world.width * 0.8 + Math.random() * world.width * 0.15);
+                y = Math.round(Math.random() * world.height);
+            } else if (spawnType < 0.65) {
+                // 2. 측면 기습 (상/하단 - 25%)
+                const isTop = Math.random() < 0.5;
+                x = Math.round(Math.random() * world.width);
+                y = isTop ? Math.round(-50 - Math.random() * 100) : Math.round(world.height + 50 + Math.random() * 100);
             } else if (spawnType < 0.8) {
-                // 2. 상단 (우측 상단 기습 - 20%)
-                x = Math.round(world.width * 0.6 + (Math.random() * world.width * 0.3));
-                y = Math.round(world.height * 0.1 - (Math.random() * 100));
+                // 3. 후방 기습 (좌측 - 15%)
+                // 아군이 보통 x=15% 지점에 있으므로, 그보다 더 왼쪽(0~10%)에서 등장
+                x = Math.round(Math.random() * world.width * 0.1);
+                y = Math.round(Math.random() * world.height);
             } else {
-                // 3. 하단 (우측 하단 기습 - 20%)
-                x = Math.round(world.width * 0.6 + (Math.random() * world.width * 0.3));
-                y = Math.round(world.height * 0.9 + (Math.random() * 100));
+                // 4. 전방위 포위 (가장자리 무작위 - 20%)
+                const edge = Math.floor(Math.random() * 4);
+                if (edge === 0) { // Top
+                    x = Math.random() * world.width; y = -50;
+                } else if (edge === 1) { // Right
+                    x = world.width + 50; y = Math.random() * world.height;
+                } else if (edge === 2) { // Bottom
+                    x = Math.random() * world.width; y = world.height + 50;
+                } else { // Left
+                    x = -50; y = Math.random() * world.height;
+                }
             }
 
             // 3. 물리 엔티티 생성 (풀링 적용)

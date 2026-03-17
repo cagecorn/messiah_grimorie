@@ -37,6 +37,10 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         this.init(x, y, logicEntity, spriteKey);
     }
 
+    get sprite() {
+        return this.visual ? this.visual.sprite : null;
+    }
+
     /**
      * 초기화 로직 (풀링 재사용 시에도 호출됨)
      */
@@ -119,6 +123,12 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         combatManager.addUnit(this);
 
         Logger.info("COMBAT_ENTITY", `Initialized ${this.logic.name} (Modular) at (${Math.round(this.x)}, ${Math.round(this.y)})`);
+
+        // [ELITE] 엘리트 비주얼 효과 (색상 변경)
+        if (this.logic.isElite && this.sprite) {
+            this.sprite.setTint(0xffd700); // 금색 (Elite Gold)
+            Logger.debug("COMBAT_ENTITY", `${this.logic.name} is Elite! Visual scale and tint applied.`);
+        }
 
         // 6. 마우스 인터랙션 설정 (우클릭 정보창 확장)
         this.setupInteractions();
@@ -236,6 +246,8 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
             displayScale = entityData.monster.scale;
             if (this.logic.id.includes('boss')) {
                 displayScale = entityData.monster.bossScale;
+            } else if (this.logic.isElite) {
+                displayScale *= 1.2; // [ELITE] 일반 몬스터의 1.2배 크기
             }
         } else if (this.logic.type === 'pet') {
             displayScale = entityData.pet[this.logic.id] || 0.5;
@@ -264,6 +276,12 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     handleDeath() { this.combat.handleDeath(); }
 
     updateAttackCooldown(delta) {
+        // [Safety] 들려있는 상태라면 물리/논리 업데이트 중단
+        if (this.isBeingCarried) {
+            if (this.body) this.body.setVelocity(0, 0);
+            return;
+        }
+
         this.combat.update(delta);
         this.skills.update(delta);
         this.stamina.update(delta);

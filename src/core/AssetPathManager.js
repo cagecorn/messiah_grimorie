@@ -62,7 +62,8 @@ class AssetPathManager {
             // [신규] 토템술사 주주 관련 조산
             spirit_totem: `${this.basePath}totem/spirit_totem_sprite.png`,
             fire_totem: `${this.basePath}totem/fire_totem_sprite.png`,
-            healing_totem: `${this.basePath}totem/healing_totem_sprite.png`
+            healing_totem: `${this.basePath}totem/healing_totem_sprite.png`,
+            falling_impact_effect: `${this.basePath}effect/falling_impact_effect.png`
         };
 
         // [구역 2] 오디오 에셋 (Audio)

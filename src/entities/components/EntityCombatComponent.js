@@ -201,6 +201,13 @@ export default class EntityCombatComponent {
         this.entity.stop();
         this.soundManager.playUnitFallen();
 
+        // [신규] 들고 있는 개체가 있다면 해제 (엘리트 사망 시 대응)
+        if (this.entity.carriedEntity) {
+            import('../../systems/graphics/MonsterPatternAnimationManager.js').then(m => {
+                m.default.release(this.entity);
+            });
+        }
+
         // HUD 및 그림자 즉시 제거 (사망 애니메이션 중 잔상 방지)
         this.entity.visual.cleanup();
 

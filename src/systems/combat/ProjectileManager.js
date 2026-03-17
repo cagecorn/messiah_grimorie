@@ -12,6 +12,7 @@ import ImSorryProjectile from '../../entities/projectiles/skills/ImSorryProjecti
 import MeleeProjectile from '../../entities/projectiles/common/MeleeProjectile.js';
 import HeroDashProjectile from '../../entities/projectiles/skills/HeroDashProjectile.js';
 import RapidFireProjectile from '../../entities/projectiles/skills/RapidFireProjectile.js';
+import MonsterNonTargetProjectile from '../../entities/projectiles/MonsterNonTargetProjectile.js';
 
 /**
  * 투사체 매니저 (Projectile Manager)
@@ -62,6 +63,7 @@ class ProjectileManager {
         this.registerProjectile('melee', MeleeProjectile);
         this.registerProjectile('hero_dash', HeroDashProjectile);
         this.registerProjectile('rapid_fire_container', RapidFireProjectile);
+        this.registerProjectile('monster_nontarget', MonsterNonTargetProjectile);
 
         Logger.system("ProjectileManager: Initialized for scene.");
     }

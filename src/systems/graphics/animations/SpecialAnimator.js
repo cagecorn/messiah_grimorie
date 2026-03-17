@@ -74,6 +74,14 @@ class SpecialAnimator {
             });
         }
     }
+
+    /**
+     * 낙하 충격 이펙트 (몬스터 던지기)
+     */
+    playFallingImpact(x, y) {
+        if (!this.scene) return;
+        this.am.playFallingImpact(x, y);
+    }
 }
 
 export default SpecialAnimator;
