@@ -123,10 +123,10 @@ class AIManager {
             // [FIX] 전투 중이거나 행동 중일 때는 목줄 체크를 유연하게 하여 갈팡질팡(Jitter) 방지
             if (entity.team === 'mercenary') {
                 const currentTarget = bb.get('target');
-                const isEngaged = currentTarget && currentTarget.logic.isAlive && Phaser.Math.Distance.Between(entity.x, entity.y, currentTarget.x, currentTarget.y) < 300;
+                const isEngaged = currentTarget && currentTarget.logic.isAlive && Phaser.Math.Distance.Between(entity.x, entity.y, currentTarget.x, currentTarget.y) < 500;
                 
                 if (!entity.isBusy && !entity.isJumping && !isEngaged) {
-                    const leashDirection = GroupLeashAI.execute(entity, allies, 450); // 살짝 여유로운 450px
+                    const leashDirection = GroupLeashAI.execute(entity, allies, 650); // [ENHANCED] 더 넓은 활동 범위 보장 (기존 450)
                     if (leashDirection) {
                         entity.moveDirection = leashDirection;
                         // [DEBUG] 목줄 작동 중일 때는 다른 AI 로직을 건너뜀 (귀환 우선)

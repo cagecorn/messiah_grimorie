@@ -15,7 +15,7 @@ class GroupLeashAI {
      * @param {number} leashRange 
      * @returns {object|null} 이동 방향 {x, y} 또는 null
      */
-    static execute(entity, allies, leashRange = 400) {
+    static execute(entity, allies, leashRange = 650) {
         if (!entity || !allies || allies.length <= 1) return null;
 
         // 1. [FIX] 매번 O(N)으로 계산하지 않고 CombatManager에서 미리 계산된 중심점 사용
