@@ -7,6 +7,7 @@ import imSorry from './skills/ImSorry.js';
 import cloning from './skills/Cloning.js';
 import battoJutsu from './skills/BattoJutsu.js';
 import healingTotem from './skills/HealingTotem.js';
+import iceStorm from './skills/IceStorm.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -112,6 +113,16 @@ class UltimateManager {
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: healingTotem
+        });
+
+        // 아이나 (Aina)
+        this.ultimates.set('aina', {
+            id: 'aina_ult',
+            nameKey: 'ult_aina_name',
+            descriptionKey: 'ult_aina_desc',
+            chargeMax: 100,
+            chargeSpeedBase: 1.0,
+            logic: iceStorm
         });
 
         // 고블린(몬스터)은 궁극기 없음

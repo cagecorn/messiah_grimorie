@@ -46,6 +46,7 @@ class PhaserParticleManager {
         this.createExplosionPool();
         this.createRedMagicPool();
         this.createSleepPool();
+        this.createBlueMagicPool();
         Logger.system("PhaserParticleManager: Particle systems initialized with Glow, Thread, Heal, and Sleep textures.");
     }
 
@@ -255,6 +256,27 @@ class PhaserParticleManager {
     }
 
     /**
+     * 파란색 마법 파티클 풀 생성 (얼음 계열)
+     */
+    createBlueMagicPool() {
+        if (!this.scene) return;
+
+        const emitter = this.scene.add.particles(0, 0, 'particle_glow', {
+            color: [ 0x00ccff, 0x00ffff, 0xffffff ], 
+            speed: { min: 80, max: 250 },
+            scale: { start: 0.4, end: 0 },
+            alpha: { start: 1.0, end: 0 },
+            lifespan: 600,
+            blendMode: 'ADD',
+            quantity: 15,
+            maxParticles: 500,
+            emitting: false
+        });
+
+        this.emitters.set('blue_magic', emitter);
+    }
+
+    /**
      * 특정 위치에서 핏방울 폭발 효과 발생
      */
     spawnBloodBurst(x, y) {
@@ -348,6 +370,16 @@ class PhaserParticleManager {
         this.scene.time.delayedCall(duration, () => {
             emitter.stop();
         });
+    }
+
+    /**
+     * 파란색 파티클 폭발 연출 (얼음)
+     */
+    spawnBlueMagic(x, y, count = 12) {
+        const emitter = this.emitters.get('blue_magic');
+        if (!emitter) return;
+
+        emitter.explode(count, x, y);
     }
 }
 

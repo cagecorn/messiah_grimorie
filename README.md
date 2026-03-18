@@ -269,7 +269,7 @@
 | `nana` | 나나 | `bard` | `MusicalMagicalCritical` | 이중인격 아이돌 바드. 아군에게 치명타 버프를 주고 적에게 마법 피해를 입힙니다. 궁극기 시 광폭화합니다. |
 | `noah` | 노아 | `bard` | `Help! Animal Friends!` | 동물을 사랑하는 소년. 동물 친구들을 소환하여 아군을 돕고 적을 공격합니다. |
 | `noel` | 노엘 | `bard` | `Help! Plant Friends!` | 식물을 가꾸는 소년. 노아의 형으로, 식물의 힘을 빌려 아군을 치유하고 강화합니다. |
-| `aina` | 아이나 | `wizard` | `SkillIceBall` | 차가운 얼음 여왕. 합리적이고 조언하기를 좋아하며, 매운 음심을 남몰래 즐깁니다. |
+| `aina` | 아이나 | `wizard` | `SkillIceBall` | 차가운 얼음 여왕. 합리적이고 조언하기를 좋아하며, 매운 음식을 남몰래 즐깁니다. |
 | `joojoo` | 주주 | `totemist` | `FireTotem` | 세상을 탐험하고 싶어서 정글을 뛰쳐나온 토템술사. 토템을 소환하여 전장을 장악함. |
 | `viper` | 바이퍼 | `shadowmancer` | `SinkingShadow` | 평생을 어둠 속에서 활약해온 암살자. 그림자를 통해 적의 배후를 노림. |
 | `wrinkle` | 링클 | `archer` | `GuillotinePaper` | 평행세계 '블랙 베히모스'의 메시아. 3스택마다 발동하는 [전광석화] 패시브와 화면 전체를 난도질하는 궁극기 보유. |

@@ -22,6 +22,8 @@ export default {
         'skill_fire_totem_desc': 'Summons a Fire Totem that explodes on densest enemy area.',
         'skill_fire_burst_name': 'Fire Burst',
         'skill_fire_burst_desc': 'Fires a fire ball that explodes on impact.',
+        'skill_ice_ball_name': 'Ice Ball',
+        'skill_ice_ball_desc': 'Fires a ball of ice that deals magic damage and slows enemies.',
         
         'skill_tornado_shot_desc': 'Fires a powerful shot that pierces through all enemies and slows them down.',
         'skill_sinking_shadow_name': 'Sinking Shadow',
@@ -43,6 +45,8 @@ export default {
         'ult_zayn_desc': 'Creates clones of himself to confuse and attack enemies.',
         'ult_joojoo_name': 'Summon Healing Totem',
         'ult_joojoo_desc': 'Summons a Healing Totem that emits a powerful healing aura.',
+        'ult_aina_name': 'Ice Storm',
+        'ult_aina_desc': 'Summons a freezing storm cloud that tracks enemies and rains down ice shards.',
         
         'status_title_stealth': 'Stealth',
         'status_desc_stealth': 'Hiding from enemies. Untargetable.',
@@ -85,6 +89,8 @@ export default {
         'skill_fire_totem_desc': '적들이 밀집된 지역에 자폭하는 화염 토템을 소환합니다.',
         'skill_fire_burst_name': '파이어 버스트',
         'skill_fire_burst_desc': '화염구를 발사하여 범위 피해를 입힙니다.',
+        'skill_ice_ball_name': '아이스볼',
+        'skill_ice_ball_desc': '적에게 마법 피해를 입히고 속도를 늦추는 얼음 구체를 발사합니다.',
 
         'skill_tornado_shot_desc': '모든 적을 관통하며 이동 속도를 늦추는 강력한 화살을 발사합니다.',
         'skill_sinking_shadow_name': '씽킹 섀도우',
@@ -106,6 +112,8 @@ export default {
         'ult_zayn_desc': '자신의 분신을 소환하여 적을 교란하고 공격합니다.',
         'ult_joojoo_name': '치유 토템 소환',
         'ult_joojoo_desc': '강력한 치유의 오라를 내뿜는 치유 토템을 소환합니다.',
+        'ult_aina_name': '아이스 스톰',
+        'ult_aina_desc': '적을 추격하며 강력한 얼음 파편을 쏟아붓는 얼음 구름을 소환합니다.',
         
         'status_title_stealth': '은신',
         'status_desc_stealth': '적들로부터 몸을 숨깁니다. 타겟팅 대상에서 제외됩니다.',

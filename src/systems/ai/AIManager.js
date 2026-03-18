@@ -32,6 +32,7 @@ import EliteMonsterAI from './nodes/EliteMonsterAI.js';
 import FlyingManAI from './nodes/FlyingManAI.js';
 import SeinAI from './nodes/SeinAI.js';
 import ShadowmancerAI from './nodes/ShadowmancerAI.js';
+import AinaAI from './nodes/ainaAI.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -171,6 +172,8 @@ class AIManager {
                 node = JoojooAI;
             } else if (id === 'sein') {
                 node = SeinAI;
+            } else if (id === 'aina') {
+                node = AinaAI;
             } else if (entity.logic.isTotem) {
                 node = StationaryAI;
             }

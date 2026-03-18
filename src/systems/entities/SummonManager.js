@@ -1,5 +1,6 @@
 import Logger from '../../utils/Logger.js';
 import CombatEntity from '../../entities/CombatEntity.js';
+import IceStormCloud from '../../entities/summons/IceStormCloud.js';
 
 /**
  * 소환물 매니저 (Summon Manager)
@@ -8,6 +9,9 @@ import CombatEntity from '../../entities/CombatEntity.js';
 class SummonManager {
     constructor() {
         this.activeSummons = new Map(); // EntityID -> CombatEntity
+        this.registry = {
+            'ice_storm_cloud': IceStormCloud
+        };
     }
 
     /**
@@ -17,7 +21,8 @@ class SummonManager {
     spawnSummon(scene, logicEntity, team, x, y, spriteKey) {
         if (!scene) return null;
 
-        const combatEntity = new CombatEntity(scene, x, y, logicEntity, spriteKey);
+        const EntityClass = this.registry[logicEntity.baseId] || CombatEntity;
+        const combatEntity = new EntityClass(scene, x, y, logicEntity, spriteKey);
         combatEntity.team = team;
 
         // 씬의 유닛 목록에 추가 (팀 판정 하드코딩 방지: mercenary/ally는 아군, 그 외는 적군)

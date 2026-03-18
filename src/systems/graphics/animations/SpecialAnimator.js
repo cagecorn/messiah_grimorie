@@ -76,6 +76,23 @@ class SpecialAnimator {
     }
 
     /**
+     * 아이스 익스플로전 (아이나)
+     */
+    playIceExplosion(x, y) {
+        if (!this.scene) return;
+        // 얼음 파편이 튀는 느낌을 위해 3단계 레이어로 구성
+        for (let i = 0; i < 3; i++) {
+            this.scene.time.delayedCall(i * 90, () => {
+                const effect = poolingManager.get('ice_explosion_fx');
+                if (effect) effect.show(x, y, { 
+                    scale: 1.0 + (i * 0.3),
+                    duration: 400 + (i * 100)
+                });
+            });
+        }
+    }
+
+    /**
      * 낙하 충격 이펙트 (몬스터 던지기)
      */
     playFallingImpact(x, y) {

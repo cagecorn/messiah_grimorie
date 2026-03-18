@@ -14,6 +14,7 @@ import fireTotem from './skills/FireTotem.js';
 import healingTotem from './skills/HealingTotem.js';
 import tornadoShot from './skills/TornadoShot.js';
 import sinkingShadow from './skills/SinkingShadow.js'; // [NEW]
+import skillIceBall from './skills/SkillIceBall.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -199,6 +200,17 @@ class SkillManager {
             descriptionKey: 'skill_fire_burst_desc',
             cooldown: 6000, 
             logic: fireBurst
+        });
+        
+        // 아이나 (Aina)
+        this.skills.set('aina', {
+            id: 'skilliceball',
+            name: 'Ice Ball',
+            nameKey: 'skill_ice_ball_name',
+            description: 'Fires a ball of ice that deals 1.8x MAtk damage.',
+            descriptionKey: 'skill_ice_ball_desc',
+            cooldown: 8000,
+            logic: skillIceBall
         });
     }
 

@@ -29,6 +29,8 @@ import PooledStoneSkinEffect from './effects/PooledStoneSkinEffect.js';
 import PooledCloningEffect from './effects/PooledCloningEffect.js';
 import PooledBattoJutsuEffect from './effects/PooledBattoJutsuEffect.js';
 import PooledFallingImpact from './effects/PooledFallingImpact.js';
+import PooledIceExplosion from './effects/PooledIceExplosion.js';
+import PooledIceStormCloud from './effects/PooledIceStormCloud.js';
 
 /**
  * 애니메이션 매니저 (Animation Manager)
@@ -74,6 +76,8 @@ class AnimationManager {
         poolingManager.registerPool('cloning_effect', () => new PooledCloningEffect(this.scene), 10, true);
         poolingManager.registerPool('battojutsu_effect', () => new PooledBattoJutsuEffect(this.scene), 5, true);
         poolingManager.registerPool('falling_impact_fx', () => new PooledFallingImpact(this.scene), 10, true);
+        poolingManager.registerPool('ice_explosion_fx', () => new PooledIceExplosion(this.scene), 20, true);
+        poolingManager.registerPool('ice_storm_cloud_fx', () => new PooledIceStormCloud(this.scene), 5, true);
 
         Logger.system("AnimationManager: Facade ready with Modular Animators.");
     }
@@ -94,6 +98,7 @@ class AnimationManager {
     playExplosion(x, y, scale) { this.special.playExplosion(x, y, scale); }
     playAquaExplosion(x, y) { this.special.playAquaExplosion(x, y); }
     playFireExplosion(x, y) { this.special.playFireExplosion(x, y); }
+    playIceExplosion(x, y) { this.special.playIceExplosion(x, y); }
 
     playBattoJutsuEffect(x, y) {
         const effect = poolingManager.get('battojutsu_effect');
