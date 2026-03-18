@@ -93,6 +93,13 @@ class StatManager {
     get(key) {
         return this.finalStats[key] || 0;
     }
+
+    /**
+     * [신규] HP를 즉시 최대치로 채움 (스폰/레벨업 시 사용)
+     */
+    fullHeal() {
+        this.finalStats[STAT_KEYS.HP] = this.finalStats[STAT_KEYS.MAX_HP];
+    }
 }
 
 export default StatManager;

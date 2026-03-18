@@ -18,61 +18,59 @@ export default class AquaBurstProjectile extends NonTargetProjectile {
     }
 
     onLaunch(config) {
-        this.config = config; // { isSleeping: false, damageMultiplier: 1.5 }
+        this.config = config;
         this.speed = config.speed || 400;
-        this.collisionRadius = 30; // 버블 크기에 맞게 조정
+        this.collisionRadius = 30;
         this.damageType = 'magic';
+        
+        // [Standardized AOE]
+        this.aoeRadius = config.aoeRadius || 120;
+        this.aoeMultiplier = config.damageMultiplier || 1.0;
 
-        // 화려한 연출을 위해 초기 비주얼 설정 (필요시)
         this.setAlpha(1);
         this.setScale(1.0);
     }
 
-    /**
-     * 유닛이나 지점에 명중했을 때 호출됨 (Base class에서 제어)
-     */
     onHit(target) {
-        this.triggerExplosion();
+        // 이펙트는 explode에서 일괄 처리 (아쿠아버스트는 웅덩이 폭발이 메인이므로)
     }
 
-    onHitGround() {
-        this.triggerExplosion();
-    }
+    onHitGround() {}
 
-    triggerExplosion() {
+    explode() {
         // [시각 효과] 아쿠아 폭발
         if (fxManager.showAquaExplosion) {
             fxManager.showAquaExplosion(this.x, this.y);
         }
 
-        // [광역 데미지]
-        const radius = 120; // 80 -> 120 (상향)
-        const damageMult = this.damageMultiplier;
-        const isSleeping = this.config.isSleeping || false;
-
-        const unitsInScene = Array.from(combatManager.units);
-        
-        // [AQUA_SIREN] 태그를 사용하여 전투 로그 기록 (사용자 요청)
         Logger.info("AQUA_SIREN", `Aqua Burst exploded at (${Math.round(this.x)}, ${Math.round(this.y)})`);
 
-        unitsInScene.forEach(unit => {
-            if (unit.active && unit.logic && unit.logic.isAlive) {
-                if (unit.team !== this.owner.team) {
-                    const dist = Phaser.Math.Distance.Between(this.x, this.y, unit.x, unit.y - 40);
-                    if (dist <= radius) {
-                        // 데미지 처리
-                        combatManager.processDamage(this.owner, unit, {
-                            multiplier: damageMult,
-                            projectileId: this.id
-                        }, 'magic');
-                        
-                        // 수면 효과 (Sleeping Bubble일 때만)
-                        if (isSleeping && unit.logic.status) {
-                            unit.logic.status.applyEffect('sleep', 4000); // 4초 수면
-                        }
-                    }
-                }
+        // 특수 효과 (수면) 처리를 위한 콜백 정의
+        const isSleeping = this.config.isSleeping || false;
+        const onHitCallback = (hitTarget) => {
+            if (isSleeping && hitTarget.logic && hitTarget.logic.status) {
+                hitTarget.logic.status.applyEffect('sleep', 4000);
             }
-        });
+        };
+
+        // 베이스 클래스의 explode가 aoeManager를 호출할 때 콜백을 전달하게 하려면 
+        // 베이스 클래스의 invoke AOE를 조금 더 유연하게 하거나, 여기서 직접 호출하고 radius를 0으로 일시 설정해야 함.
+        // 하지만 베이스 클래스에 이미 onImpact 등의 메커니즘이 있으므로...
+        // 그냥 직접 aoeManager를 부르고 super.explode() 전달 시 radius를 0으로 하면 됨.
+        
+        aoeManager.applyAOEDamagingEffect(
+            this.owner,
+            this.x,
+            this.y,
+            this.aoeRadius,
+            this.aoeMultiplier,
+            this.damageType,
+            onHitCallback
+        );
+
+        const oldRadius = this.aoeRadius;
+        this.aoeRadius = 0; // 중복 방지
+        super.explode();
+        this.aoeRadius = oldRadius;
     }
 }

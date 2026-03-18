@@ -164,13 +164,15 @@ class CombatManager {
      * 데미지 발생 라우팅
      */
     processDamage(attackerEntity, targetEntity, config = {}, type = 'physical', isUltimate = false) {
+        if (!attackerEntity || !targetEntity) return;
+
         // config가 숫자(multiplier)일 수도 있고 객체({multiplier, projectileId})일 수도 있음
         let multiplier = 1.0;
         let projectileId = null;
 
         if (typeof config === 'number') {
             multiplier = config;
-        } else if (typeof config === 'object') {
+        } else if (typeof config === 'object' && config !== null) {
             multiplier = config.multiplier !== undefined ? config.multiplier : 1.0;
             projectileId = config.projectileId || null;
         }
@@ -178,6 +180,8 @@ class CombatManager {
         const attacker = attackerEntity.logic;
         const target = targetEntity.logic;
         
+        if (!attacker || !target) return;
+
         let damage = 0;
         let isCrit = false;
 
@@ -186,16 +190,22 @@ class CombatManager {
             const critRate = attacker.getTotalCrit ? attacker.getTotalCrit() : (attacker.stats.get('crit') || 0);
             isCrit = Math.random() < critRate;
 
+            let finalMult = multiplier;
             // [ROGUE 특화] 로그 클래스는 기본 배율 가산 및 치명타 배율 강화
             const className = attacker.class ? attacker.class.getClassName() : '';
             if (className === 'rogue') {
-                multiplier *= 1.5; // 기본 1.5배
-                if (isCrit) multiplier *= 2.0; // 치명타 시 2배 추가
+                finalMult *= 1.5;
+                if (isCrit) finalMult *= 2.0;
             } else if (isCrit) {
-                multiplier *= 1.5; // 일반 클래스 치명타 1.5배
+                finalMult *= 1.5;
             }
 
-            damage = COMBAT.calcPhysicalDamage(baseAtk, multiplier);
+            damage = COMBAT.calcPhysicalDamage(baseAtk, finalMult);
+            
+            // [DEBUG_TRACE]
+            if (damage === 0 || isNaN(damage)) {
+                Logger.warn("COMBAT_TRACE", `Low/NaN Physical Damage: ${attacker.name} Atk:${baseAtk} * Mult:${finalMult} = ${damage}`);
+            }
         } else {
             damage = COMBAT.calcMagicEffect(attacker.getTotalMAtk(), multiplier);
         }
@@ -209,6 +219,14 @@ class CombatManager {
         }
 
         if (targetEntity && targetEntity.takeDamage) {
+            // [DEBUG] 몬스터 공격 데미지 정밀 추적 (사용자 요청)
+            if (attacker.type === 'monster') {
+                Logger.info("MONSTER_DMG", `[TRACE] ${attacker.name} -> ${target.name} | Atk: ${attacker.getTotalAtk()}, Mult: ${multiplier}, Type: ${type}, Calc: ${damage.toFixed(1)}`);
+                if (damage <= 0) {
+                    Logger.warn("MONSTER_DMG", `[ZERO_DAMAGE] Calculated damage is 0! (Atk: ${attacker.getTotalAtk()}, Mult: ${multiplier})`);
+                }
+            }
+
             // [DEBUG] 소환수(Siren) 또는 마법 데미지 전용 특화 로그 (사용자 요청: 필터링 용이성)
             const isSiren = attacker.name && attacker.name.toLowerCase().includes('siren');
             if (isSiren || type === 'magic') {

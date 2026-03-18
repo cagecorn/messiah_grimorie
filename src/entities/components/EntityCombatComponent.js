@@ -111,6 +111,9 @@ export default class EntityCombatComponent {
             return;
         }
 
+        // [DEBUG] 수신 데미지 추적 (사용자 요청)
+        const initialHp = this.logic.stats.finalStats[STAT_KEYS.HP];
+
         // [신규] 보호막 흡수 로직
         const absorbed = this.logic.shields ? this.logic.shields.absorbDamage(amount) : 0;
         let finalDamage = amount - absorbed;
@@ -119,11 +122,15 @@ export default class EntityCombatComponent {
         const dr = this.logic.stats.bonusStats[STAT_KEYS.DR] || 0;
         finalDamage = finalDamage * (1 - Math.min(0.9, dr));
 
-        let currentHp = this.logic.hp;
+        // [Safety] 0 이하의 데미지가 계산되는 경우, 타격 판정이 발생했다면 최소 1 보장 (0-데미지 불쾌감 해소)
+        if (amount > 0 && finalDamage < 1) {
+            finalDamage = 1;
+        }
+
+        let currentHp = initialHp;
         if (finalDamage > 0) {
             // HP 직접 갱신 (BaseEntity에서 로직 이전)
-            const current = this.logic.stats.finalStats[STAT_KEYS.HP];
-            currentHp = Math.max(0, current - finalDamage);
+            currentHp = Math.max(0, initialHp - finalDamage);
             this.logic.stats.finalStats[STAT_KEYS.HP] = currentHp;
             
             // [신규] 수면 상태 해제 (공격 당할 시)
@@ -151,10 +158,11 @@ export default class EntityCombatComponent {
             this.handleDeath();
         }
 
+        // [TRACE] 정밀 로깅
+        Logger.info("ENTITY_DMG", `[HIT] ${this.logic.name} | In:${amount.toFixed(1)} -> Out:${finalDamage.toFixed(1)} | HP:${initialHp.toFixed(1)} -> ${currentHp.toFixed(1)}`);
+
         if (absorbed > 0) {
             Logger.info("COMBAT", `${this.logic.name} absorbed ${absorbed.toFixed(1)} damage. Final Damage: ${finalDamage.toFixed(1)}`);
-        } else {
-            Logger.info("COMBAT", `${this.logic.name} took ${amount} damage. Current HP: ${currentHp}`);
         }
 
         // [신규] 통계 데이터 방송

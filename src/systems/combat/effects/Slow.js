@@ -13,6 +13,9 @@ class Slow {
     static apply(target, duration) {
         if (!target || !target.logic || !target.logic.status) return;
 
+        // [FIX] 무적 상태(I-frames)인 경우 CC기 면역
+        if (target.isInvincible && target.isInvincible()) return;
+
         // 1. 상태 등록
         target.logic.status.applyEffect('slow', duration);
 

@@ -19,20 +19,32 @@ class AOEManager {
      * @param {boolean} isUltimate 궁극기 여부
      */
     applyAOEDamagingEffect(source, x, y, radius, multiplier, type, onHit, isUltimate = false) {
-        if (!source || !source.scene) return;
+        if (!source) return;
 
-        const scene = source.scene;
-        // 씬 내의 모든 전투 엔티티 가져오기 (BattleScene에 리스트가 있다고 가정)
-        const allEntities = scene.spawnManager ? scene.spawnManager.getActiveEntities(scene) : [];
+        // [Refactor] CombatManager의 통합 유닛 Set 사용 (더 신뢰성 높고 원격 가능)
+        const allEntities = combatManager.units;
         
-        const targets = allEntities.filter(target => {
-            if (!target.active || !target.logic.isAlive) return false;
-            // 적대 관계 확인 (시전자와 다른 팀)
-            if (target.team === source.team) return false;
+        if (!allEntities || allEntities.size === 0) {
+            Logger.warn("AOE_MANAGER", "No units registered in CombatManager for AOE check.");
+            return;
+        }
 
-            // 거리 계산
-            const dist = Phaser.Math.Distance.Between(x, y, target.x, target.y);
-            return dist <= radius;
+        const targets = [];
+        allEntities.forEach(target => {
+            if (!target.active || !target.logic || !target.logic.isAlive) return;
+            
+            // 적대 관계 확인 (시전자와 다른 팀)
+            if (target.team === source.team) return;
+
+            // [FIX] 거리 계산 로직 개선 (발/몸통 동시 판정)
+            // 지면(발) 점과 유닛 중심(몸통 -40px) 점 중 폭발 원점과 더 가까운 지점 채택
+            const distFeet = Phaser.Math.Distance.Between(x, y, target.x, target.y);
+            const distBody = Phaser.Math.Distance.Between(x, y, target.x, target.y - 40);
+            const minDist = Math.min(distFeet, distBody);
+
+            if (minDist <= radius) {
+                targets.push(target);
+            }
         });
 
         targets.forEach(target => {
@@ -43,7 +55,9 @@ class AOEManager {
         });
 
         if (targets.length > 0) {
-            Logger.info("COMBAT", `AOE Hit: ${targets.length} targets affected by ${source.logic.name}.`);
+            Logger.info("COMBAT", `[AOE_HIT] ${targets.length} targets hit by ${source.logic.name} at (${Math.round(x)}, ${Math.round(y)}) with radius ${radius}.`);
+        } else if (allEntities.size > 0) {
+            // Logger.debug("AOE_TRACE", `AOE check: 0 hits out of ${allEntities.size} units.`);
         }
     }
 }

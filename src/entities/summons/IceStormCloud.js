@@ -14,10 +14,10 @@ export default class IceStormCloud extends Phaser.GameObjects.Sprite {
         this.scene = scene;
         this.logic = logicEntity;
         
-        // 시각 보조용 풀링된 구름 연출 추가
-        const effect = poolingManager.get('ice_storm_cloud_fx');
-        if (effect) {
-            effect.show(x, y, { duration: this.logic.duration });
+        // 시각 보조용 풀링된 구름 연출 추가 (본체와 함께 이동하도록 보관)
+        this.fxLayer = poolingManager.get('ice_storm_cloud_fx');
+        if (this.fxLayer) {
+            this.fxLayer.show(x, y, { duration: this.logic.duration });
         }
         this.team = 'ally'; // 기본값 (spawnSummon에서 덮어씌워짐)
         
@@ -49,6 +49,11 @@ export default class IceStormCloud extends Phaser.GameObjects.Sprite {
 
         // 구름 고유 AI 실행
         IceStormCloudAI.tick(this, delta);
+
+        // [FIX] 보조 비주얼 레이어 위치 동기화 (잔상 버그 해결)
+        if (this.fxLayer) {
+            this.fxLayer.updatePosition(this.x, this.y);
+        }
     }
 
     handleDeath() {

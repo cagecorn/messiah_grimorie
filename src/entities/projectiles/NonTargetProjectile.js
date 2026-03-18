@@ -4,6 +4,7 @@ import projectileManager from '../../systems/combat/ProjectileManager.js';
 import combatManager from '../../systems/CombatManager.js';
 import instanceIDManager from '../../utils/InstanceIDManager.js';
 import layerManager from '../../ui/LayerManager.js';
+import aoeManager from '../../systems/combat/AOEManager.js';
 
 /**
  * 논타겟 투사체 베이스 (Non-Target Projectile Base)
@@ -22,6 +23,10 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
         this.isPierce = false;
         this.hitTargets = new Set();
         this.collisionRadius = 40;
+
+        // [Standard AOE]
+        this.aoeRadius = 0; // 0보다 크면 폭발 시 AOE 적용
+        this.aoeMultiplier = 1.0;
 
         // 메인 스프라이트 생성 (컨테이너 기반)
         if (texture) {
@@ -61,6 +66,9 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
         this.isPierce = config.isPierce || false;
         this.hitTargets.clear();
         this.collisionRadius = config.collisionRadius || 40;
+        this.aoeRadius = config.aoeRadius || this.aoeRadius || 0;
+        this.aoeMultiplier = config.aoeMultiplier || this.aoeMultiplier || this.damageMultiplier;
+        this.isUltimate = config.isUltimate || false;
         this.config = config; // [FIX] 서브클래스에서 onImpact 등에 접근할 수 있도록 저장
         
         this.id = instanceIDManager.generate(`proj_nontarget_${owner.id}`);
@@ -138,16 +146,25 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
     }
 
     checkCollisions() {
-        const enemies = (this.owner.team === 'mercenary') ? this.scene.enemies : this.scene.allies;
-        if (!enemies) return;
+        // [Refactor] CombatManager의 통합 유닛 Set 사용
+        const allEntities = combatManager.units;
+        if (!allEntities) return;
 
-        enemies.forEach(enemy => {
-            if (!enemy.active || !enemy.logic.isAlive) return;
-            if (this.hitTargets.has(enemy.id)) return;
+        allEntities.forEach(target => {
+            if (!target.active || !target.logic || !target.logic.isAlive) return;
+            if (this.hitTargets.has(target.id)) return;
 
-            const dist = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y - 40);
-            if (dist < this.collisionRadius) {
-                this.hit(enemy);
+            // 적대 관계 확인
+            if (target.team === this.owner.team) return;
+
+            // [FIX] 거리 계산 로직 개선 (Feet & Body dual-check)
+            const distFeet = Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y);
+            const distBody = Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y - 40);
+            const minDist = Math.min(distFeet, distBody);
+
+            if (minDist <= this.collisionRadius) {
+                Logger.info("PROJ", `ID: ${this.id} collided with ${target.logic.name} (Dist: ${minDist.toFixed(1)})`);
+                this.hit(target);
             }
         });
     }
@@ -208,6 +225,20 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
     }
 
     explode() {
+        // [Standard AOE] 반경이 설정되어 있다면 범위 데미지 적용
+        if (this.aoeRadius > 0) {
+            aoeManager.applyAOEDamagingEffect(
+                this.owner,
+                this.x,
+                this.y,
+                this.aoeRadius,
+                this.aoeMultiplier,
+                this.damageType,
+                null,
+                this.isUltimate
+            );
+        }
+
         this.destroyProjectile();
     }
 

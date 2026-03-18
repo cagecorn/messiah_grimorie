@@ -58,23 +58,25 @@ class MonsterNonTargetSkill {
         fxManager.showFallingImpact(pos.x, pos.y);
 
         // 1. 광역 데미지 (던져진 몬스터의 최대 체력 20% + 시전자 공격력 1.0배)
-        const bonusDamage = Math.floor(monster.logic.stats.maxHp * 0.2);
+        const monsterMaxHp = monster.logic.getTotalMaxHp ? monster.logic.getTotalMaxHp() : 100;
+        const bonusDamage = Math.floor(monsterMaxHp * 0.2);
         
         aoeManager.applyAOEDamagingEffect(
             owner,
             pos.x,
             pos.y,
             120, // 반경
-            1.5, // 기본 계수
+            1.5, // 기본 계수 (시전자의 공격력 배율)
             'physical',
             (hitTarget) => {
                 // 에어본 적용 (800ms)
                 Airborne.apply(hitTarget, 800, 150, owner);
                 
                 // [FIX] 몬스터 체력 비례 보너스 데미지(20%) 추가 정산
-                if (hitTarget.logic && hitTarget.takeDamage) {
-                    hitTarget.takeDamage(bonusDamage, owner, 'physical');
-                    Logger.debug("SKILL", `Bonus HP Damage applied: ${bonusDamage} to ${hitTarget.logic.name}`);
+                if (hitTarget.logic && hitTarget.takeDamage && bonusDamage > 0) {
+                    const finalBonus = Math.max(1, bonusDamage);
+                    hitTarget.takeDamage(finalBonus, owner, 'physical');
+                    Logger.info("SKILL", `Bonus HP Damage applied: ${finalBonus} to ${hitTarget.logic.name} (Source: ${monster.logic.name} HP: ${monsterMaxHp})`);
                 }
             }
         );

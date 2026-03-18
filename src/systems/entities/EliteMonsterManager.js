@@ -44,9 +44,10 @@ class EliteMonsterManager {
      * @returns {Object} 강화된 설정
      */
     applyEliteModifications(config) {
-        // [수정] 이름 변경은 MonsterManager.spawn에서 베이스 데이터와 결합된 후 처리하도록 위임
-        
-        // 1. 스탯 강화 (1.5배)
+        // [수정] 성급 부여 로직 복구 (멀티플라이어 중첩 대신 성급 사용 권장 시)
+        // config.stars = 4; // 필요 시 주석 해제
+
+        // 1. 스탯 강화 (1.5배) - [NOTICE] config.baseStats가 이미 클론되었음을 전제로 함
         if (config.baseStats) {
             const multiplier = 1.5;
             const statsToScale = ['atk', 'mAtk', 'maxHp', 'def', 'mDef'];

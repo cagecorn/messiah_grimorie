@@ -14,22 +14,22 @@ class IceStorm {
         this.scalingStat = 'mAtk';
     }
 
-    execute(owner) {
+    execute(owner, target) {
         if (!owner) return;
-
+ 
         Logger.info("ULTIMATE", `[Aina] Ice Storm triggered!`);
-
+ 
         // 1. 컷씬 연출
         ultimateCutsceneManager.show('aina', 'Ice Storm');
-
+ 
         // 2. 구름 논리 객체 생성 (Dummy 상속 방식)
         const cloudLogic = IceStormCloudEntity.create(owner.logic, 10000);
         
-        // 3. 구름 소환 (SummonManager 중앙화 활용)
-        const spawnX = owner.x;
-        const spawnY = owner.y - 150; // 머리 위쪽 소환
+        // 3. 구름 소환 위치 결정 (타겟 지점이 있으면 해당 지점, 없으면 메인 캐릭터 위치)
+        const spawnX = target ? target.x : owner.x;
+        const spawnY = target ? target.y : (owner.y - 150);
         
-        // [IMPORTANT] SummonManager가 IceStormCloud 클래스를 알 수 있도록 나중에 등록 필요
+        // SummonManager를 통한 소환
         const cloud = summonManager.spawnSummon(owner.scene, cloudLogic, owner.team, spawnX, spawnY, 'ice_storm_cloud');
         
         if (cloud) {

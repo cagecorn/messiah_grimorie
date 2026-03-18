@@ -17,13 +17,17 @@ export default class IceBallProjectile extends NonTargetProjectile {
         this.setScale(0.8);
         this.ghostTimer = 0;
         this.damageType = 'magic';
-        this.radius = 120; // AOE 반경
+        
+        // [Standardized AOE]
+        this.aoeRadius = 120;
+        this.aoeMultiplier = 1.0;
     }
 
     onLaunch(config) {
         this.speed = config.speed || 850;
         this.ghostTimer = 0;
-        this.radius = config.radius || 120;
+        this.aoeRadius = config.radius || this.aoeRadius || 120;
+        this.aoeMultiplier = config.damageMultiplier || this.aoeMultiplier || 1.0;
         
         // 얼음 파티클 시작 효과
         phaserParticleManager.spawnBlueMagic(this.x, this.y);
@@ -51,17 +55,7 @@ export default class IceBallProjectile extends NonTargetProjectile {
     }
 
     explode() {
-        // 범위 데미지 적용
-        aoeManager.applyAOEDamagingEffect(
-            this.owner,
-            this.x,
-            this.y,
-            this.radius,
-            this.damageMultiplier,
-            this.damageType
-        );
-
-        // 얼음 충격 파티클 및 애니메이션 연출
+        // [시각 효과] 얼음 충격 파티클 및 애니메이션 연출 (데미지는 super.explode에서 처리)
         phaserParticleManager.spawnBlueMagic(this.x, this.y);
         animationManager.playIceExplosion(this.x, this.y); 
 

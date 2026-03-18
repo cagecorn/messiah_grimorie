@@ -42,6 +42,9 @@ class SinkingNode {
                 if (entity.active && entity.isBusy && !entity.isBeingCarried) {
                     Logger.warn("SHADOW_DIVE", `Sinking timeout for ${entity.logic.name}. Restoring state.`);
                     entity.isBusy = false;
+                    if (entity.status && entity.status.states) {
+                        entity.status.states.invincible = false;
+                    }
                     entity.setVisible(true);
                     entity.shadowSafetyTimer = null;
                 }

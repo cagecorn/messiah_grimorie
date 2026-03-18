@@ -119,8 +119,10 @@ export default class EntityActionComponent {
      */
     startRoll(direction) {
         this.isRolling = true;
-        this.iFrameActive = true;
+        // this.iFrameActive = true; // [DEBUG] 무적 판정(I-frames)만 일시 비활성화
         this.actionCooldown = 800; // 구르기 자체 쿨타임
+
+        Logger.info("I-FRAME", `[ON] ${this.entity.logic.name} (Roll)`);
 
         const rollDuration = 300; // [FIX] 이동 거리 단축을 위해 기간 축소 (기본 400)
         const rollSpeed = 400; // [FIX] 유저 피드백 반영: 속도 하향 (기존 600)
@@ -151,7 +153,10 @@ export default class EntityActionComponent {
      */
     finishRoll() {
         this.isRolling = false;
-        this.iFrameActive = false;
+        if (this.iFrameActive) {
+            this.iFrameActive = false;
+            Logger.info("I-FRAME", `[OFF] ${this.entity.logic.name}`);
+        }
         
         if (this.entity.body) {
             this.entity.body.setVelocity(0, 0);

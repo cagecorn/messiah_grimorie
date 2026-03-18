@@ -25,7 +25,10 @@ export default class MeteorProjectile extends NonTargetProjectile {
     onLaunch(config) {
         this.damageMultiplier = config.damageMultiplier || 1.8;
         this.speed = config.speed || 1600;
-        this.radius = config.radius || 150;
+        
+        // [Standardized AOE]
+        this.aoeRadius = config.radius || 150;
+        this.aoeMultiplier = config.damageMultiplier || 1.8;
         this.isUltimate = config.isUltimate || false;
 
         // 시작 지점 재설정 (하늘)
@@ -106,14 +109,14 @@ export default class MeteorProjectile extends NonTargetProjectile {
         if (this.isHitting) return;
         this.isHitting = true;
 
-        // 범위 공격 판정
+        // 범위 공격 판정 (표준 AOE 매니저 활용)
         aoeManager.applyAOEDamagingEffect(
             this.owner, 
             this.x, 
             this.y, 
-            this.radius, 
-            this.damageMultiplier, 
-            'magic',
+            this.aoeRadius, 
+            this.aoeMultiplier, 
+            this.damageType,
             null,
             this.isUltimate
         );

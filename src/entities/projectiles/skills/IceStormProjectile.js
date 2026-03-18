@@ -14,12 +14,18 @@ export default class IceStormProjectile extends NonTargetProjectile {
         this.setBlendMode(Phaser.BlendModes.ADD);
         this.damageType = 'magic';
         this.collisionRadius = 30;
+        
+        // [ENHANCED] 지지면 충돌 시에도 데미지를 주기 위한 AOE 설정 (반경 확장: 45 -> 60)
+        this.aoeRadius = 60;
+        this.aoeMultiplier = 0.6; // 다단히트이므로 개별 데미지는 낮춤
     }
 
     onLaunch(config) {
         this.speed = config.speed || 600;
         this.setScale(config.scale || 0.8);
         this.setAlpha(0.8);
+        this.aoeRadius = config.aoeRadius || 60;
+        this.aoeMultiplier = config.aoeMultiplier || 0.6;
         
         // 떨어질 때 약간의 회전
         this.scene.tweens.add({

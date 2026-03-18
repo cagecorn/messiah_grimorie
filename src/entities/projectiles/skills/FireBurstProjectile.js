@@ -19,9 +19,13 @@ export default class FireBurstProjectile extends NonTargetProjectile {
 
     onLaunch(config) {
         this.config = config;
-        this.speed = config.speed || 600; // 아쿠아버스트보다 조금 빠름
+        this.speed = config.speed || 600;
         this.collisionRadius = 40; 
         this.damageType = 'magic';
+        
+        // [Standardized AOE]
+        this.aoeRadius = config.aoeRadius || 150;
+        this.aoeMultiplier = config.damageMultiplier || 1.0;
 
         this.setAlpha(1);
         this.setScale(1.2);
@@ -31,38 +35,16 @@ export default class FireBurstProjectile extends NonTargetProjectile {
      * 유닛이나 지점에 명중했을 때 호출됨 (Base class에서 제어)
      */
     onHit(target) {
-        this.triggerExplosion();
+        // 비주얼 효과만 처리 (데미지는 explode -> base.explode에서 처리)
+        fxManager.showFireExplosion(this.x, this.y);
     }
 
     onHitGround() {
-        this.triggerExplosion();
+        fxManager.showFireExplosion(this.x, this.y);
     }
 
-    triggerExplosion() {
-        // [시각 효과] 파이어 폭발 (풀링 사용)
-        fxManager.showFireExplosion(this.x, this.y);
-
-        // [광역 데미지]
-        const radius = 150; // 아쿠아버스트(120)보다 넓음
-        const damageMult = this.damageMultiplier;
-
-        const unitsInScene = Array.from(combatManager.units);
-        
+    explode() {
         Logger.info("FIRE_BURST", `Fire Burst exploded at (${Math.round(this.x)}, ${Math.round(this.y)})`);
-
-        unitsInScene.forEach(unit => {
-            if (unit.active && unit.logic && unit.logic.isAlive) {
-                if (unit.team !== this.owner.team) {
-                    const dist = Phaser.Math.Distance.Between(this.x, this.y, unit.x, unit.y - 40);
-                    if (dist <= radius) {
-                        // 데미지 처리
-                        combatManager.processDamage(this.owner, unit, {
-                            multiplier: damageMult,
-                            projectileId: this.id
-                        }, 'magic');
-                    }
-                }
-            }
-        });
+        super.explode();
     }
 }

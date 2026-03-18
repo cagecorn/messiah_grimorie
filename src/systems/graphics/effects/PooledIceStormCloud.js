@@ -60,6 +60,12 @@ export default class PooledIceStormCloud {
         this.clearTweens();
     }
 
+    updatePosition(x, y) {
+        if (this.sprite && this.sprite.visible) {
+            this.sprite.setPosition(x, y);
+        }
+    }
+
     clearTweens() {
         this.tweens.forEach(t => { t.stop(); });
         this.tweens = [];

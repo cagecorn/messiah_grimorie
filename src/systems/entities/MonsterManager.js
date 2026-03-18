@@ -7,7 +7,8 @@ import goblin from '../../data/monsters/goblin.js';
 import goblin_shaman from '../../data/monsters/goblin_shaman.js';
 import goblin_wizard from '../../data/monsters/goblin_wizard.js';
 import goblin_flyingman from '../../data/monsters/goblin_flyingman.js';
-import goblin_rogue from '../../data/monsters/goblin_rogue.js'; // [NEW]
+import goblin_rogue from '../../data/monsters/goblin_rogue.js';
+import eliteMonsterManager from './EliteMonsterManager.js';
 
 /**
  * 몬스터 매니저 (Monster Manager)
@@ -42,18 +43,22 @@ class MonsterManager {
         // 1. 고유 인스턴스 ID 생성 (고블린 1, 고블린 2...)
         const uniqueId = instanceIDManager.generate(monsterId.toLowerCase());
 
-        // 2. 기본 데이터와 커스텀 설정을 병합
+        // 2. 기본 데이터와 커스텀 설정을 병합 (Deep Copy baseStats essential for Elite modifications)
         const config = { 
             level: 1,
             ...baseData, 
             ...customConfig,
-            baseId: monsterId.toLowerCase(), // [FIX] 베이스 ID 명시
-            id: uniqueId, // 베이스 ID를 고유 ID로 덮어씌움
-            type: 'monster' // [FIX] 타입 명시
+            baseStats: baseData.baseStats ? { ...baseData.baseStats } : {}, // [FIX] 객체 참조 복사 방지 (딥 카피)
+            baseId: monsterId.toLowerCase(),
+            id: uniqueId, 
+            type: 'monster'
         };
 
-        // [USER 요청] 엘리트 몬스터의 경우 이름 앞에 'Elite' 접두사 추가
+        // [USER 요청] 엘리트 몬스터의 경우 강화 및 이름 변경 적용
         if (config.isElite) {
+            // [FIX] 여기서 강화를 수행해야 baseStats를 제대로 건드릴 수 있음
+            eliteMonsterManager.applyEliteModifications(config);
+
             import('../../core/LocalizationManager.js').then(m => {
                 const prefix = m.default.t('elite');
                 config.name = `${prefix} ${config.name || baseData.name}`;
