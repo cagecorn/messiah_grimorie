@@ -145,14 +145,32 @@ class FXManager {
     }
 
     /**
+     * [신규] 범용 이펙트 실행 (폭발 등)
+     * @param {string} type 이펙트 종류 ('explosion' 등)
+     * @param {number} x 
+     * @param {number} y 
+     * @param {object} config { scale }
+     */
+    playEffect(type, x, y, config = {}) {
+        if (!this.isInitialized) return;
+        
+        if (type === 'explosion') {
+            animationManager.playExplosion(x, y, config.scale || 1.0);
+        } else if (type === 'aqua_explosion') {
+            animationManager.playAquaExplosion(x, y);
+        } else if (type === 'fire_explosion') {
+            animationManager.playFireExplosion(x, y);
+        }
+    }
+
+    /**
      * [신규] 유닛 피격 시 빨갛게 번쩍이는 효과
      * @param {CombatEntity} target 
      */
     flashRed(target) {
         if (!this.isInitialized || !target || !target.sprite) return;
 
-        // 이미 틴트 중이라면 중복 방지 (선택 사항)
-        target.sprite.setTint(0xff0000); // 완전한 빨강
+        target.sprite.setTint(0xff0000); 
         
         this.scene.time.delayedCall(100, () => {
             if (target && target.sprite) {

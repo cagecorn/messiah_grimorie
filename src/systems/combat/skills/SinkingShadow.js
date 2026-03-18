@@ -1,13 +1,16 @@
 import Logger from '../../../utils/Logger.js';
 import projectileManager from '../ProjectileManager.js';
-import animationManager from '../../../systems/graphics/AnimationManager.js';
 import fxManager from '../../../systems/graphics/FXManager.js';
 import Airborne from '../effects/Airborne.js';
 import combatManager from '../../CombatManager.js';
 
+// [3단계 노드 임포트]
+import SinkingNode from '../../../systems/graphics/nodes/SinkingNode.js';
+import ShadowDashNode from '../../../systems/graphics/nodes/ShadowDashNode.js';
+import EmergingNode from '../../../systems/graphics/nodes/EmergingNode.js';
+
 /**
- * 씽킹 섀도우 (Sinking Shadow)
- * 역할: [그림자 속으로 숨어 이동 후 광역 공격 및 에어본]
+ * 씽킹 섀도우 (Sinking Shadow) - 3단계 노드 리팩토링 버전
  */
 export default {
     id: 'sinking_shadow',
@@ -16,37 +19,42 @@ export default {
     cooldown: 5000,
     manaCost: 30,
 
-    /**
-     * 스킬 실행
-     */
     execute(attacker, targetPos) {
-        Logger.info("SKILL", `${attacker.logic.name} uses Sinking Shadow!`);
+        if (attacker.isBusy) return false;
 
-        // 1. 그림자 투사체 발사 (이동 수단)
+        // 1. 투사체 생성 (이동 속도 0으로 초기화)
         const config = {
             speed: 600,
             onComplete: () => {
-                this.onArrive(attacker);
+                // Phase 3: Emerging (그림자 대쉬 완료 시)
+                EmergingNode.execute(attacker, projectile, () => {
+                    this.applyImpact(attacker);
+                });
             }
         };
 
-        projectileManager.fire('shadow_dive', attacker, targetPos, config);
+        const projectile = projectileManager.fire('shadow_dive', attacker, targetPos, config);
+        if (!projectile) return false;
+
+        // Phase 1: Sinking
+        SinkingNode.execute(attacker, projectile, () => {
+            // Phase 2: Shadow Dash (가라앉기 완료 후 대쉬 시작)
+            ShadowDashNode.execute(attacker, projectile);
+        });
+
         return true;
     },
 
     /**
-     * 목적지 도착 시 (튀어나오기 + 공격)
+     * 최종 충격파 적용 (Emerging 완료 후 호출)
      */
-    onArrive(attacker) {
-        // 1. 광역 공격 판정
+    applyImpact(attacker) {
         const range = 120;
         const damageMult = 2.5;
         const airborneDuration = 1000;
 
-        // 시각 효과 (폭발 등)
         fxManager.playEffect('explosion', attacker.x, attacker.y, { scale: 1.5 });
         
-        // 주변 적 탐색 및 피해
         const enemies = (attacker.team === 'mercenary') ? 
             attacker.scene.enemies : attacker.scene.allies;
 
@@ -55,15 +63,11 @@ export default {
             
             const dist = Phaser.Math.Distance.Between(attacker.x, attacker.y, enemy.x, enemy.y);
             if (dist <= range) {
-                // 데미지 처리
-                const damage = combatManager.calculateDamage(attacker, enemy, damageMult);
-                combatManager.processDamage(attacker, enemy, damage);
-
-                // 에어본 적용
+                combatManager.processDamage(attacker, enemy, damageMult, 'physical');
                 Airborne.apply(enemy, airborneDuration, 120, attacker);
             }
         });
 
-        Logger.info("SKILL", `Sinking Shadow strike completed by ${attacker.logic.name}`);
+        Logger.info("SKILL", `Sinking Shadow impact applied by ${attacker.logic.name}`);
     }
 };

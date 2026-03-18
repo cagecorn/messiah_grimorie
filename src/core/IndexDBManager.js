@@ -10,7 +10,7 @@ import Logger from '../utils/Logger.js';
 class IndexDBManager {
     constructor() {
         this.dbName = 'MessiahGrimoireDB';
-        this.version = 8; // 세인(sein) 스토어 추가
+        this.version = 9; // 바이퍼(viper) 스토어 추가
         this.db = null;
         
         Logger.system("IndexDBManager Router: Initialized.");
@@ -33,7 +33,7 @@ class IndexDBManager {
                 if (!db.objectStoreNames.contains('inventory')) db.createObjectStore('inventory', { keyPath: 'id' });
 
                 // [신규] 개별 용병 전용 스토어 (유저 요청: 시각적/물리적 모듈화)
-                const mercenaryIds = ['aren', 'sera', 'ella', 'merlin', 'lute', 'silvi', 'zayn', 'ria', 'joojoo', 'sein'];
+                const mercenaryIds = ['aren', 'sera', 'ella', 'merlin', 'lute', 'silvi', 'zayn', 'ria', 'joojoo', 'sein', 'viper'];
                 mercenaryIds.forEach(id => {
                     const storeName = `merc_${id}`;
                     if (!db.objectStoreNames.contains(storeName)) {

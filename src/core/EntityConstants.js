@@ -1,46 +1,11 @@
-import { STATS } from './TechnicalConstants.js';
+import { ShadowmancerData } from '../data/classes/Shadowmancer.js';
+import { STAT_KEYS, ENTITY_CLASSES } from './StatSchema.js';
 
 /**
  * 엔티티 상수 (Entity Constants)
  * 역할: 전역 엔티티 시스템에서 사용되는 스탯 키 및 클래스 정의
  */
-export const STAT_KEYS = {
-    HP: 'hp',
-    MAX_HP: 'maxHp',
-    ATK: 'atk',
-    M_ATK: 'mAtk',
-    DEF: 'def',
-    M_DEF: 'mDef',
-    SPEED: 'speed',
-    ATK_SPD: 'atkSpd',
-    ATK_RANGE: 'atkRange',
-    RANGE_MIN: 'rangeMin',
-    RANGE_MAX: 'rangeMax',
-    CAST_SPD: 'castSpd',
-    ACC: 'acc',
-    EVA: 'eva',
-    CRIT: 'crit',
-    ULT_CHARGE: 'ultChargeSpeed',
-    RES_FIRE: 'fireRes',
-    RES_ICE: 'iceRes',
-    RES_LIGHTNING: 'lightningRes',
-    SHIELD: 'shield',
-    DR: 'bonusDR',
-    STAMINA: STATS.STAMINA,
-    STAM_REGEN: STATS.STAM_REGEN
-};
-
-export const ENTITY_CLASSES = {
-    WARRIOR: 'warrior',
-    ARCHER: 'archer',
-    HEALER: 'healer',
-    WIZARD: 'wizard',
-    BARD: 'bard',
-    ROGUE: 'rogue',
-    SWORDMASTER: 'swordmaster',
-    TOTEMIST: 'totemist',
-    FLYINGMAN: 'flyingman'
-};
+export { STAT_KEYS, ENTITY_CLASSES };
 
 /**
  * 클래스별 성장 가중치 (Class Growth Weights)
@@ -132,9 +97,9 @@ export const CLASS_GROWTH = {
         [STAT_KEYS.ACC]: 1.2,
         [STAT_KEYS.EVA]: 1.5,      // 기동력/공중 회피 강조
         [STAT_KEYS.CRIT]: 0.01,
-        [STAT_KEYS.STAMINA]: 1.0,
         [STAT_KEYS.STAM_REGEN]: 0.2
-    }
+    },
+    [ENTITY_CLASSES.SHADOWMANCER]: ShadowmancerData.growth
 };
 
 /**

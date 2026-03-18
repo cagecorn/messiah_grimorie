@@ -3,6 +3,7 @@ import Logger from '../../utils/Logger.js';
 import layerManager from '../../ui/LayerManager.js';
 import poolingManager from '../../core/PoolingManager.js';
 import EventBus, { EVENTS } from '../../core/EventBus.js';
+import shadowInstanceManager from './ShadowInstanceManager.js';
 
 /**
  * 풀링용 그림자 객체 (Pooled Shadow)
@@ -117,10 +118,14 @@ class ShadowManager {
         this.updateShadowVisuals(graphics, entity, config);
         graphics.setDepth(layerManager.getDepth('shadow'));
         
+        // [신규] 그림자 인스턴스 등록
+        const instanceId = shadowInstanceManager.register(entity, pooledShadow);
+
         // [REFAC] 엔티티 참조도 함께 저장하여 자동 청소(GC) 및 업데이트에 활용
         this.shadows.set(entityId, { 
             poolItem: pooledShadow, 
             entity: entity,
+            instanceId: instanceId,
             createdFrame: this.scene.time.now 
         });
 
@@ -154,15 +159,24 @@ class ShadowManager {
                 const isOrphan = !entity || !entity.active || !entity.scene;
                 const isDead = entity.logic && !entity.logic.isAlive;
                 const isIdMismatched = entity && entity.id !== id;
+                const isCarried = entity.isBeingCarried;
 
                 if (isOrphan || isDead || isIdMismatched) {
                     Logger.info("SHADOW_GC", `Cleaning shadow for [${id}]: Orphan=${isOrphan}, Dead=${isDead}, Mismatch=${isIdMismatched}`);
+                    shadowInstanceManager.unregister(id);
                     poolingManager.release('shadow', poolItem);
                     this.shadows.delete(id);
                     return;
                 }
 
-                // 시각적 업데이트 수행
+                // [FIX] 탑승 중인 유닛(isBeingCarried)은 그림자를 숨김 처리하고 인스턴스는 유지 (해제 시 자동 복구를 위함)
+                if (isCarried) {
+                    shadow.setVisible(false);
+                    return;
+                }
+
+                // 정상 상태 시 가시성 확보 및 시각적 업데이트 수행
+                shadow.setVisible(true);
                 shadow.clear();
                 this.updateShadowVisuals(shadow, entity, config);
                 
@@ -207,6 +221,7 @@ class ShadowManager {
 
         const data = this.shadows.get(entityId);
         if (data) {
+            shadowInstanceManager.unregister(entityId);
             poolingManager.release('shadow', data.poolItem);
             this.shadows.delete(entityId);
             Logger.debug("SHADOW_DEBUG", `Shadow removed for ${entityId}. Remaining: ${this.shadows.size}`);

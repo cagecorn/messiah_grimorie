@@ -84,6 +84,7 @@ export default class EntityCombatComponent {
         const isMelee = className === ENTITY_CLASSES.WARRIOR || 
                         className === ENTITY_CLASSES.ROGUE || 
                         className === ENTITY_CLASSES.SWORDMASTER ||
+                        className === ENTITY_CLASSES.SHADOWMANCER ||
                         (this.logic.type === 'monster' && className !== ENTITY_CLASSES.HEALER && className !== ENTITY_CLASSES.WIZARD && className !== ENTITY_CLASSES.ARCHER);
 
         if (isMelee) {

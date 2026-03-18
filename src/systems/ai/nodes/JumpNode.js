@@ -16,6 +16,11 @@ class JumpNode {
     static execute(entity, target) {
         if (!entity || !target || !entity.logic.isAlive) return false;
 
+        // [FIX] 쉐도우맨서 클래스는 점프 금지 (잠영과 충돌 방지)
+        if (entity.logic.class && entity.logic.class.getClassName() === 'shadowmancer') {
+            return false;
+        }
+
         // 1. 상태 체크 (이미 이동 중이거나 행동 불가면 스킵)
         if (entity.isBusy || entity.isJumping) return false;
         if (entity.status && entity.status.isUnableToAct()) return false;

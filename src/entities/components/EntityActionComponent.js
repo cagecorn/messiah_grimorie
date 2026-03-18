@@ -99,6 +99,11 @@ export default class EntityActionComponent {
     roll(direction) {
         if (this.isRolling || this.actionCooldown > 0 || this.entity.isBeingCarried) return false;
 
+        // [FIX] 쉐도우맨서 클래스는 구르기 금지 (잠영 시각적 버그 방지)
+        if (this.entity.logic.class && this.entity.logic.class.getClassName() === 'shadowmancer') {
+            return false;
+        }
+
         const rollStaminaCost = STAMINA.ROLL_COST;
         if (!this.entity.stamina || !this.entity.stamina.consume(rollStaminaCost)) {
             Logger.debug("ACTION", `${this.entity.logic.name} - 스태미나 부족으로 구르기 실패`);

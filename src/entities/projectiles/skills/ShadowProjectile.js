@@ -3,6 +3,8 @@ import NonTargetProjectile from '../NonTargetProjectile.js';
 import Logger from '../../../utils/Logger.js';
 import layerManager from '../../../ui/LayerManager.js';
 import animationManager from '../../../systems/graphics/AnimationManager.js';
+import shadowInstanceManager from '../../../systems/graphics/ShadowInstanceManager.js';
+import measurementManager from '../../../core/MeasurementManager.js';
 
 /**
  * 🌑 그림자 투사체 (Shadow Projectile)
@@ -10,79 +12,195 @@ import animationManager from '../../../systems/graphics/AnimationManager.js';
  */
 export default class ShadowProjectile extends NonTargetProjectile {
     constructor(scene, x, y) {
-        super(scene, x, y, 'spirit_totem_sprite'); // 임시 에셋 (나중에 전용 검은 원 에셋으로 교체 가능)
+        super(scene, x, y, 'spirit_totem_sprite'); 
         this.carriedUnit = null;
         this.onCompleteCallback = null;
     }
 
     /**
-     * 그림자 이동 시작
+     * 투사체 초기 설정 (이동 없이 대기)
      */
     launch(owner, target, config = {}) {
         this.carriedUnit = owner;
         this.onCompleteCallback = config.onComplete;
+        this.moveSpeed = config.speed || 600;
+
+        // [신규] 카메라 추적을 위한 가상 실체화
+        this.team = 'mercenary';
+        this.logic = {
+            id: `shadow_logic_${owner.id}`,
+            name: "Shadow",
+            isAlive: true,
+            hp: 1,
+            stats: { finalStats: { hp: 1 } },
+            getTotalSpeed: () => 0,
+            class: { getClassName: () => 'shadow_projectile' },
+            status: { states: {} }
+        };
+
+        // [신규] 씬의 아군 리스트에 등록 (카메라 매니저가 이 리스트를 보고 추적함)
+        if (this.scene.allies && !this.scene.allies.includes(this)) {
+            this.scene.allies.push(this);
+            Logger.debug("SHADOW_PROJ", "Registered to allies for camera tracking.");
+        }
         
-        // 투사체 설정 (지면에 붙어서 이동)
-        config.isPierce = true;
-        config.speed = config.speed || 400;
+        // [FIX] 1. 월드 경계 제한 (화면 밖으로 나가지 않도록 보정)
+        const world = measurementManager.world;
+        const targetX = Phaser.Math.Clamp(target.x || config.targetPos.x, 50, world.width - 50);
+        const targetY = Phaser.Math.Clamp(target.y || config.targetPos.y, 50, world.height - 50);
+        const clampedTarget = { x: targetX, y: targetY };
+
+        // [FIX] 2. 적과 부딪히면 즉시 출현해야 하므로 Piercing 해제
+        config.isPierce = false;
         
-        // 1. 초기 위치 설정
         const startX = owner.x;
         const startY = owner.y;
+
+        this.setPosition(startX, startY);
+        this.setVisible(false);
+
+        // 부모 설정 (이동 속도 0으로 시작)
+        const dummy = { x: startX, y: startY + 40, team: owner.team, id: owner.id, logic: owner.logic, zHeight: 0 };
+        super.launch(dummy, clampedTarget, { ...config, speed: 0 });
         this.setPosition(startX, startY);
 
-        // 2. 비주얼 설정 (검은색 틴트 및 반투명)
-        if (this.sprite) {
-            this.sprite.setTint(0x000000);
-            this.sprite.setAlpha(0.7);
-            this.sprite.setScale(0.8, 0.4); // 납작한 그림자 형태
+        // 비주얼 설정 (바이퍼 스프라이트 활용)
+        if (this.mainSprite && owner.sprite) {
+            this.mainSprite.setTexture(owner.sprite.texture.key);
+            this.mainSprite.setTint(0x000000);
+            this.mainSprite.setAlpha(0.7);
+            this.mainSprite.setScale(0.8, 0.2); 
+            this.mainSprite.setOrigin(0.5, 1.0);
         }
 
-        // 3. 레이어 설정 (지면 효과 레이어)
+        const instanceId = shadowInstanceManager.register(this, { type: 'shadow_projectile' });
+        this.shadowInstanceId = instanceId;
+
         layerManager.assignToLayer(this, 'ground_fx');
-
-        // 4. 부모 클래스 런칭
-        const dummy = { x: startX, y: startY, team: owner.team, id: owner.id, logic: owner.logic };
-        super.launch(dummy, target, config);
-
-        // 5. 본체 숨기기 (애니메이션 매니저 연동)
-        animationManager.playSinking(owner, 300, () => {
-            Logger.info("SHADOW_PROJ", `${owner.logic.name} dove into shadows.`);
-        });
     }
 
     /**
-     * 목적지 도달 시
+     * 본체 컨테이너 탑승 (SinkingNode에서 호출)
+     */
+    containerize() {
+        if (!this.carriedUnit) return;
+        const owner = this.carriedUnit;
+
+        Logger.debug("SHADOW_PROJ", `Containerizing ${owner.logic.name}`);
+        
+        this.add(owner);
+        owner.setPosition(0, 0); 
+        owner.isBeingCarried = true;
+        
+        if (owner.body) {
+            owner.body.setEnable(false);
+        }
+
+        if (owner.sprite) {
+            owner.sprite.setVisible(false);
+        }
+
+        this.setVisible(true);
+    }
+
+    /**
+     * 대쉬 시작 (ShadowDashNode에서 호출)
+     */
+    startDash() {
+        this.speed = this.moveSpeed;
+        Logger.debug("SHADOW_PROJ", "Shadow dash started.");
+    }
+
+    /**
+     * 목적지 도달 시 (ShadowDashNode -> EmergingNode 연동용)
      */
     onHitGround() {
-        if (!this.carriedUnit) return;
+        Logger.info("SHADOW_PROJ", `Shadow projectile reached destination. triggering onComplete.`);
+        if (this.onCompleteCallback) {
+            this.onCompleteCallback();
+            this.onCompleteCallback = null; // 중복 호출 방지
+        }
+    }
 
+    /**
+     * 적과 충돌 시 (Phase 2 -> 3 즉시 전이)
+     */
+    onHit(target) {
+        Logger.info("SHADOW_PROJ", `Shadow projectile hit enemy ${target.logic.name}. Switching to phase 3.`);
+        // [FIX] 적과 부딪혀도 hitGround(지면 도달)와 동일하게 처리하여 즉시 출현 유도
+        this.hitGround();
+    }
+
+    /**
+     * 본체 해제 (EmergingNode에서 호출)
+     */
+    releaseUnit() {
+        if (!this.carriedUnit) return;
         const owner = this.carriedUnit;
+        
         const finalX = this.x;
         const finalY = this.y;
 
-        // 1. 본체 위치 이동 및 다시 나타나기 연출
+        this.setVisible(false);
+        this.remove(owner);
+        this.scene.add.existing(owner);
         owner.setPosition(finalX, finalY);
-        if (owner.body) owner.body.reset(finalX, finalY);
+        owner.isBeingCarried = false;
 
-        animationManager.playEmerging(owner, 400, () => {
-            Logger.info("SHADOW_PROJ", `${owner.logic.name} emerged from shadows.`);
-            
-            // 2. 콜백 실행 (기습 공격 등)
-            if (this.onCompleteCallback) {
-                this.onCompleteCallback();
-            }
-            
-            // 3. 투사체 소멸
-            this.destroyProjectile();
-        });
+        // [FIX] 실종 방지: 해제 시 즉시 가시성 확보 (애니메이션 노드에서 다시 제어하더라도 기본적으로 보여야 함)
+        owner.setVisible(true);
+        if (owner.sprite) owner.sprite.setVisible(true);
+
+        if (owner.body) {
+            owner.body.setEnable(true);
+            owner.body.reset(finalX, finalY);
+        }
+
+        this.carriedUnit = null;
+        return owner;
     }
 
-    /**
-     * 안전장치
-     */
     destroyProjectile() {
-        this.carriedUnit = null;
+        // [신규] 인스턴스 해제
+        if (this.shadowInstanceId) {
+            shadowInstanceManager.unregister(this.shadowInstanceId);
+        }
+
+        // 만약 유닛이 여전히 탑승 중이면 강제 해제 (안전장치 & 중단 대응)
+        if (this.carriedUnit && this.carriedUnit.isBeingCarried) {
+            const unit = this.releaseUnit();
+            if (unit) {
+                // [중단 대응] 비정상 종료 시 상태 복구
+                if (unit.status && unit.status.states) {
+                    unit.status.states.invincible = false;
+                }
+                unit.isBusy = false;
+                if (unit.sprite) unit.sprite.setVisible(true);
+                Logger.warn("SHADOW_PROJ", `Shadow dive interrupted for ${unit.logic.name}. State recovered.`);
+            }
+        }
+        // [신규] 아군 리스트에서 제거 (추적 종료)
+        if (this.scene.allies) {
+            this.scene.allies = this.scene.allies.filter(a => a !== this);
+        }
+
         super.destroyProjectile();
     }
+
+    // --- [카메라/씬 루프 호환성용 더미 메서드] ---
+    updateDepth() {
+        // 투사체는 layerManager로 관리되지만, BattleScene.update에서 호출될 수 있음
+    }
+    updateAttackCooldown() {
+        // 대기 시간 없음
+    }
+
+    // --- [MovementManager 호환용] ---
+    stop() {}
+    setVelocity() {}
+    isRolling() { return false; }
+    isDashing() { return false; }
+
+    // --- [AIManager/Combat 호환용] ---
+    attack() {}
 }

@@ -44,20 +44,29 @@ export default class SinkingAnimation {
         const scene = this.manager.scene;
         const config = entity.getEntityConfig();
         
+        // [FIX] 실종 방지: 컨테이너와 스프라이트 가시성 모두 복구
         entity.setVisible(true);
+        entity.sprite.setVisible(true);
+        
+        // 초기 상태 설정 (바닥에서 솟아오를 준비)
         entity.sprite.setAlpha(0);
         entity.sprite.setScale(config.displayScale, 0.1);
-        entity.sprite.y = 20;
+        entity.sprite.setY(20);
 
-        // 솟구치기 연출
+        // [ENHANCED] 솟구치기 연출 (Bounce Out 효과로 역동성 부여)
         scene.tweens.add({
             targets: entity.sprite,
             scaleY: config.displayScale,
             y: 0,
             alpha: 1,
             duration: duration,
-            ease: 'Back.getOut(2)',
+            ease: 'Back.easeOut',
             onComplete: () => {
+                // 최종 상태 강제 동기화 (안전장치)
+                entity.sprite.setAlpha(1);
+                entity.sprite.setScale(config.displayScale);
+                entity.sprite.setY(0);
+                
                 if (onComplete) onComplete();
             }
         });

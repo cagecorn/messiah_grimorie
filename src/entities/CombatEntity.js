@@ -326,7 +326,11 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
     // [신규] 액션 실행 프록시
     roll(direction) { return this.actions.roll(direction); }
     isRolling() { return this.actions.isRolling; }
-    isInvincible() { return this.actions.isInvincible(); }
+    isInvincible() { 
+        const actionInvincible = this.actions && this.actions.isInvincible();
+        const statusInvincible = (this.status && this.status.states) ? this.status.states.invincible : false;
+        return actionInvincible || statusInvincible;
+    }
 
     preDestroy() {
         combatManager.removeUnit(this);

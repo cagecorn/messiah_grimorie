@@ -3,46 +3,16 @@
  * 모든 엔티티와 전투 시스템에서 이 상수를 참조하여 데이터 일관성을 유지합니다.
  */
 
+import { ShadowmancerData } from '../data/classes/Shadowmancer.js';
+import { STAT_KEYS as STATS, ENTITY_CLASSES as CLASSES } from './StatSchema.js';
+
 //#region ⚔️ [구역 1] 엔티티 스탯 명칭 (Technical Terminology)
 // 코드 내부에서 사용하는 엔티티 스탯 명칭 통일 (환각 및 버그 방지)
-export const STATS = {
-    HP: 'hp',                      // 현재 체력
-    MAX_HP: 'maxHp',               // 최대 체력
-    ATK: 'atk',                    // 공격력 (attackDamage 사용 금지)
-    MATK: 'mAtk',                  // 마법 공격력
-    DEF: 'def',                    // 방어력
-    MDEF: 'mDef',                  // 마법 방어력
-    SPEED: 'speed',                // 이동 속도
-    ATK_SPD: 'atkSpd',             // 공격 속도 (또는 attackDelay)
-    ATK_RANGE: 'atkRange',         // 공격 사거리
-    RANGE_MIN: 'rangeMin',         // 최소 유지 거리 (원거리용)
-    RANGE_MAX: 'rangeMax',         // 최대 유지 거리 (원거리용)
-    CAST_SPD: 'castSpd',           // 시전 속도
-    ACC: 'acc',                    // 정확도 (물리 공격 시)
-    EVA: 'eva',                    // 회피도 (물리 공격 시)
-    CRIT: 'crit',                  // 치명타율
-    ULT_CHARGE: 'ultChargeSpeed',  // 궁극기 충전 속도 배율 (기본 1.0)
-    FIRE_RES: 'fireRes',           // 불 저항력 (%)
-    ICE_RES: 'iceRes',             // 얼음 저항력 (%)
-    LIGHTNING_RES: 'lightningRes', // 번개 저항력 (%)
-    STAMINA: 'stamina',           // 스태미나 (행동력)
-    STAM_REGEN: 'stamRegen',       // 스태미나 초당 회복량
-    ID: 'id'                       // 엔티티 고유 식별자
-};
+export { STATS, CLASSES };
 //#endregion
 
 //#region 📈 [구역 2] 레벨업 스탯 성장 규칙 (Level-up Stat Scaling)
-// 모든 용병은 레벨업 시 클래스의 특색에 가중치를 두어 스탯이 자동으로 성장합니다.
-
-export const CLASSES = {
-    WARRIOR: 'warrior',
-    ARCHER: 'archer',
-    HEALER: 'healer',
-    WIZARD: 'wizard',
-    BARD: 'bard',
-    ROGUE: 'rogue',
-    TOTEMIST: 'totemist'
-};
+// ... (ENTITY_CLASSES is imported as CLASSES)
 
 // 기공(Base Increase): 모든 클래스 공통 기본 성장치
 export const BASE_GROWTH_STATS = [
@@ -57,7 +27,8 @@ export const CLASS_SCALING_TRAITS = {
     [CLASSES.HEALER]: [STATS.MATK, STATS.MDEF],
     [CLASSES.WIZARD]: [STATS.MATK, STATS.MDEF, STATS.ACC],
     [CLASSES.BARD]: [STATS.HP, STATS.ATK, STATS.MATK, STATS.DEF, STATS.MDEF],
-    [CLASSES.ROGUE]: [STATS.ATK, STATS.ATK_SPD, STATS.SPEED, STATS.CRIT]
+    [CLASSES.ROGUE]: [STATS.ATK, STATS.ATK_SPD, STATS.SPEED, STATS.CRIT],
+    [CLASSES.SHADOWMANCER]: ShadowmancerData.traits
 };
 
 // 예외 처리: 특정 요건(예: 성기사 컨셉의 분)에 따른 고유 성장 테이블

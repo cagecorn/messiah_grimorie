@@ -38,6 +38,10 @@ export default class BattleScene extends Phaser.Scene {
         this.enemies = [];
         this.roundTimer = null;
         this.isTransitioning = false; // [신규] 명시적 초기화
+        
+        // [라운드 안전장치 용]
+        this.currentRoundTotalSpawns = 0;
+        this.currentRoundDeathCount = 0;
     }
 
     init(data) {
@@ -159,9 +163,17 @@ export default class BattleScene extends Phaser.Scene {
         this.events.once('shutdown', () => {
             if (this.projectileManager) this.projectileManager.clear();
             if (this.aiManager) this.aiManager.clear();
-            combatManager.clear(); // [FIX] 컴뱃 매니저의 유닛 참조들 제거
-            shadowManager.cleanup(); // [FIX] 씬이 바뀔 때 잔여 그림자 완벽 제거
+            
+            // [사망 리스너 해제]
+            if (this.onEntityDied) {
+                EventBus.off(EVENTS.ENTITY_DIED, this.onEntityDied);
+                this.onEntityDied = null;
+            }
+
+            combatManager.clear(); 
+            shadowManager.cleanup(); 
             portraitHUDManager.clear();
+            Logger.info("BATTLE", "BattleScene shutdown: Managers and listeners cleared.");
         });
 
         // [USER 요청] 카메라 지터링 방지: 모든 물리 업데이트가 끝난 후 카메라 이동
@@ -251,6 +263,25 @@ export default class BattleScene extends Phaser.Scene {
         this.allies = this.spawnManager.spawnAllies(this);
         this.enemies = this.spawnManager.spawnEnemies(this, this.stageId);
 
+        // [라운드 안전장치] 스폰 수 기록
+        this.currentRoundTotalSpawns = this.enemies.length;
+        this.currentRoundDeathCount = 0;
+
+        // [사망 추적 리스너]
+        this.onEntityDied = (entity) => {
+            if (entity && (entity.team === 'enemy' || entity.team === 'monster')) {
+                this.currentRoundDeathCount++;
+                Logger.info("ROUND_SAFEGUARD", `Monster died. Progress: ${this.currentRoundDeathCount}/${this.currentRoundTotalSpawns}`);
+                
+                // 즉시 체크 (안전장치)
+                if (this.currentRoundDeathCount >= this.currentRoundTotalSpawns) {
+                     Logger.info("ROUND_SAFEGUARD", "FORCED ROUND CLEAR: All spawned monsters are confirmed dead.");
+                     this.startIntermission();
+                }
+            }
+        };
+        EventBus.on(EVENTS.ENTITY_DIED, this.onEntityDied);
+
         // [HUD] 초상화 허드 초기화
         portraitHUDManager.init(this, this.allies);
 
@@ -258,12 +289,6 @@ export default class BattleScene extends Phaser.Scene {
 
         // [카메라] 중앙 정렬
         cameraManager.centerCamera();
-
-        // [SCENE CLEANUP] 씬 종료 시 매니저 정리
-        this.events.on('shutdown', () => {
-            shadowManager.cleanup();
-            Logger.info("BATTLE", "ShadowManager cleaned up on scene shutdown.");
-        });
     }
 
     update(time, delta) {
@@ -418,6 +443,10 @@ export default class BattleScene extends Phaser.Scene {
         const newEnemies = this.spawnManager.spawnEnemies(this, this.stageId, nextRound);
         this.enemies.push(...newEnemies);
         
+        // [라운드 안전장치] 초기화
+        this.currentRoundTotalSpawns = newEnemies.length;
+        this.currentRoundDeathCount = 0;
+
         this.isIntermission = false;
         EventBus.emit('ROUND_STARTED', { round: nextRound });
     }

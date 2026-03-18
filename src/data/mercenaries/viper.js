@@ -2,13 +2,13 @@ import { ENTITY_CLASSES, STAT_KEYS } from '../../core/EntityConstants.js';
 
 /**
  * 용병: 바이퍼 (Viper)
- * 클래스: 로그 (Rogue)
- * 특징: 어둠 속에서 활약하는 암살자. 높은 기동성과 치명타 성능.
+ * 클래스: 쉐도우맨서 (Shadowmancer)
+ * 특징: 그림자를 다루는 실력자. 높은 기동성과 치명타, 그리고 마법과 물리가 혼합된 공격.
  */
 export default {
     id: 'viper',
     name: 'Viper',
-    className: ENTITY_CLASSES.ROGUE,
+    className: ENTITY_CLASSES.SHADOWMANCER,
     isSpecial: false,
     skill: 'sinking_shadow',
     ultimate: 'unknown',
