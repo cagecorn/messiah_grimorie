@@ -18,11 +18,17 @@ class SinkingNode {
 
         // 1. 상태 설정
         entity.isBusy = true;
+        if (entity.status && entity.status.states) {
+            entity.status.states.invincible = true;
+        }
         
         // 2. 애니메이션 실행
         animationManager.playSinking(entity, 300, () => {
             // [FIX] 가라앉는 도중 타이머 해제
-            if (this.safetyTimer) this.safetyTimer.remove();
+            if (entity.shadowSafetyTimer) {
+                entity.shadowSafetyTimer.remove();
+                entity.shadowSafetyTimer = null;
+            }
 
             // 3. 컨테이너 탑승 (이동은 아직 안 함)
             projectile.containerize();
@@ -32,11 +38,12 @@ class SinkingNode {
 
         // [신규] 프리징 방지 안전장치
         if (entity.scene) {
-            this.safetyTimer = entity.scene.time.delayedCall(1500, () => {
+            entity.shadowSafetyTimer = entity.scene.time.delayedCall(1500, () => {
                 if (entity.active && entity.isBusy && !entity.isBeingCarried) {
                     Logger.warn("SHADOW_DIVE", `Sinking timeout for ${entity.logic.name}. Restoring state.`);
                     entity.isBusy = false;
                     entity.setVisible(true);
+                    entity.shadowSafetyTimer = null;
                 }
             });
         }

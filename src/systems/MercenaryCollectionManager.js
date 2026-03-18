@@ -12,7 +12,6 @@ import zaynDB from './persistence/ZaynIndexDBManager.js';
 import riaDB from './persistence/riaIndexDB.js';
 import joojooDB from './persistence/JoojooIndexDBManager.js';
 import seinDB from './persistence/SeinIndexDBManager.js';
-import viperDB from './persistence/ViperIndexDBManager.js'; // [NEW]
 
 /**
  * 용병 수집 매니저 (Mercenary Collection Manager)
@@ -37,8 +36,7 @@ class MercenaryCollectionManager {
             zayn: zaynDB,
             ria: riaDB,
             joojoo: joojooDB,
-            sein: seinDB,
-            viper: viperDB // [NEW]
+            sein: seinDB
         };
     }
 

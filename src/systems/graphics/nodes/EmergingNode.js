@@ -22,31 +22,18 @@ class EmergingNode {
         // 1. 본체 해제 (Container -> Scene)
         projectile.releaseUnit();
         
-        // 2. 상태 설정 (무적 해제)
-        if (entity.status && entity.status.states) {
-            entity.status.states.invincible = false;
-        }
-
         // 3. 다시 나타나기 애니메이션
         if (animationManager) {
             animationManager.playEmerging(entity, 400, () => {
-                // [FIX] 비정상 루프 방지용 타이머 해제
-                if (this.safetyTimer) this.safetyTimer.remove();
-
-                // 4. 행동 제약 해제
-                entity.isBusy = false;
-                Logger.info("SHADOW_DIVE", `${entity.logic.name} emerged from shadows.`);
-
-                if (onComplete) onComplete();
+                this.clearStates(entity, onComplete);
             });
 
             // [신규] 프리징 방지 안전장치
             if (entity.scene) {
-                this.safetyTimer = entity.scene.time.delayedCall(1500, () => {
+                entity.shadowSafetyTimer = entity.scene.time.delayedCall(1500, () => {
                     if (entity.active && entity.isBusy) {
                         Logger.warn("SHADOW_DIVE", `Emerging timeout for ${entity.logic.name}. Forcing state clear.`);
-                        entity.isBusy = false;
-                        if (onComplete) onComplete();
+                        this.clearStates(entity, onComplete);
                     }
                 });
             }
@@ -54,9 +41,33 @@ class EmergingNode {
             // 애니메이션 매니저가 없으면 즉시 종료 (이미지 실종 방지 포함)
             entity.setVisible(true);
             if (entity.sprite) entity.sprite.setVisible(true);
-            entity.isBusy = false;
-            if (onComplete) onComplete();
+            this.clearStates(entity, onComplete);
         }
+    }
+
+    /**
+     * [신규] 모든 상태 복구 통합 (무적/isBusy/타이머)
+     */
+    static clearStates(entity, onComplete) {
+        if (!entity) return;
+
+        // 1. 무적 해제
+        if (entity.status && entity.status.states) {
+            entity.status.states.invincible = false;
+        }
+
+        // 2. 타이머 정리
+        if (entity.shadowSafetyTimer) {
+            entity.shadowSafetyTimer.remove();
+            entity.shadowSafetyTimer = null;
+        }
+
+        // 3. 행동 제약 해제
+        entity.isBusy = false;
+
+        Logger.info("SHADOW_DIVE", `${entity.logic.name} state reset complete.`);
+
+        if (onComplete) onComplete();
     }
 }
 

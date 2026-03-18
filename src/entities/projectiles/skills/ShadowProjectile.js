@@ -5,6 +5,7 @@ import layerManager from '../../../ui/LayerManager.js';
 import animationManager from '../../../systems/graphics/AnimationManager.js';
 import shadowInstanceManager from '../../../systems/graphics/ShadowInstanceManager.js';
 import measurementManager from '../../../core/MeasurementManager.js';
+import Dummy from '../../Dummy.js';
 
 /**
  * 🌑 그림자 투사체 (Shadow Projectile)
@@ -24,19 +25,12 @@ export default class ShadowProjectile extends NonTargetProjectile {
         this.carriedUnit = owner;
         this.onCompleteCallback = config.onComplete;
         this.moveSpeed = config.speed || 600;
+        this.canHit = false; // [FIX] 가라앉기(Sinking) 단계에서는 충돌 무시
 
-        // [신규] 카메라 추적을 위한 가상 실체화
+        // [신규] 카메라 추적을 위한 가상 실체화 (Dummy 유틸리티 활용)
         this.team = 'mercenary';
-        this.logic = {
-            id: `shadow_logic_${owner.id}`,
-            name: "Shadow",
-            isAlive: true,
-            hp: 1,
-            stats: { finalStats: { hp: 1 } },
-            getTotalSpeed: () => 0,
-            class: { getClassName: () => 'shadow_projectile' },
-            status: { states: {} }
-        };
+        this.logic = Dummy.createLogic(`shadow_logic_${owner.id}`, "Shadow");
+        Dummy.applyMethods(this);
 
         // [신규] 씬의 아군 리스트에 등록 (카메라 매니저가 이 리스트를 보고 추적함)
         if (this.scene.allies && !this.scene.allies.includes(this)) {
@@ -46,8 +40,11 @@ export default class ShadowProjectile extends NonTargetProjectile {
         
         // [FIX] 1. 월드 경계 제한 (화면 밖으로 나가지 않도록 보정)
         const world = measurementManager.world;
-        const targetX = Phaser.Math.Clamp(target.x || config.targetPos.x, 50, world.width - 50);
-        const targetY = Phaser.Math.Clamp(target.y || config.targetPos.y, 50, world.height - 50);
+        const rawTargetX = (target && target.x !== undefined) ? target.x : (config.targetPos ? config.targetPos.x : owner.x);
+        const rawTargetY = (target && target.y !== undefined) ? target.y : (config.targetPos ? config.targetPos.y : owner.y);
+        
+        const targetX = Phaser.Math.Clamp(rawTargetX, 50, world.width - 50);
+        const targetY = Phaser.Math.Clamp(rawTargetY, 50, world.height - 50);
         const clampedTarget = { x: targetX, y: targetY };
 
         // [FIX] 2. 적과 부딪히면 즉시 출현해야 하므로 Piercing 해제
@@ -79,6 +76,9 @@ export default class ShadowProjectile extends NonTargetProjectile {
         layerManager.assignToLayer(this, 'ground_fx');
     }
 
+    get sprite() { return this.mainSprite; }
+    isInvincible() { return true; }
+    
     /**
      * 본체 컨테이너 탑승 (SinkingNode에서 호출)
      */
@@ -108,6 +108,7 @@ export default class ShadowProjectile extends NonTargetProjectile {
      */
     startDash() {
         this.speed = this.moveSpeed;
+        this.canHit = true; // [FIX] 대쉬 시작 시점부터 충돌 허용
         Logger.debug("SHADOW_PROJ", "Shadow dash started.");
     }
 
@@ -117,7 +118,7 @@ export default class ShadowProjectile extends NonTargetProjectile {
     onHitGround() {
         Logger.info("SHADOW_PROJ", `Shadow projectile reached destination. triggering onComplete.`);
         if (this.onCompleteCallback) {
-            this.onCompleteCallback();
+            this.onCompleteCallback(this);
             this.onCompleteCallback = null; // 중복 호출 방지
         }
     }
@@ -126,6 +127,8 @@ export default class ShadowProjectile extends NonTargetProjectile {
      * 적과 충돌 시 (Phase 2 -> 3 즉시 전이)
      */
     onHit(target) {
+        if (!this.canHit) return; // [FIX] 가라앉는 도중 충돌 무시
+
         Logger.info("SHADOW_PROJ", `Shadow projectile hit enemy ${target.logic.name}. Switching to phase 3.`);
         // [FIX] 적과 부딪혀도 hitGround(지면 도달)와 동일하게 처리하여 즉시 출현 유도
         this.hitGround();
@@ -187,20 +190,7 @@ export default class ShadowProjectile extends NonTargetProjectile {
         super.destroyProjectile();
     }
 
-    // --- [카메라/씬 루프 호환성용 더미 메서드] ---
-    updateDepth() {
-        // 투사체는 layerManager로 관리되지만, BattleScene.update에서 호출될 수 있음
-    }
     updateAttackCooldown() {
         // 대기 시간 없음
     }
-
-    // --- [MovementManager 호환용] ---
-    stop() {}
-    setVelocity() {}
-    isRolling() { return false; }
-    isDashing() { return false; }
-
-    // --- [AIManager/Combat 호환용] ---
-    attack() {}
 }

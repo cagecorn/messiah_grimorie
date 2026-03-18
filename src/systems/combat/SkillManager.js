@@ -160,17 +160,6 @@ class SkillManager {
             logic: tornadoShot
         });
 
-        // 바이퍼 (Viper)
-        this.skills.set('viper', {
-            id: 'sinking_shadow',
-            name: 'Sinking Shadow',
-            nameKey: 'skill_sinking_shadow_name',
-            description: 'Sinks into shadow and strikes with AoE damage and airborne.',
-            descriptionKey: 'skill_sinking_shadow_desc',
-            cooldown: 5000,
-            logic: sinkingShadow
-        });
-
         // 화염 토템 (Fire Totem)
         this.skills.set('fire_totem', {
             id: 'fire_burst',

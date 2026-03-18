@@ -20,14 +20,14 @@ export default {
     manaCost: 30,
 
     execute(attacker, targetPos) {
-        if (attacker.isBusy) return false;
+        if (attacker.isBusy || !targetPos) return false;
 
         // 1. 투사체 생성 (이동 속도 0으로 초기화)
         const config = {
             speed: 600,
-            onComplete: () => {
+            onComplete: (proj) => {
                 // Phase 3: Emerging (그림자 대쉬 완료 시)
-                EmergingNode.execute(attacker, projectile, () => {
+                EmergingNode.execute(attacker, proj, () => {
                     this.applyImpact(attacker);
                 });
             }

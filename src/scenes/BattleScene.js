@@ -274,7 +274,8 @@ export default class BattleScene extends Phaser.Scene {
                 Logger.info("ROUND_SAFEGUARD", `Monster died. Progress: ${this.currentRoundDeathCount}/${this.currentRoundTotalSpawns}`);
                 
                 // 즉시 체크 (안전장치)
-                if (this.currentRoundDeathCount >= this.currentRoundTotalSpawns) {
+                // [FIX] 스폰된 몬스터가 0명인 유도 라운드(또는 버그성 0명)에서는 세이프가드 작동 방지
+                if (this.currentRoundTotalSpawns > 0 && this.currentRoundDeathCount >= this.currentRoundTotalSpawns) {
                      Logger.info("ROUND_SAFEGUARD", "FORCED ROUND CLEAR: All spawned monsters are confirmed dead.");
                      this.startIntermission();
                 }
@@ -402,6 +403,7 @@ export default class BattleScene extends Phaser.Scene {
      * 라운드 사이 쉬는 시간 (Intermission)
      */
     startIntermission() {
+        if (this.isIntermission || this.isTransitioning) return;
         this.isIntermission = true;
         Logger.info("ROUND_DEBUG", "startIntermission entered.");
         
