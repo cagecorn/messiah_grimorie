@@ -47,6 +47,10 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
      * 초기화 로직 (풀링 재사용 시에도 호출됨)
      */
     init(x, y, logicEntity, spriteKey) {
+        if (!logicEntity) {
+            Logger.error("COMBAT_ENTITY", "Failed to initialize: logicEntity is null.");
+            return;
+        }
         this.logic = logicEntity;
         this.spriteKey = spriteKey;
         this.id = logicEntity.id;

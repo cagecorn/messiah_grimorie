@@ -90,6 +90,12 @@ class SpawnManager {
                 stars: stars
             });
 
+            // [FIX] 존재하지 않는 용병(예: 삭제된 바이퍼) 건너뛰기
+            if (!logicEntity) {
+                Logger.warn("SPAWN_MANAGER", `Skipping spawn for unknown mercenary: ${mercId}`);
+                return;
+            }
+
             // 3. 물리 위치 계산 (좌측 15% 구역)
             const x = Math.round(world.width * 0.15 + (index % 2) * 60);
             const y = Math.round(world.height * 0.3 + (index * 100));

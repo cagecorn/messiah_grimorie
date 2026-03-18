@@ -1,6 +1,7 @@
 import Logger from '../utils/Logger.js';
 import EventBus from '../core/EventBus.js';
 import formationDBManager from './persistence/FormationDBManager.js';
+import mercenaryManager from './entities/MercenaryManager.js';
 
 /**
  * 편성 매니저 (Formation Manager)
@@ -23,8 +24,15 @@ class FormationManager {
     async initialize() {
         const savedSlots = await formationDBManager.loadFormation(this.formationId);
         if (savedSlots) {
-            this.currentFormation = savedSlots;
-            Logger.info("FORMATION", "Previous formation restored.");
+            // [FIX] 보관된 데이터 중 레지스트리에 없는 용병(예: 삭제된 바이퍼) 필터링
+            this.currentFormation = savedSlots.map(id => {
+                if (id && !mercenaryManager.registry[id.toLowerCase()]) {
+                    Logger.warn("FORMATION", `Cleaning up removed mercenary from formation: ${id}`);
+                    return null;
+                }
+                return id;
+            });
+            Logger.info("FORMATION", "Previous formation restored (Registry filtered).");
         } else {
             Logger.info("FORMATION", "No saved formation found. Starting empty.");
         }
