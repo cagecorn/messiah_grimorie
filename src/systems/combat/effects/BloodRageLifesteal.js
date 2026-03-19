@@ -8,6 +8,7 @@ export default class BloodRageLifesteal {
 
         target.buffs.addBuff({
             id: 'lifesteal_blood_rage',
+            icon: 'lifesteal', // [신규] 명시적 아이콘 지정
             key: 'lifesteal',
             value: value,
             type: 'add',

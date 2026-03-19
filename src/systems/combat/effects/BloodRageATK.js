@@ -7,6 +7,7 @@ export default class BloodRageATK {
 
         target.buffs.addBuff({
             id: 'atk_up_blood_rage',
+            icon: 'atk_up', // [신규] 명시적 아이콘 지정
             key: 'atk',
             value: value,
             type: 'mult',

@@ -121,7 +121,7 @@ export default class BattleScene extends Phaser.Scene {
         Logger.info("BATTLE_LOADER", "Preloading hitting sound effects and death sfx.");
 
         // [신규] 버프 아이콘 프리로드 (키값을 텍스처 키로 사용)
-        const buffIcons = ['shield_icon', 'inspiration_icon', 'sleep_icon'];
+        const buffIcons = ['shield_icon', 'inspiration_icon', 'sleep_icon', 'atk_up', 'atk_speed_up', 'lifesteal'];
         buffIcons.forEach(key => {
             const path = assetPathManager.getPath('images', key);
             if (path) this.load.image(key, path);

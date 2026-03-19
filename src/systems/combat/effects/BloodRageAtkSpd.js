@@ -7,6 +7,7 @@ export default class BloodRageAtkSpd {
 
         target.buffs.addBuff({
             id: 'atk_speed_up_blood_rage',
+            icon: 'atk_speed_up', // [신규] 명시적 아이콘 지정
             key: 'atkSpd',
             value: value,
             type: 'mult',

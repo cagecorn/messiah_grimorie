@@ -57,15 +57,17 @@ class PortraitHUDManager {
             // 궁극기 게이지
             const ultPercent = (m.ultimateProgress || 0) * 100;
 
-            // 상태 이상 (Status 연동)
-            const buffs = m.status ? m.status.getActiveEffectIds() : [];
+            // 상태 이상 (Status 연동) + 버프 (Buffs 연동)
+            const statuses = m.status ? m.status.getActiveEffectIds() : [];
+            const activeBuffs = m.logic?.buffs ? m.logic.buffs.getActiveBuffIds() : [];
+            const combinedBuffs = [...new Set([...statuses, ...activeBuffs])];
 
             portraitHUDDOMManager.updateCard(m.logic.id, {
                 hpPercent,
                 level: m.logic.leveling ? m.logic.leveling.getLevel() : 1, // [신규] 실시간 레벨 전달
                 skillPercent,
                 ultPercent,
-                buffs
+                buffs: combinedBuffs
             });
         });
     }

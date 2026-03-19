@@ -27,6 +27,7 @@ class BuffManager {
 
         const buff = {
             id: id || `${key}_${Date.now()}`,
+            icon: config.icon || null, // [신규] 명시적 아이콘 키 저장
             key,
             value,
             type,
@@ -37,7 +38,7 @@ class BuffManager {
         this.activeBuffs.push(buff);
         this.applyBuffEffect(buff);
         
-        Logger.info("COMBAT", `Buff applied to ${this.owner.name}: ${buff.id}`);
+        Logger.info("COMBAT", `Buff applied to ${this.owner.name}: ${buff.id} (Icon: ${buff.icon || 'default'})`);
 
         // 기간 한정 버프라면 타이머 설정
         if (duration && duration !== Infinity) {
@@ -84,12 +85,11 @@ class BuffManager {
     }
 
     /**
-     * 현재 활성화된 버프의 ID 목록(중복 제거)을 반환합니다.
+     * 현재 활성화된 버프의 아이콘/ID 목록(중복 제거)을 반환합니다.
      */
     getActiveBuffIds() {
-        // [복구] 언더스코어를 기준으로 그룹화하여 시각적으로는 하나의 아이콘만 표시하게 함
-        // 예: 'gale', 'gale_min', 'gale_max' -> 모두 'gale' 아이콘 하나로 표시
-        const ids = this.activeBuffs.map(b => b.id.split('_')[0]);
+        // [수정] 명시적인 icon 키가 있다면 그것을 우선 사용, 없다면 ID를 쪼개서 사용
+        const ids = this.activeBuffs.map(b => b.icon || b.id.split('_')[0]);
         return [...new Set(ids)];
     }
 }
