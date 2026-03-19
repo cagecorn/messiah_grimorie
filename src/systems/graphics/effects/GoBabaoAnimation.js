@@ -16,13 +16,17 @@ class GoBabaoAnimation {
 
         const sprite = target.sprite || target;
         
-        // 360도 무한 회전 트윈
+        const baseScaleX = sprite.scaleX;
+        sprite.setAngle(0); // 회전 초기화
+        
+        // 페이퍼돌(Paper Doll) 스타일의 180도 좌우 반전 트윈
         const spinTween = scene.tweens.add({
             targets: sprite,
-            angle: '+=360',
-            duration: 150, // 매우 빠른 회전
-            ease: 'Linear',
-            repeat: -1
+            scaleX: -baseScaleX,
+            duration: 80, // 매우 빠른 반전 (초당 약 12회)
+            yoyo: true,
+            repeat: -1,
+            ease: 'Linear'
         });
 
         return spinTween;

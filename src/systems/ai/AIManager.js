@@ -83,6 +83,12 @@ class AIManager {
         allEntities.forEach(entity => {
             if (!entity.logic.isAlive) return;
 
+            // [FIX] 투사체에 태워진 상태(궁극기 등)라면 모든 AI 사고 중단
+            if (entity.isBeingCarried) {
+                entity.moveDirection = { x: 0, y: 0 };
+                return;
+            }
+
             const entityId = entity.logic.id;
             const className = entity.logic.class.getClassName();
             const id = entity.logic.baseId || entity.logic.id.split('_')[0];

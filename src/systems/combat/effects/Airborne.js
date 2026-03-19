@@ -14,8 +14,9 @@ class Airborne {
     static apply(target, duration = 1000, height = 150, source = null) {
         if (!target || !target.active || !target.logic.isAlive) return;
 
-        // [FIX] 무적 상태(I-frames)인 경우 CC기 면역
+        // [FIX] 무적 상태(I-frames)거나 이미 [들림(isBeingCarried)] 상태인 경우 CC기 면역
         if (target.isInvincible && target.isInvincible()) return;
+        if (target.isBeingCarried) return;
 
         // 1. 상태 설정
         if (target.status) {

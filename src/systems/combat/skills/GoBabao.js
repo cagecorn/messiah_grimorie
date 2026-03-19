@@ -53,6 +53,7 @@ class GoBabao {
             duration: 5000, 
             speed: 900,
             usePhysics: true, // [FIX] 물리 기반 이동 활성화 (Zipping 로직 연동)
+            isPierce: true,   // [CRITICAL FIX] 첫 타격 시 소멸 방지
             isUltimate: true
         });
 

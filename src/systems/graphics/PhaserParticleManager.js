@@ -145,6 +145,11 @@ class PhaserParticleManager {
         });
 
         this.emitters.set('white_dust', emitter);
+        
+        // [FIX] 파티클이 엔티티 뒤로 숨지 않도록 레이어 설정
+        if (this.scene.sys.game.layerManager) {
+            emitter.setDepth(this.scene.sys.game.layerManager.getDepth('fx'));
+        }
     }
 
     /**

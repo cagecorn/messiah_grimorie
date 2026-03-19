@@ -18,6 +18,7 @@ export default class GoBabaoProjectile extends NonTargetProjectile {
         this.hitCooldowns = new Map(); // target -> nextHitTime
         this.speed = 800;
         this.isPierce = true; // 무조건 관통
+        this.lastRetargetTime = 0; // [신규] 리타겟팅 간격 제어
     }
 
     launch(owner, target, config = {}) {
@@ -31,6 +32,7 @@ export default class GoBabaoProjectile extends NonTargetProjectile {
         this.owner = owner;
         this.duration = config.duration || 4000;
         this.timer = this.scene.time.now + this.duration;
+        this.collisionRadius = 80; // [FIX] 팽이 덩치에 맞춰 충격 반경 확대
 
         // [중요] 부모 컨테이너가 바뀌기 전의 절대 좌표 백업 (텔레포트 버그 방지)
         const startX = babao.x;
@@ -47,18 +49,30 @@ export default class GoBabaoProjectile extends NonTargetProjectile {
         }
 
         // 2. 부모 클래스 초기화 (Dummy 객체 활용하여 좌표 보존)
-        this.isPierce = true; // 유닛 보호를 위해 관통 강제
+        this.isPierce = true; // [CRITICAL] 무조건 관통 유지 (explode 방지)
         const dummy = { x: startX, y: startY, team: owner.team, id: owner.id, logic: owner.logic };
         super.launch(dummy, target, config);
+        
+        this.isPierce = true; // super.launch 이후 다시 한 번 강제 (혹시 모를 덮어쓰기 방지)
         
         // super.launch 이후 위치 재고정
         this.setPosition(startX, startY);
 
-        // [신규] 초기 물리 속도 설정 (super.launch가 수동 이동 기반이라 직접 설정 필요)
+        if (this.body) {
+            this.body.setSize(80, 80);
+            this.body.setBounce(0);
+            this.body.setDrag(0);
+        }
+
+        // [신규] 초기 물리 속도 설정
         const initialAngle = Phaser.Math.Angle.Between(startX, startY, this.targetPos.x, this.targetPos.y);
         if (this.body) {
             this.body.setVelocity(Math.cos(initialAngle) * this.speed, Math.sin(initialAngle) * this.speed);
         }
+
+        // 초기 타겟 설정 (zipToTarget에서 현재 타겟 제외용)
+        const enemies = (owner.team === 'mercenary') ? this.scene.enemies : this.scene.allies;
+        this.currentTargetEntity = this.scene.physics.closest(this, enemies);
 
         // 회전 애니메이션 시작 (아이들링 바빙 중지 우선 및 기존 트윈 제거)
         babao.isBusy = true;
@@ -106,13 +120,21 @@ export default class GoBabaoProjectile extends NonTargetProjectile {
 
         // 3. 목표에 거의 도달했다면 새로운 목표 탐색 (Zipping 로직)
         const dist = Phaser.Math.Distance.Between(this.x, this.y, this.targetPos.x, this.targetPos.y);
-        if (dist < 30) {
+        
+        // [Safety] 속도가 너무 낮거나(어딘가 걸림) 목표에 도달했을 때만 리타겟팅
+        const isStuck = this.body && this.body.speed < 50;
+        const now = this.scene.time.now;
+
+        if ((dist < 50 || isStuck) && (now - this.lastRetargetTime > 100)) {
+            if (isStuck) Logger.warn("BABAO_ULT", "Projectile seems stuck. Forcing re-target.");
             this.selectNextTarget();
+            this.lastRetargetTime = now;
         }
 
-        // 4. 시각 효과 (잔상 및 먼지)
-        if (time % 50 < 20) {
-            GoBabaoAnimation.playGhosting(this, { alpha: 0.3, lifeTime: 400 });
+        // 4. 시각 효과 (잔상 및 먼지) - [BUFF] 빈도 상향 (50ms -> 30ms)
+        if (time % 30 < 15) {
+            // [FIX] 컨테이너 대신 실제 엔티티를 전달하여 GhostManager가 스프라이트를 찾을 수 있게 함
+            GoBabaoAnimation.playGhosting(this.carriedBabao, { alpha: 0.4, lifeTime: 500 });
             if (phaserParticleManager.spawnWhiteDust) {
                 phaserParticleManager.spawnWhiteDust(this.x, this.y);
             }
@@ -121,27 +143,41 @@ export default class GoBabaoProjectile extends NonTargetProjectile {
 
     selectNextTarget() {
         const enemies = (this.owner.team === 'mercenary') ? this.scene.enemies : this.scene.allies;
-        const aliveEnemies = enemies.filter(e => e.active && e.logic.isAlive);
+        
+        // 1. 현재 타겟이 아닌 다른 살아있는 적들 우선 탐색
+        let aliveEnemies = enemies.filter(e => e.active && e.logic.isAlive && e !== this.currentTargetEntity);
+
+        // 2. 다른 적이 없다면 현재 타겟을 포함하여 살아있는 적 탐색 (1:1 보스전 등 대응)
+        if (aliveEnemies.length === 0) {
+            aliveEnemies = enemies.filter(e => e.active && e.logic.isAlive);
+        }
 
         if (aliveEnemies.length > 0) {
-            // 현재 타겟이 아닌 다른 무작위 적 선택
+            // 무작위 적 선택
             const next = Phaser.Utils.Array.GetRandom(aliveEnemies);
+            this.currentTargetEntity = next; 
             this.targetPos = { x: next.x, y: next.y };
             
-            // 물리 엔진 속도 재설정 (NonTargetProjectile 내부 로직과 유사)
+            // 물리 엔진 속도 재설정
             const angle = Phaser.Math.Angle.Between(this.x, this.y, next.x, next.y);
             if (this.body) {
-                this.body.setVelocity(Math.cos(angle) * this.speed, Math.sin(angle) * this.speed);
+                const velX = Math.cos(angle) * this.speed;
+                const velY = Math.sin(angle) * this.speed;
+                this.body.setVelocity(velX, velY);
+                Logger.info("BABAO_ULT", `Zipping to target: ${next.logic.name} at (${Math.round(next.x)}, ${Math.round(next.y)}). Speed: ${this.speed}`);
             }
         } else {
-            // 적이 없으면 주변 배회
+            // 적이 없으면 주변 배회 (타겟 좌표를 조금 더 멀리 잡아 Jitter 방지)
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 300;
             this.targetPos = { 
-                x: this.x + Phaser.Math.Between(-200, 200), 
-                y: this.y + Phaser.Math.Between(-200, 200) 
+                x: this.x + Math.cos(angle) * dist, 
+                y: this.y + Math.sin(angle) * dist 
             };
-            const angle = Phaser.Math.Angle.Between(this.x, this.y, this.targetPos.x, this.targetPos.y);
+            
             if (this.body) {
-                this.body.setVelocity(Math.cos(angle) * (this.speed * 0.5), Math.sin(angle) * (this.speed * 0.5));
+                this.body.setVelocity(Math.cos(angle) * (this.speed * 0.7), Math.sin(angle) * (this.speed * 0.7));
+                Logger.info("BABAO_ULT", "No enemies found. Wandering...");
             }
         }
     }
@@ -150,13 +186,16 @@ export default class GoBabaoProjectile extends NonTargetProjectile {
         const now = this.scene.time.now;
         const lastHit = this.hitCooldowns.get(target) || 0;
 
-        // 다단히트 쿨다운 (0.3초마다 히트 가능)
-        if (now - lastHit < 300) return;
+        // 다단히트 쿨다운 (0.2초마다 히트 가능)
+        if (now - lastHit < 200) return;
 
-        // 데미지 적용 (계수 1.0)
+        // 데미지 적용 (계수 1.2)
         if (this.owner && this.owner.logic) {
-            const damage = this.owner.logic.getTotalMAtk() * 1.0;
-            target.takeDamage(damage, 'magic', this.owner);
+            const damage = this.owner.logic.getTotalMAtk() * 1.2;
+            Logger.debug("BABAO_PROJ", `Hit! ${target.logic.name} Damaged: ${damage.toFixed(1)}`);
+            
+            // [FIX] takeDamage 시그니처 수정 (amount, attacker)
+            target.takeDamage(damage, this.owner);
             this.hitCooldowns.set(target, now);
             
             // 히트 이펙트
@@ -175,9 +214,12 @@ export default class GoBabaoProjectile extends NonTargetProjectile {
         const babao = this.carriedBabao;
         const scene = this.scene;
 
-        // 애니메이션 중지
+        // 애니메이션 중지 및 스케일/각도 원복
         if (this.spinTween) this.spinTween.stop();
-        if (babao.sprite) babao.sprite.setAngle(0);
+        if (babao.sprite) {
+            babao.sprite.setAngle(0);
+            babao.sprite.scaleX = Math.abs(babao.sprite.scaleX); // 반전 상태 가능성 차단
+        }
 
         // 장착 해제
         this.remove(babao);

@@ -27,6 +27,9 @@ class MovementManager {
             // [신규] 액션(구르기, 대쉬 등) 중에는 물리 이동 제어권을 해당 컴포넌트에 위임
             if (entity.isRolling && entity.isRolling()) return;
             if (entity.isDashing && entity.isDashing()) return;
+            
+            // [FIX] 투사체에 탑승 중인 경우 물리 이동 스킵 (ProjectileManager가 직접 관리)
+            if (entity.isBeingCarried) return;
 
             // AI에 의해 설정된 목표 방향이 있는지 확인
             const moveDir = entity.moveDirection; // { x, y } normalized

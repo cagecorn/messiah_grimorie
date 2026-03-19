@@ -29,14 +29,19 @@ class ProveYourExistenceAI {
         if (existingClone && existingClone.active && existingClone.logic.isAlive) {
             // [상태 2] 스마이트 공격 - 적이 근처에 뭉쳐있을 때만 발동
             const targetPoint = SmiteAI.getBestTarget(entity);
+            Logger.debug("BOON_AI", `Clone exists. Searching Smite target. Result: ${targetPoint ? `(${targetPoint.x}, ${targetPoint.y})` : 'NULL'}`);
+            
             if (targetPoint) {
                 if (entity.skills.useUltimate(targetPoint)) {
                     Logger.info("AI", `${entity.logic.name} cast Ultimate: SMITE!`);
                     return true;
+                } else {
+                    Logger.warn("BOON_AI", "useUltimate(targetPoint) failed internally.");
                 }
             }
         } else {
             // [상태 1] 분신 소환 - 즉시 발동
+            Logger.debug("BOON_AI", "No active clone. Attempting Summon.");
             if (entity.skills.useUltimate()) {
                 Logger.info("AI", `${entity.logic.name} cast Ultimate: SUMMON CLONE!`);
                 return true;

@@ -229,10 +229,9 @@ class CombatManager {
 
             // [DEBUG] 소환수(Siren) 또는 마법 데미지 전용 특화 로그 (사용자 요청: 필터링 용이성)
             const isSiren = attacker.name && attacker.name.toLowerCase().includes('siren');
-            if (isSiren || type === 'magic') {
-                Logger.info("AQUA_SIREN", `[${attacker.name}] deals ${damage.toFixed(1)} magic damage to ${target.name} (MAtk: ${attacker.getTotalMAtk()}, Mult: ${multiplier})`);
+            if (isUltimate) {
+                Logger.info("ULTIMATE_DMG", `[${attacker.name}] deals ${damage.toFixed(1)} ${type} damage to ${target.name} (Ultimate)`);
             }
-
             Logger.info("COMBAT_MANAGER", `Processing ${type} damage: ${attacker.name} (Atk:${attacker.getTotalAtk()}, MAtk:${attacker.getTotalMAtk()}) -> ${target.name} (${damage.toFixed(1)}) ${isCrit ? '[CRIT!]' : ''} ${projectileId ? `[Proj: ${projectileId}]` : ''}`);
             targetEntity.takeDamage(damage, attackerEntity);
             

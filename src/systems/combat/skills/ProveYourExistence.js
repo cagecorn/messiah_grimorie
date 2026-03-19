@@ -96,11 +96,11 @@ class ProveYourExistence {
      * 스마이트 공격
      */
     executeSmite(owner, targetPoint) {
+        Logger.debug("BOON_ULT", `executeSmite called with targetPoint: ${targetPoint ? `(${targetPoint.x}, ${targetPoint.y})` : 'NULL'}`);
         const actualTarget = targetPoint || SmiteAI.getBestTarget(owner);
+        Logger.debug("BOON_ULT", `actualTarget determined: ${actualTarget ? `(${actualTarget.x}, ${actualTarget.y})` : 'NULL'}`);
+        
         if (!actualTarget) return false;
-
-        // 컷씬 (이미 분신이 있더라도 스마이트 시 짧은 강조 효과 가능)
-        // ultimateCutsceneManager.show('boon', '천벌!');
 
         if (smite.execute(owner, actualTarget)) {
             Logger.info("ULTIMATE", `[Boon] Smite executed!`);

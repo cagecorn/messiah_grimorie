@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import poolingManager from '../../../core/PoolingManager.js';
+import layerManager from '../../../ui/LayerManager.js';
 
 /**
  * 스마이트 번개 효과 (Pooled Smite Effect)
@@ -9,6 +10,7 @@ class SmiteSprite extends Phaser.GameObjects.Sprite {
     constructor(scene) {
         super(scene, 0, 0, 'smite_effect');
         this.setOrigin(0.5, 1); // 발밑 기준
+        scene.add.existing(this); // [FIX] 씬의 디스플레이 리스트에 추가
     }
 
     show(x, y) {
@@ -16,13 +18,16 @@ class SmiteSprite extends Phaser.GameObjects.Sprite {
         this.setVisible(true);
         this.setActive(true);
         
-        // 하늘에서 떨어지는 연출을 위해 Y축 스케일 애니메이션
-        this.setScale(1.5, 0);
+        // [FIX] FX 레이어에 명시적 재할당
+        layerManager.assignToLayer(this, 'fx');
+        
+        // 하늘에서 떨어지는 연출을 위해 Y축 스케일 애니메이션 (더 거대하게)
+        this.setScale(2.5, 0);
         this.alpha = 0;
         
         this.scene.tweens.add({
             targets: this,
-            scaleY: 1.8,
+            scaleY: 3.5,
             alpha: 1,
             duration: 150,
             ease: 'Expo.out',

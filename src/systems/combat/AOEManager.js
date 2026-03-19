@@ -29,6 +29,8 @@ class AOEManager {
             return;
         }
 
+        Logger.debug("AOE_MANAGER", `Checking AOE at (${Math.round(x)}, ${Math.round(y)}) with radius ${radius}. Pool size: ${allEntities.size}`);
+
         const targets = [];
         allEntities.forEach(target => {
             if (!target.active || !target.logic || !target.logic.isAlive) return;
@@ -43,12 +45,13 @@ class AOEManager {
             }
         });
 
-        targets.forEach(target => {
-            combatManager.processDamage(source, target, multiplier, type, isUltimate);
-            if (onHit) onHit(target);
-        });
-
-        if (targets.length > 0) {
+        if (targets.length === 0) {
+            Logger.info("COMBAT", `[AOE_MISS] No targets found by ${source.logic.name} at (${Math.round(x)}, ${Math.round(y)}) with radius ${radius}.`);
+        } else {
+            targets.forEach(target => {
+                combatManager.processDamage(source, target, multiplier, type, isUltimate);
+                if (onHit) onHit(target);
+            });
             Logger.info("COMBAT", `[AOE_HIT] ${targets.length} targets hit by ${source.logic.name} at (${Math.round(x)}, ${Math.round(y)}) with radius ${radius}.`);
         }
     }
