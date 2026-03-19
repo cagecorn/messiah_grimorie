@@ -9,6 +9,8 @@ import WizardAI from './nodes/WizardAI.js';
 import SirenAI from './nodes/SirenAI.js';
 import BardAI from './nodes/BardAI.js';
 import ArenAI from './nodes/ArenAI.js';
+import BoonAI from './nodes/BoonAI.js';
+import GuardAI from './nodes/GuardAI.js';
 import SilviAI from './nodes/SilviAI.js';
 import LuteAI from './nodes/LuteAI.js';
 import EllaAI from './nodes/EllaAI.js';
@@ -156,6 +158,10 @@ class AIManager {
                 node = SirenAI;
             } else if (id === 'aren') {
                 node = ArenAI;
+            } else if (id === 'boon') {
+                node = BoonAI;
+            } else if (id === 'boon_clone') {
+                node = GuardAI;
             } else if (id === 'silvi') {
                 node = SilviAI;
             } else if (id === 'lute') {

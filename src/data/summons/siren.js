@@ -23,17 +23,24 @@ class SirenEntity extends BaseEntity {
                 [STAT_KEYS.MAX_HP]: masterMAtk * 5, // 체력은 마스터 마공의 5배
                 [STAT_KEYS.HP]: masterMAtk * 5,
                 [STAT_KEYS.ATK]: 0,
-                [STAT_KEYS.M_ATK]: masterMAtk * 1.2, // 공격력은 마스터 마공의 1.2배
+                [STAT_KEYS.M_ATK]: masterMAtk * 1.5, // 공격력은 마스터 마공의 1.5배 (상향)
                 [STAT_KEYS.DEF]: master.getTotalDef() * 0.5,
-                [STAT_KEYS.M_DEF]: master.getTotalMDef() * 0.5,
-                [STAT_KEYS.SPEED]: master.getTotalSpeed() * 0.8,
+                [STAT_KEYS.M_DEF]: master.getTotalMDef() * 0.8,
+                [STAT_KEYS.SPEED]: master.getTotalSpeed() * 0.9,
                 [STAT_KEYS.ATK_SPD]: 1.2,
                 [STAT_KEYS.ATK_RANGE]: 350,
+                [STAT_KEYS.RANGE_MIN]: 0,
+                [STAT_KEYS.RANGE_MAX]: 400,
+                [STAT_KEYS.CAST_SPD]: 1.1,
                 [STAT_KEYS.ACC]: 100,
-                [STAT_KEYS.EVA]: 20,
-                [STAT_KEYS.CRIT]: 10,
-                [STAT_KEYS.STAMINA]: 60,
-                [STAT_KEYS.STAM_REGEN]: 25
+                [STAT_KEYS.EVA]: 25,
+                [STAT_KEYS.CRIT]: 0.2,
+                [STAT_KEYS.ULT_CHARGE]: 0,
+                [STAT_KEYS.RES_FIRE]: 15,
+                [STAT_KEYS.RES_ICE]: 50, // 세이렌은 빙결 저항 높음
+                [STAT_KEYS.RES_LIGHTNING]: 10,
+                [STAT_KEYS.STAMINA]: 80,
+                [STAT_KEYS.STAM_REGEN]: 30
             }
         };
 

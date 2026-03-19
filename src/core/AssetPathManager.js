@@ -48,6 +48,7 @@ class AssetPathManager {
             stealth_icon: `${this.basePath}icon/stealth_icon.png`,
             gale_icon: `${this.basePath}icon/gale_icon.png`,
             snapshot_icon: `${this.basePath}icon/snapshot_icon.png`,
+            smite_effect: `${this.basePath}effect/smite_effect.png`,
             
             // [신규] 자인 (Zayn) 에셋
             zayn_sprite: `${this.basePath}characters/party/zayn_sprite.png`,
@@ -75,14 +76,16 @@ class AssetPathManager {
             flying_icon: `${this.basePath}icon/flying_icon.png`,
             
             // [신규] 대기실/UI용 스프라이트 (중첩 로드 대응)
-            ria_sprite: `${this.basePath}characters/party/ria_sprite.png`,
-            joojoo_sprite: `${this.basePath}characters/party/joojoo_sprite.png`,
-            sein_sprite: `${this.basePath}characters/party/sein_sprite.png`
+            ria_sprite: 'assets/characters/party/ria_sprite.png',
+        bao_sprite: 'assets/characters/party/bao_sprite.png',
+        boon_sprite: 'assets/characters/party/boon_sprite.png',
+        babao_sprite: 'assets/characters/party/babao_sprite.png',
         };
 
         // [구역 2] 오디오 에셋 (Audio)
         this.audio = {
             explosive_1: `${this.basePath}sfx/explosive-1.mp3`,
+            physical_hit_1: `${this.basePath}sfx/hitting-1.mp3`,
             stone_skin_sfx: `${this.basePath}sfx/crack-1.mp3`,
             roll_sfx: `${this.basePath}sfx/roll.mp3`
         };

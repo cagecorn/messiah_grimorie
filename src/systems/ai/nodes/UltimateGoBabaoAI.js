@@ -10,17 +10,7 @@ class UltimateGoBabaoAI {
         // 1. 게이지 체크
         if (!entity.hasUltimate || entity.ultimateProgress < 1.0) return false;
 
-        // 2. 바바오 존재 여부 체크 (궁극기 로직에서도 체크하지만 AI 선별용)
-        const summonSkill = skillManager.getSkill('SummonBabao');
-        if (!summonSkill) return false;
-
-        const babao = summonSkill.activeSummons.get(entity.logic.id);
-        if (!babao || !babao.active || !babao.logic.isAlive) {
-            // 바바오가 없으면 우선 소환을 기다림 (SummonBabaoAI가 처리할 것)
-            return false;
-        }
-
-        // 3. 시전
+        // 2. 시전 (바바오 존재 여부와 상관없이 게이지가 차면 지름. GoBabao.js에서 재소환 처리함)
         if (entity.skills.useUltimate()) {
             Logger.info("AI", `${entity.logic.name} decided to use ULTIMATE: Go Babao!`);
             return true;

@@ -37,6 +37,8 @@ class DevCommandManager {
         console.log("%cdev.addJoojoo()%c - 주주 즉시 지급 (주주 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.addSein()%c - 세인 즉시 지급 (세인 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.addAina()%c - 아이나 즉시 지급 (아이나 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
+        console.log("%cdev.addBao()%c - 바오 즉시 지급 (바오 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
+        console.log("%cdev.addBoon()%c - 분 즉시 지급 (분 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.clearData()%c - 모든 로컬 데이터 및 DB 초기화 (새로고침 필요)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.help()%c - 이 도움말 다시 보기", "font-weight: bold;", "font-weight: normal;");
         console.groupEnd();
@@ -90,6 +92,20 @@ class DevCommandManager {
      */
     addAina() {
         this.addMercenary('aina', 1);
+    }
+
+    /**
+     * 바오 즉시 지급 단축키
+     */
+    addBao() {
+        this.addMercenary('bao', 1);
+    }
+
+    /**
+     * 분 즉시 지급 단축키
+     */
+    addBoon() {
+        this.addMercenary('boon', 1);
     }
 
     /**

@@ -44,5 +44,6 @@ export const ENTITY_CLASSES = {
     SWORDMASTER: 'swordmaster',
     TOTEMIST: 'totemist',
     FLYINGMAN: 'flyingman',
-    SHADOWMANCER: 'shadowmancer'
+    SHADOWMANCER: 'shadowmancer',
+    HOLYKNIGHT: 'holyknight'
 };

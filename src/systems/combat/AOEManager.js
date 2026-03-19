@@ -21,7 +21,7 @@ class AOEManager {
     applyAOEDamagingEffect(source, x, y, radius, multiplier, type, onHit, isUltimate = false) {
         if (!source) return;
 
-        // [Refactor] CombatManager의 통합 유닛 Set 사용 (더 신뢰성 높고 원격 가능)
+        // [Refactor] CombatManager의 통합 유닛 Set 사용
         const allEntities = combatManager.units;
         
         if (!allEntities || allEntities.size === 0) {
@@ -32,12 +32,8 @@ class AOEManager {
         const targets = [];
         allEntities.forEach(target => {
             if (!target.active || !target.logic || !target.logic.isAlive) return;
-            
-            // 적대 관계 확인 (시전자와 다른 팀)
             if (target.team === source.team) return;
 
-            // [FIX] 거리 계산 로직 개선 (발/몸통 동시 판정)
-            // 지면(발) 점과 유닛 중심(몸통 -40px) 점 중 폭발 원점과 더 가까운 지점 채택
             const distFeet = Phaser.Math.Distance.Between(x, y, target.x, target.y);
             const distBody = Phaser.Math.Distance.Between(x, y, target.x, target.y - 40);
             const minDist = Math.min(distFeet, distBody);
@@ -48,17 +44,21 @@ class AOEManager {
         });
 
         targets.forEach(target => {
-            // 데미지 처리 (CombatManager에 의뢰)
             combatManager.processDamage(source, target, multiplier, type, isUltimate);
-            
             if (onHit) onHit(target);
         });
 
         if (targets.length > 0) {
             Logger.info("COMBAT", `[AOE_HIT] ${targets.length} targets hit by ${source.logic.name} at (${Math.round(x)}, ${Math.round(y)}) with radius ${radius}.`);
-        } else if (allEntities.size > 0) {
-            // Logger.debug("AOE_TRACE", `AOE check: 0 hits out of ${allEntities.size} units.`);
         }
+    }
+
+    /**
+     * [LEGACY/WRAPPER] 구형 applyAOE 호출 대응
+     */
+    applyAOE(x, y, config) {
+        const { radius, multiplier, owner, damageType, onHit, isUltimate } = config;
+        this.applyAOEDamagingEffect(owner, x, y, radius, multiplier, damageType || 'magic', onHit, isUltimate);
     }
 }
 

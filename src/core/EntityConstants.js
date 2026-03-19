@@ -99,7 +99,16 @@ export const CLASS_GROWTH = {
         [STAT_KEYS.CRIT]: 0.01,
         [STAT_KEYS.STAM_REGEN]: 0.2
     },
-    [ENTITY_CLASSES.SHADOWMANCER]: ShadowmancerData.growth
+    [ENTITY_CLASSES.SHADOWMANCER]: ShadowmancerData.growth,
+    [ENTITY_CLASSES.HOLYKNIGHT]: {
+        [STAT_KEYS.M_ATK]: 2.0,
+        [STAT_KEYS.M_DEF]: 2.0,
+        [STAT_KEYS.MAX_HP]: 2.5,
+        [STAT_KEYS.ATK]: 1.2,
+        [STAT_KEYS.DEF]: 1.2,
+        [STAT_KEYS.STAMINA]: 2.0,
+        [STAT_KEYS.STAM_REGEN]: 0.2
+    }
 };
 
 /**

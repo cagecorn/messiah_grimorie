@@ -52,6 +52,7 @@ export default class EntityActionComponent {
      */
     startDash(direction) {
         this.isDashing = true;
+        this.entity.isBusy = true; // [FIX] 상태 고정
         this.iFrameActive = false; // [REQ] 대쉬는 무적 시간 없음
         this.actionCooldown = 1500; // 대쉬 쿨타임은 구르기보다 김 (무분별한 도주 방지)
 
@@ -77,6 +78,7 @@ export default class EntityActionComponent {
 
     finishDash() {
         this.isDashing = false;
+        this.entity.isBusy = false; // [FIX] 상태 해제
         if (this.entity.body) {
             this.entity.body.setVelocity(0, 0);
         }
@@ -128,6 +130,8 @@ export default class EntityActionComponent {
         const rollSpeed = 400; // [FIX] 유저 피드백 반영: 속도 하향 (기존 600)
 
         // 1. 시각적 연출 실행 (회전 + 잔상 + 먼지 효과 + 닷지 텍스트)
+        this.entity.isBusy = true; // [FIX] 트윈 충돌 방지 및 상태 고정
+        animationManager.stopIdleBobbing(this.entity); // [FIX] 기존 바빙 트윈 확실히 제거 후 시작
         animationManager.playRollAnimation(this.entity, rollDuration);
         phaserParticleManager.spawnWhiteDust(this.entity.x, this.entity.y);
         fxManager.showActionText(this.entity, "DODGE!", "#22d3ee"); // 시안색 영어 텍스트
@@ -153,6 +157,7 @@ export default class EntityActionComponent {
      */
     finishRoll() {
         this.isRolling = false;
+        this.entity.isBusy = false; // [FIX] 상태 해제
         if (this.iFrameActive) {
             this.iFrameActive = false;
             Logger.info("I-FRAME", `[OFF] ${this.entity.logic.name}`);

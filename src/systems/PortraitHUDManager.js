@@ -18,7 +18,7 @@ class PortraitHUDManager {
      */
     init(scene, allies) {
         this.scene = scene;
-        this.mercenaries = allies.filter(a => a.team === 'mercenary');
+        this.mercenaries = allies.filter(a => a.team === 'mercenary' && !a.logic.isSpecial);
 
         // 초기 데이터 준비 및 DOM 초기화 가동
         const partyData = this.mercenaries.map(m => ({

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import poolingManager from '../../core/PoolingManager.js';
+import poolingManager from '../../../core/PoolingManager.js';
 import ghostManager from '../GhostManager.js';
 
 /**
@@ -19,8 +19,9 @@ class GoBabaoAnimation {
         // 360도 무한 회전 트윈
         const spinTween = scene.tweens.add({
             targets: sprite,
-            angle: 360,
+            angle: '+=360',
             duration: 150, // 매우 빠른 회전
+            ease: 'Linear',
             repeat: -1
         });
 

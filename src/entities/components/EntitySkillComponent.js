@@ -120,10 +120,12 @@ export default class EntitySkillComponent {
      */
     useUltimate(target) {
         if (this.isUltimateReady() && this.ultData.logic) {
-            this.ultData.logic.execute(this.entity, target);
-            this.ultimateProgress = 0; // 게이지 리셋
-            if (this.entity.hpBar) this.entity.hpBar.isDirty = true;
-            return true;
+            const success = this.ultData.logic.execute(this.entity, target);
+            if (success) {
+                this.ultimateProgress = 0; // 게이지 리셋
+                if (this.entity.hpBar) this.entity.hpBar.isDirty = true;
+                return true;
+            }
         }
         return false;
     }

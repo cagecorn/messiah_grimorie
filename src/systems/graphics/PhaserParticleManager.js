@@ -298,6 +298,13 @@ class PhaserParticleManager {
     }
 
     /**
+     * [신규] 지면 충돌 먼지 효과 (Impact Dust)
+     */
+    spawnImpactDust(x, y) {
+        this.spawnWhiteDust(x, y);
+    }
+
+    /**
      * 사망 시 영혼 승천 효과 발생
      */
     spawnSoul(x, y) {

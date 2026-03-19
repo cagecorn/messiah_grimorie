@@ -20,17 +20,22 @@ class GoBabao {
         const summonSkill = skillManager.getSkill('SummonBabao');
         if (!summonSkill) return;
 
-        const babao = summonSkill.activeSummons.get(owner.logic.id);
+        let babao = summonSkill.activeSummons.get(owner.logic.id);
         
-        // 바바오가 없거나 죽었다면 시전 불가 (혹은 강제 소환 후 시전?)
-        // 여기서는 안전하게 바바오가 있을 때만 시전하도록 함
+        // [USER 요청] 바바오가 없거나 죽었다면 즉시 재소환 후 궁극기 진행
         if (!babao || !babao.active || !babao.logic.isAlive) {
-            Logger.warn("ULTIMATE", "Cannot use Go Babao! - Babao is not present.");
+            Logger.info("ULTIMATE", "Babao is missing. Re-summoning before 'Go Babao!'");
+            summonSkill.summon(owner);
+            babao = summonSkill.activeSummons.get(owner.logic.id);
+        }
+
+        if (!babao) {
+            Logger.error("ULTIMATE", "Failed to re-summon Babao for ultimate.");
             return;
         }
 
         // 2. 컷씬
-        ultimateCutsceneManager.show('bao', 'Go! Babao!');
+        ultimateCutsceneManager.show('bao', 'Gara! Babao!');
 
         // 3. 투사체 발사
         // 가장 가까운 적을 향해 첫 발사
@@ -45,8 +50,10 @@ class GoBabao {
 
         projectileManager.fire('go_babao_projectile', owner, firstTarget, {
             babao: babao,
-            duration: 5000, // 5초간 휩씀
-            speed: 900
+            duration: 5000, 
+            speed: 900,
+            usePhysics: true, // [FIX] 물리 기반 이동 활성화 (Zipping 로직 연동)
+            isUltimate: true
         });
 
         // 4. 게이지 리셋

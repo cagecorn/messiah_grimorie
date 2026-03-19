@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import Logger from '../../utils/Logger.js';
 import poolingManager from '../../core/PoolingManager.js';
+import auraEffects from './AuraEffects.js';
+import pooledSmiteEffect from './effects/PooledSmiteEffect.js';
 import phaserParticleManager from './PhaserParticleManager.js';
 import ghostManager from './GhostManager.js';
 
@@ -59,6 +61,10 @@ class AnimationManager {
     //#region 🛠️ [초기화 세션]
     init(scene) {
         this.scene = scene;
+
+        auraEffects.init(scene);
+        pooledSmiteEffect.init(scene);
+        phaserParticleManager.init(scene);
 
         // [이펙트 풀 등록 통합 관리]
         poolingManager.registerPool('impact_effect', () => new PooledHitEffect(this.scene), 50, true);
@@ -143,10 +149,10 @@ class AnimationManager {
     playEmerging(entity, duration, onComplete) { this.sinking.playEmerging(entity, duration, onComplete); }
     //#endregion
 
-    /**
-     * 매 프레임 지속 효과 업데이트 (위치 추적 등)
-     */
     update(delta) {
+        // 2. 오라 효과 업데이트 (추적 및 수명 관리)
+        auraEffects.update();
+
         if (this.activePersistentEffects.size === 0) return;
         this.activePersistentEffects.forEach(effect => {
             if (effect.active) {

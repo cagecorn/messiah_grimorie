@@ -16,6 +16,9 @@ import tornadoShot from './skills/TornadoShot.js';
 import sinkingShadow from './skills/SinkingShadow.js'; // [NEW]
 import skillIceBall from './skills/SkillIceBall.js';
 import stoneBlast from './skills/StoneBlast.js';
+import goBabao from './skills/GoBabao.js';
+import holyAura from './skills/HolyAura.js';
+import proveYourExistence from './skills/ProveYourExistence.js';
 import summonBabao from './skills/SummonBabao.js';
 
 /**
@@ -234,6 +237,41 @@ class SkillManager {
             cooldown: 1000, 
             logic: summonBabao
         });
+
+        // 가라! 바바오! (Go Babao - Ultimate)
+        this.skills.set('GoBabao', {
+            id: 'GoBabao',
+            name: 'Go Babao!',
+            description: 'Babao spins and clears the field.',
+            cooldown: 0, 
+            logic: goBabao
+        });
+
+        // 분 (Boon)
+        this.skills.set('boon', {
+            id: 'HolyAura',
+            name: 'Holy Aura',
+            description: 'Heals nearby allies over time.',
+            cooldown: 5000, 
+            logic: holyAura
+        });
+
+        // 분 분신 (Boon Clone)
+        this.skills.set('boon_clone', {
+            id: 'HolyAura',
+            name: 'Holy Aura (Clone)',
+            description: 'Clone heals nearby allies.',
+            cooldown: 3000, // 분신은 좀 더 적극적
+            logic: holyAura
+        });
+    }
+
+    /**
+     * 특정 스킬의 로직 객체(Skill Logic) 반환
+     */
+    getSkill(id) {
+        const skill = this.skills.get(id);
+        return skill ? skill.logic : null;
     }
 
     /**

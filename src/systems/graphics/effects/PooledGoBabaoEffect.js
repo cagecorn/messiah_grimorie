@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import poolingManager from '../../core/PoolingManager.js';
+import poolingManager from '../../../core/PoolingManager.js';
 
 /**
  * 바바오 전용 잔상 효과 (Pooled Go Babao Effect)

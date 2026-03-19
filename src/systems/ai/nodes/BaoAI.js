@@ -1,7 +1,7 @@
 import WizardAI from './WizardAI.js';
 import SkillStoneBlastAI from './SkillStoneBlastAI.js';
 import SummonBabaoAI from './SummonBabaoAI.js';
-import UltimateBabaoAI from './UltimateBabaoAI.js';
+import UltimateGoBabaoAI from './UltimateGoBabaoAI.js';
 
 /**
  * 바오 전용 AI 노드 (Bao Specialized AI)
@@ -14,13 +14,13 @@ class BaoAI {
         // 0. 소환물 체크 (바바오 자동 소환)
         if (SummonBabaoAI.update(entity)) return;
 
-        const enemies = (entity.team === 'mercenary') ? entity.scene.enemies : entity.scene.allies;
-
         // 1. 궁극기 체크
-        if (UltimateBabaoAI.update(entity)) {
+        if (UltimateGoBabaoAI.update(entity)) {
             entity.moveDirection = { x: 0, y: 0 };
             return;
         }
+
+        const enemies = (entity.team === 'mercenary') ? entity.scene.enemies : entity.scene.allies;
 
         // 2. 고유 스킬 체크
         if (SkillStoneBlastAI.tick(entity, enemies)) {

@@ -108,6 +108,7 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('bullet_projectile', assetPathManager.getPath('images', 'bullet_projectile'));
         this.load.image('tornado_shot_projectile', assetPathManager.getPath('images', 'tornado_shot_projectile'));
         this.load.image('flying_icon', assetPathManager.getPath('images', 'flying_icon'));
+        this.load.image('smite_effect', assetPathManager.getPath('images', 'smite_effect'));
 
         // [신규] 실비 스프라이트 및 사운드 프리로드
         this.load.image('merc_silvi_sprite', assetPathManager.getMercenaryPath('silvi', 'sprite'));
@@ -115,9 +116,11 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('merc_joojoo_sprite', assetPathManager.getMercenaryPath('joojoo', 'sprite'));
         this.load.image('zayn_sprite', assetPathManager.getPath('images', 'zayn_sprite'));
         this.load.image('ria_sprite', assetPathManager.getPath('images', 'ria_sprite'));
-        this.load.image('joojoo_sprite', assetPathManager.getPath('images', 'joojoo_sprite'));
-        this.load.image('sein_sprite', assetPathManager.getPath('images', 'sein_sprite'));
+        this.load.image('bao_sprite', assetPathManager.getPath('images', 'bao_sprite'));
+        this.load.image('boon_sprite', assetPathManager.getPath('images', 'boon_sprite'));
+        this.load.image('babao_sprite', assetPathManager.getPath('images', 'babao_sprite'));
         this.load.audio('stone_skin_sfx', assetPathManager.getPath('audio', 'stone_skin_sfx'));
+        this.load.audio('physical_hit_1', assetPathManager.getPath('audio', 'physical_hit_1'));
         this.load.audio('roll_sfx', assetPathManager.getPath('audio', 'roll_sfx'));
     }
 
