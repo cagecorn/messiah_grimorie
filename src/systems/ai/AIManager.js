@@ -33,6 +33,8 @@ import FlyingManAI from './nodes/FlyingManAI.js';
 import SeinAI from './nodes/SeinAI.js';
 import ShadowmancerAI from './nodes/ShadowmancerAI.js';
 import AinaAI from './nodes/ainaAI.js';
+import BaoAI from './nodes/BaoAI.js';
+import BabaoAI from './nodes/BabaoAI.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -174,6 +176,10 @@ class AIManager {
                 node = SeinAI;
             } else if (id === 'aina') {
                 node = AinaAI;
+            } else if (id === 'bao') {
+                node = BaoAI;
+            } else if (id === 'babao') {
+                node = BabaoAI;
             } else if (entity.logic.isTotem) {
                 node = StationaryAI;
             }

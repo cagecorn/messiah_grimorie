@@ -8,6 +8,7 @@ import cloning from './skills/Cloning.js';
 import battoJutsu from './skills/BattoJutsu.js';
 import healingTotem from './skills/HealingTotem.js';
 import iceStorm from './skills/IceStorm.js';
+import babao from './skills/Babao.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -123,6 +124,16 @@ class UltimateManager {
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: iceStorm
+        });
+
+        // 바오 (Bao)
+        this.ultimates.set('bao', {
+            id: 'bao_ult',
+            nameKey: 'ult_bao_name',
+            descriptionKey: 'ult_bao_desc',
+            chargeMax: 100,
+            chargeSpeedBase: 1.1,
+            logic: babao
         });
 
         // 고블린(몬스터)은 궁극기 없음

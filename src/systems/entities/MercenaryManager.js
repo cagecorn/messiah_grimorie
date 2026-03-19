@@ -15,6 +15,7 @@ import ria from '../../data/mercenaries/ria.js';
 import joojoo from '../../data/mercenaries/joojoo.js';
 import sein from '../../data/mercenaries/sein.js';
 import aina from '../../data/mercenaries/aina.js';
+import bao from '../../data/mercenaries/bao.js';
 
 /**
  * 용병 매니저 (Mercenary Manager)
@@ -24,7 +25,7 @@ class MercenaryManager {
     constructor() {
         // [ID 레지스트리] 핵심 데이터 정의
         this.registry = {
-            aren, ella, sera, merlin, lute, silvi, zayn, ria, joojoo, sein, aina
+            aren, ella, sera, merlin, lute, silvi, zayn, ria, joojoo, sein, aina, bao
         };
 
         Logger.system("MercenaryManager: Registry ready (Factory mode).");

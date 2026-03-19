@@ -84,6 +84,7 @@ export default class BootScene extends Phaser.Scene {
         // [신규] 세이렌 및 아쿠아 버스트 관련
         this.load.image('siren_sprite', assetPathManager.getSummonPath('siren'));
         this.load.image('guardian_angel_sprite', assetPathManager.getSummonPath('guardian_angel'));
+        this.load.image('babao_sprite', assetPathManager.getSummonPath('babao'));
         
         
         // [신규] EmojiManager에 등록된 모든 이모지 자산 자동 로드
@@ -100,6 +101,9 @@ export default class BootScene extends Phaser.Scene {
         });
 
         this.load.image('stone_skin_effect', assetPathManager.getPath('images', 'stone_skin_effect'));
+        this.load.image('stone_blast_projectile', assetPathManager.getPath('images', 'stone_blast_projectile'));
+        this.load.image('stone_explosion_effect', assetPathManager.getPath('images', 'stone_explosion_effect'));
+        this.load.image('rock_projectile', assetPathManager.getPath('images', 'rock_projectile'));
         this.load.image('falling_impact_effect', assetPathManager.getPath('images', 'falling_impact_effect'));
         this.load.image('bullet_projectile', assetPathManager.getPath('images', 'bullet_projectile'));
         this.load.image('tornado_shot_projectile', assetPathManager.getPath('images', 'tornado_shot_projectile'));

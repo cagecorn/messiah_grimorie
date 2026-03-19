@@ -17,7 +17,9 @@ import BulletProjectile from '../../entities/projectiles/common/BulletProjectile
 import TornadoShotProjectile from '../../entities/projectiles/skills/TornadoShotProjectile.js';
 import ShadowProjectile from '../../entities/projectiles/skills/ShadowProjectile.js'; // [NEW]
 import IceBallProjectile from '../../entities/projectiles/skills/IceBallProjectile.js';
+import StoneBlastProjectile from '../../entities/projectiles/skills/StoneBlastProjectile.js';
 import IceStormProjectile from '../../entities/projectiles/skills/IceStormProjectile.js';
+import RockProjectile from '../../entities/projectiles/skills/RockProjectile.js';
 
 /**
  * 투사체 매니저 (Projectile Manager)
@@ -73,7 +75,9 @@ class ProjectileManager {
         this.registerProjectile('tornado_shot', TornadoShotProjectile);
         this.registerProjectile('shadow_dive', ShadowProjectile); // [NEW]
         this.registerProjectile('ice_ball', IceBallProjectile);
+        this.registerProjectile('stone_blast', StoneBlastProjectile);
         this.registerProjectile('ice_storm_projectile', IceStormProjectile);
+        this.registerProjectile('rock', RockProjectile);
 
         Logger.system("ProjectileManager: Initialized for scene.");
     }

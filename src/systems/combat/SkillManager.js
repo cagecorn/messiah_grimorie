@@ -15,6 +15,8 @@ import healingTotem from './skills/HealingTotem.js';
 import tornadoShot from './skills/TornadoShot.js';
 import sinkingShadow from './skills/SinkingShadow.js'; // [NEW]
 import skillIceBall from './skills/SkillIceBall.js';
+import stoneBlast from './skills/StoneBlast.js';
+import summonBabao from './skills/SummonBabao.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -211,6 +213,26 @@ class SkillManager {
             descriptionKey: 'skill_ice_ball_desc',
             cooldown: 8000,
             logic: skillIceBall
+        });
+
+        // 바오 (Bao)
+        this.skills.set('bao', {
+            id: 'StoneBlast',
+            name: 'Stone Blast',
+            nameKey: 'skill_stone_blast_name',
+            description: 'Throws a massive rock using telekinesis.',
+            descriptionKey: 'skill_stone_blast_desc',
+            cooldown: 8000, 
+            logic: stoneBlast
+        });
+
+        // 바바오 자동 소환 (Babao Summon)
+        this.skills.set('SummonBabao', {
+            id: 'SummonBabao',
+            name: 'Summon Babao',
+            description: 'Summons little brother Babao.',
+            cooldown: 1000, 
+            logic: summonBabao
         });
     }
 
