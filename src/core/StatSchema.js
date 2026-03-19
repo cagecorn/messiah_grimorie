@@ -31,6 +31,7 @@ export const STAT_KEYS = {
     DR: 'bonusDR',
     STAMINA: 'stamina',
     STAM_REGEN: 'stamRegen',
+    LIFESTEAL: 'lifesteal',
     ID: 'id'
 };
 

@@ -113,6 +113,7 @@ export default class BaseEntity {
     getTotalAtkSpd() { return this.stats.get('atkSpd'); }
     getTotalAcc() { return this.stats.get('acc'); }
     getTotalEva() { return this.stats.get('eva'); }
+    getTotalLifesteal() { return this.stats.get('lifesteal'); }
     getTotalAtkRange() { return this.stats.get('atkRange'); }
 
     // 단축 속성 (기존 코드 호환용 및 편의성)

@@ -162,6 +162,20 @@ class FXManager {
             animationManager.playFireExplosion(x, y);
         }
     }
+    
+    /**
+     * 스킬 전용 시각 효과 출력 (Blood Rage, Smite 등)
+     */
+    showSkillEffect(attacker, skillType) {
+        if (!this.isInitialized || !attacker) return;
+
+        if (skillType === 'blood_rage') {
+            animationManager.playBloodRageEffect(attacker.x, attacker.y);
+        } else if (skillType === 'smite') {
+            // Smite는 별도 클래스가 관리 중일 수 있으나 인터페이스 통합
+            animationManager.playSmiteEffect(attacker.x, attacker.y);
+        }
+    }
 
     /**
      * [신규] 유닛 피격 시 빨갛게 번쩍이는 효과

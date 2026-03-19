@@ -49,6 +49,7 @@ class AssetPathManager {
             gale_icon: `${this.basePath}icon/gale_icon.png`,
             snapshot_icon: `${this.basePath}icon/snapshot_icon.png`,
             smite_effect: `${this.basePath}effect/smite_effect.png`,
+            blood_rage_effect: `${this.basePath}effect/blood_rage_effect.png`,
             
             // [신규] 자인 (Zayn) 에셋
             zayn_sprite: `${this.basePath}characters/party/zayn_sprite.png`,
@@ -60,6 +61,9 @@ class AssetPathManager {
             music: `${this.basePath}icon/music_icon.png`,
             sleep: `${this.basePath}icon/sleep_icon.png`,
             slow: `${this.basePath}icon/slow_icon.png`,
+            atk_up: `${this.basePath}icon/atk_up_icon.png`,
+            atk_speed_up: `${this.basePath}icon/atk_speed_up_icon.png`,
+            lifesteal: `${this.basePath}icon/lifesteal_icon.png`,
             
             // [신규] 고블린 위자드 에셋
             goblin_wizard: `${this.basePath}characters/enemies/goblin_wizard_sprite.png`,
@@ -80,6 +84,7 @@ class AssetPathManager {
         bao_sprite: 'assets/characters/party/bao_sprite.png',
         boon_sprite: 'assets/characters/party/boon_sprite.png',
         babao_sprite: 'assets/characters/party/babao_sprite.png',
+        king_sprite: 'assets/characters/party/king_sprite.png',
         };
 
         // [구역 2] 오디오 에셋 (Audio)

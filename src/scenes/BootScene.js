@@ -94,7 +94,7 @@ export default class BootScene extends Phaser.Scene {
         }
         
         // 아이콘들을 명시적인 키값으로 로드 (UI 및 HealthBar에서 이 키를 사용함)
-        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music', 'stealth_icon', 'gale_icon', 'snapshot_icon', 'slow'];
+        const iconKeys = ['shield', 'inspiration', 'stoneskin', 'sleep', 'knockback', 'airborne', 'invincible', 'music', 'stealth_icon', 'gale_icon', 'snapshot_icon', 'slow', 'atk_up', 'atk_speed_up', 'lifesteal'];
         iconKeys.forEach(key => {
             const path = assetPathManager.getPath('images', key);
             if (path) this.load.image(key, path);
@@ -109,11 +109,13 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('tornado_shot_projectile', assetPathManager.getPath('images', 'tornado_shot_projectile'));
         this.load.image('flying_icon', assetPathManager.getPath('images', 'flying_icon'));
         this.load.image('smite_effect', assetPathManager.getPath('images', 'smite_effect'));
+        this.load.image('blood_rage_effect', assetPathManager.getPath('images', 'blood_rage_effect'));
 
         // [신규] 실비 스프라이트 및 사운드 프리로드
         this.load.image('merc_silvi_sprite', assetPathManager.getMercenaryPath('silvi', 'sprite'));
         this.load.image('merc_ria_sprite', assetPathManager.getMercenaryPath('ria', 'sprite'));
         this.load.image('merc_joojoo_sprite', assetPathManager.getMercenaryPath('joojoo', 'sprite'));
+        this.load.image('merc_king_sprite', assetPathManager.getMercenaryPath('king', 'sprite'));
         this.load.image('zayn_sprite', assetPathManager.getPath('images', 'zayn_sprite'));
         this.load.image('ria_sprite', assetPathManager.getPath('images', 'ria_sprite'));
         this.load.image('bao_sprite', assetPathManager.getPath('images', 'bao_sprite'));

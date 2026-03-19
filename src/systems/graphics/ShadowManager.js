@@ -169,10 +169,22 @@ class ShadowManager {
                     return;
                 }
 
-                // [FIX] 탑승 중인 유닛(isBeingCarried)은 그림자를 숨김 처리하고 인스턴스는 유지 (해제 시 자동 복구를 위함)
+                // [FIX] 탑승 중인 유닛(isBeingCarried) 처리: 그림자가 공중에 남겨지지 않고 본체를 따라가도록 월드 좌표 동기화
                 if (isCarried) {
-                    shadow.setVisible(false);
-                    return;
+                    const worldMatrix = entity.getWorldTransformMatrix ? entity.getWorldTransformMatrix() : null;
+                    if (worldMatrix) {
+                        shadow.setVisible(true);
+                        shadow.clear();
+                        this.updateShadowVisuals(shadow, entity, config);
+                        
+                        // 컨테이너/탑승 상태이므로 월드 기준 tx, ty 사용
+                        shadow.setPosition(worldMatrix.tx, worldMatrix.ty);
+                        shadow.setDepth(layerManager.getDepth('shadow'));
+                        return;
+                    } else {
+                        shadow.setVisible(false);
+                        return;
+                    }
                 }
 
                 // 정상 상태 시 가시성 확보 및 시각적 업데이트 수행

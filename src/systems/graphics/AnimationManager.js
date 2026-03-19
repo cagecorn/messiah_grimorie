@@ -34,6 +34,7 @@ import PooledFallingImpact from './effects/PooledFallingImpact.js';
 import PooledIceExplosion from './effects/PooledIceExplosion.js';
 import PooledIceStormCloud from './effects/PooledIceStormCloud.js';
 import PooledStoneExplosion from './effects/PooledStoneExplosion.js';
+import PooledBloodRageEffect from './effects/PooledBloodRageEffect.js';
 
 /**
  * 애니메이션 매니저 (Animation Manager)
@@ -86,6 +87,7 @@ class AnimationManager {
         poolingManager.registerPool('ice_explosion_fx', () => new PooledIceExplosion(this.scene), 20, true);
         poolingManager.registerPool('ice_storm_cloud_fx', () => new PooledIceStormCloud(this.scene), 5, true);
         poolingManager.registerPool('stone_explosion_fx', () => new PooledStoneExplosion(this.scene), 15, true);
+        poolingManager.registerPool('blood_rage_fx', () => new PooledBloodRageEffect(this.scene), 5, true);
 
         Logger.system("AnimationManager: Facade ready with Modular Animators.");
     }
@@ -116,6 +118,13 @@ class AnimationManager {
 
     playBattoJutsuEffect(x, y) {
         const effect = poolingManager.get('battojutsu_effect');
+        if (effect) {
+            effect.show(x, y);
+        }
+    }
+
+    playBloodRageEffect(x, y) {
+        const effect = poolingManager.get('blood_rage_fx');
         if (effect) {
             effect.show(x, y);
         }

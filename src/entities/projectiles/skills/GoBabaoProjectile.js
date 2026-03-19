@@ -41,6 +41,7 @@ export default class GoBabaoProjectile extends NonTargetProjectile {
 
         // 1. 바바오를 컨테이너 자식으로 편입 (좌표는 0,0 고정)
         babao.isBeingCarried = true;
+        this.originalScaleX = babao.sprite ? babao.sprite.scaleX : 1; // [FIX] 원본 스케일 백업
         this.add(babao);
         babao.setPosition(0, 0);
 
@@ -218,7 +219,7 @@ export default class GoBabaoProjectile extends NonTargetProjectile {
         if (this.spinTween) this.spinTween.stop();
         if (babao.sprite) {
             babao.sprite.setAngle(0);
-            babao.sprite.scaleX = Math.abs(babao.sprite.scaleX); // 반전 상태 가능성 차단
+            babao.sprite.scaleX = Math.abs(this.originalScaleX); // [FIX] 절대값으로 원본 스케일 복구 (찌그러짐 방지)
         }
 
         // 장착 해제

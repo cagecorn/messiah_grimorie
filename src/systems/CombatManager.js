@@ -235,6 +235,19 @@ class CombatManager {
             Logger.info("COMBAT_MANAGER", `Processing ${type} damage: ${attacker.name} (Atk:${attacker.getTotalAtk()}, MAtk:${attacker.getTotalMAtk()}) -> ${target.name} (${damage.toFixed(1)}) ${isCrit ? '[CRIT!]' : ''} ${projectileId ? `[Proj: ${projectileId}]` : ''}`);
             targetEntity.takeDamage(damage, attackerEntity);
             
+            // [신규] 흡혈(Lifesteal) 로직 적용
+            const lifesteal = attackerEntity.getTotalLifesteal ? attackerEntity.getTotalLifesteal() : (attacker.get ? attacker.get('lifesteal') : 0);
+            if (lifesteal > 0 && damage > 0 && attackerEntity.heal) {
+                const healAmount = damage * lifesteal;
+                attackerEntity.heal(healAmount);
+                
+                // [신규] 흡혈 비주얼 피드백 추가
+                if (healAmount >= 1) {
+                    fxManager.showDamageText(attackerEntity.x, attackerEntity.y, Math.floor(healAmount), 'heal');
+                    fxManager.showHealEffect(attackerEntity);
+                }
+            }
+            
             // 데미지 기록 (투사체 ID가 있으면 함께 기록)
             damageCalculationManager.recordDamage(attacker, target, damage, type, projectileId);
             

@@ -18,7 +18,7 @@ export default {
         'merc_wrinkle_desc': 'Messiah from the parallel world \'Black Behemoth\'. Has [Slash of Light] passive and a screen-clearing ultimate.',
         'merc_ria_desc': 'A blind swordmaster wandering the world to realize the truth of the sword. Values action over words.',
         'merc_zayn_desc': 'A stylish righteous thief wandering the world. Helps the poor and punishes the corrupt.',
-        'merc_zayn_desc': 'A stylish righteous thief wandering the world. Helps the poor and punishes the corrupt.'
+        'King': 'King'
     },
     ko: {
         'merc_aren_desc': '메시아를 향한 충직한 전사. 고기를 좋아하고 야채를 못 먹음.',
@@ -39,6 +39,6 @@ export default {
         'merc_wrinkle_desc': '평행세계 \'블랙 베히모스\'의 메시아. 3스택마다 발동하는 [전광석화] 패시브와 화면 전체를 난도질하는 궁극기 보유.',
         'merc_ria_desc': '검의 이치를 깨닫기 위해 세상을 방랑중인 맹인 검객. 말보다 행동을 중요시한다.',
         'merc_zayn_desc': '세상을 떠도는 멋쟁이 의적. 불쌍한 이를 돕고 부패한 자들을 처벌한다.',
-        'merc_zayn_desc': '세상을 떠도는 멋쟁이 의적. 불쌍한 이를 돕고 부패한 자들을 처벌한다.'
+        'King': '킹'
     }
 };

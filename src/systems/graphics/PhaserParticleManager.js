@@ -1,4 +1,5 @@
 import Logger from '../../utils/Logger.js';
+import layerManager from '../../ui/LayerManager.js';
 
 /**
  * 페이저 파티클 매니저 (Phaser Particle Manager)
@@ -131,25 +132,24 @@ class PhaserParticleManager {
     createDustPool() {
         if (!this.scene) return;
 
-        const emitter = this.scene.add.particles(0, 0, 'particle_blood', {
-            color: [ 0xffffff, 0xeeeeee, 0xcccccc ], // 흰색 ~ 밝은 회색
-            speed: { min: 100, max: 400 },
-            scale: { start: 0.8, end: 0 },
-            alpha: { start: 0.6, end: 0 },
-            lifespan: 600,
+        // [POLLISH] 먼지 파티클은 부드러운 글로우 텍스처와 위로 피어오르는 중력 적용
+        const emitter = this.scene.add.particles(0, 0, 'particle_glow', {
+            color: [ 0xffffff, 0xeeeeee, 0xddddcc ], // 흰색 ~ 회색 ~ 모래색
+            speed: { min: 20, max: 100 },
+            scale: { start: 0.8, end: 1.5 }, // 서서히 퍼짐
+            alpha: { start: 0.5, end: 0 },
+            lifespan: 1000,
             blendMode: 'NORMAL',
-            gravityY: 200,
-            quantity: 20,
-            maxParticles: 500, // [풀링]
+            gravityY: -50, // 위로 살짝 피어오름
+            quantity: 15,
+            maxParticles: 500,
             emitting: false
         });
 
         this.emitters.set('white_dust', emitter);
         
-        // [FIX] 파티클이 엔티티 뒤로 숨지 않도록 레이어 설정
-        if (this.scene.sys.game.layerManager) {
-            emitter.setDepth(this.scene.sys.game.layerManager.getDepth('fx'));
-        }
+        // [FIX] 파티클이 엔티티 뒤로 숨지 않도록 fx 레이어 설정
+        emitter.setDepth(layerManager.getDepth('fx'));
     }
 
     /**
@@ -256,7 +256,7 @@ class PhaserParticleManager {
             emitting: false
         });
 
-        emitter.setDepth(this.scene.sys.game.layerManager ? this.scene.sys.game.layerManager.getDepth('fx') : 800);
+        emitter.setDepth(layerManager.getDepth('fx'));
         this.emitters.set('red_magic', emitter);
     }
 
