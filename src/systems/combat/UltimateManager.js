@@ -10,6 +10,7 @@ import healingTotem from './skills/HealingTotem.js';
 import iceStorm from './skills/IceStorm.js';
 import goBabao from './skills/GoBabao.js';
 import proveYourExistence from './skills/ProveYourExistence.js';
+import MagentaDrive from './skills/MagentaDrive.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -144,6 +145,18 @@ class UltimateManager {
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             logic: proveYourExistence
+        });
+
+        // 킹 (King)
+        this.ultimates.set('king', {
+            id: 'MagentaDrive',
+            name: 'Magenta Drive',
+            nameKey: 'merc_king_ult_name',
+            description: 'King boards a massive projectile and clears the screen.',
+            descriptionKey: 'merc_king_ult_desc',
+            chargeMax: 100, 
+            chargeSpeedBase: 1.0, 
+            logic: MagentaDrive
         });
 
         // 고블린(몬스터)은 궁극기 없음

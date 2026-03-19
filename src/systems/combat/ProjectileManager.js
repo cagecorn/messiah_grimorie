@@ -1,26 +1,7 @@
 import Phaser from 'phaser';
 import Logger from '../../utils/Logger.js';
 import measurementManager from '../../core/MeasurementManager.js';
-import ThreadsOfFateProjectile from '../../entities/projectiles/skills/ThreadsOfFateProjectile.js';
-import LightProjectile from '../../entities/projectiles/skills/LightProjectile.js';
-import WizardProjectile from '../../entities/projectiles/skills/WizardProjectile.js';
-import MeteorProjectile from '../../entities/projectiles/skills/MeteorProjectile.js';
-import BardProjectile from '../../entities/projectiles/common/BardProjectile.js';
-import AquaBurstProjectile from '../../entities/projectiles/common/AquaBurstProjectile.js';
-import FireBurstProjectile from '../../entities/projectiles/skills/FireBurstProjectile.js';
-import ImSorryProjectile from '../../entities/projectiles/skills/ImSorryProjectile.js';
-import MeleeProjectile from '../../entities/projectiles/common/MeleeProjectile.js';
-import HeroDashProjectile from '../../entities/projectiles/skills/HeroDashProjectile.js';
-import RapidFireProjectile from '../../entities/projectiles/skills/RapidFireProjectile.js';
-import MonsterNonTargetProjectile from '../../entities/projectiles/MonsterNonTargetProjectile.js';
-import BulletProjectile from '../../entities/projectiles/common/BulletProjectile.js';
-import TornadoShotProjectile from '../../entities/projectiles/skills/TornadoShotProjectile.js';
-import ShadowProjectile from '../../entities/projectiles/skills/ShadowProjectile.js'; // [NEW]
-import GoBabaoProjectile from '../../entities/projectiles/skills/GoBabaoProjectile.js';
-import IceBallProjectile from '../../entities/projectiles/skills/IceBallProjectile.js';
-import StoneBlastProjectile from '../../entities/projectiles/skills/StoneBlastProjectile.js';
-import IceStormProjectile from '../../entities/projectiles/skills/IceStormProjectile.js';
-import RockProjectile from '../../entities/projectiles/skills/RockProjectile.js';
+// [MOVE] Specific projectile imports moved to dynamic imports in init() to break circular dependency cycles
 
 /**
  * 투사체 매니저 (Projectile Manager)
@@ -39,9 +20,9 @@ class ProjectileManager {
     }
 
     /**
-     * 씬 초기화 시 호출
+     * 씬 초기화 시 호출 (Async for dynamic imports)
      */
-    init(scene) {
+    async init(scene) {
         this.scene = scene;
         this.pools.clear();
         this.activeProjectiles.clear();
@@ -59,7 +40,57 @@ class ProjectileManager {
             this.grid.cells[i] = new Set();
         }
         
-        // [Routing]
+        // [Routing] 병렬 동적 임포트로 성능 최적화 및 순환 참조 방지
+        const [
+            ThreadsOfFateProjectile,
+            LightProjectile,
+            WizardProjectile,
+            MeteorProjectile,
+            BardProjectile,
+            AquaBurstProjectile,
+            FireBurstProjectile,
+            ImSorryProjectile,
+            MeleeProjectile,
+            HeroDashProjectile,
+            RapidFireProjectile,
+            MonsterNonTargetProjectile,
+            BulletProjectile,
+            TornadoShotProjectile,
+            ShadowProjectile,
+            GoBabaoProjectile,
+            IceBallProjectile,
+            StoneBlastProjectile,
+            IceStormProjectile,
+            RockProjectile,
+            MagentaDriveProjectile,
+            ArrowProjectile,
+            KnockbackShotProjectile
+        ] = await Promise.all([
+            import('../../entities/projectiles/skills/ThreadsOfFateProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/LightProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/WizardProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/MeteorProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/common/BardProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/common/AquaBurstProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/FireBurstProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/ImSorryProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/common/MeleeProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/HeroDashProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/RapidFireProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/MonsterNonTargetProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/common/BulletProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/TornadoShotProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/ShadowProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/GoBabaoProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/IceBallProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/StoneBlastProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/IceStormProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/RockProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/special/MagentaDriveProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/common/ArrowProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/KnockbackShotProjectile.js').then(m => m.default)
+        ]);
+
         this.registerProjectile('threads_of_fate_projectile', ThreadsOfFateProjectile);
         this.registerProjectile('light', LightProjectile);
         this.registerProjectile('wizard', WizardProjectile);
@@ -74,14 +105,17 @@ class ProjectileManager {
         this.registerProjectile('monster_nontarget', MonsterNonTargetProjectile);
         this.registerProjectile('bullet', BulletProjectile);
         this.registerProjectile('tornado_shot', TornadoShotProjectile);
-        this.registerProjectile('shadow_dive', ShadowProjectile); // [NEW]
+        this.registerProjectile('shadow_dive', ShadowProjectile);
         this.registerProjectile('go_babao_projectile', GoBabaoProjectile);
         this.registerProjectile('ice_ball', IceBallProjectile);
         this.registerProjectile('stone_blast', StoneBlastProjectile);
         this.registerProjectile('ice_storm_projectile', IceStormProjectile);
         this.registerProjectile('rock', RockProjectile);
+        this.registerProjectile('magenta_drive', MagentaDriveProjectile);
+        this.registerProjectile('arrow', ArrowProjectile);
+        this.registerProjectile('knockback_shot', KnockbackShotProjectile);
 
-        Logger.system("ProjectileManager: Initialized for scene.");
+        Logger.system("ProjectileManager: Initialized for scene with dynamic routing.");
     }
 
     /**

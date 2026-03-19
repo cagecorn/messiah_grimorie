@@ -55,7 +55,8 @@ class StatManager {
                 m *= this.starMultiplier;
             }
 
-            this.finalStats[key] = base * m;
+            const calculated = base * m;
+            this.finalStats[key] = isNaN(calculated) ? 0 : calculated;
         });
 
         // HP 동기화 및 보존 로직

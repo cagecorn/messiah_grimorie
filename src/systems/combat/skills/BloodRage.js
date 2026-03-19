@@ -33,6 +33,8 @@ class BloodRage {
         if (fxManager.showSkillEffect) {
             fxManager.showSkillEffect(attacker, 'blood_rage');
         }
+
+        return true;
     }
 }
 

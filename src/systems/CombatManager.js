@@ -4,10 +4,7 @@ import TimeManager from '../core/TimeManager.js';
 import measurementManager from '../core/MeasurementManager.js';
 import soundManager from './SoundManager.js';
 import damageCalculationManager from './combat/DamageCalculationManager.js';
-import projectileManager from './combat/ProjectileManager.js';
-import ArrowProjectile from '../entities/projectiles/common/ArrowProjectile.js';
-import BardProjectile from '../entities/projectiles/common/BardProjectile.js';
-import AquaBurstProjectile from '../entities/projectiles/common/AquaBurstProjectile.js';
+// [MOVE] projectileManager import removed to break circular dependency
 import fxManager from './graphics/FXManager.js';
 import summonManager from './entities/SummonManager.js';
 import totemManager from './entities/TotemManager.js';
@@ -85,6 +82,7 @@ class CombatManager {
 
     init(scene) {
         this.scene = scene;
+        this.units.clear(); // [FIX] 씬 전환 시 기존 유닛 목록 초기화
         const world = measurementManager.world;
         // 격자 시스템 초기화 (셀 크기 120px - 투사체 감지 범위 300px 고려)
         this.grid = new SpatialGrid(world.width, world.height, 150);
@@ -127,33 +125,40 @@ class CombatManager {
      * 투사체 발사 (원거리 공격)
      */
     fireProjectile(type, attacker, target, multiplier = 1.0, config = {}) {
+        // [FIX] Circular dependency: Use scene manager reference
+        const pm = this.scene ? this.scene.projectileManager : null;
+        if (!pm) {
+            Logger.debug("COMBAT", "ProjectileManager not initialized in scene yet.");
+            return;
+        }
+
         if (type === 'arrow') {
-            projectileManager.fire('arrow', attacker, target, {
+            pm.fire('arrow', attacker, target, {
                 damageMultiplier: multiplier
             });
         } else if (type === 'light') {
-            projectileManager.fire('light', attacker, target, {
+            pm.fire('light', attacker, target, {
                 damageMultiplier: multiplier
             });
         } else if (type === 'wizard') {
-            projectileManager.fire('wizard', attacker, target, {
+            pm.fire('wizard', attacker, target, {
                 damageMultiplier: multiplier
             });
         } else if (type === 'meteor') {
-            projectileManager.fire('meteor', attacker, target, {
+            pm.fire('meteor', attacker, target, {
                 damageMultiplier: multiplier
             });
         } else if (type === 'bard') {
-            projectileManager.fire('bard', attacker, target, {
+            pm.fire('bard', attacker, target, {
                 damageMultiplier: multiplier
             });
         } else if (type === 'aqua_burst') {
-            projectileManager.fire('aqua_burst', attacker, target, {
+            pm.fire('aqua_burst', attacker, target, {
                 damageMultiplier: multiplier
             });
         } else {
             // [Generic Fallback] Handle any other projectile types (bullet, tornado_shot, etc.)
-            projectileManager.fire(type, attacker, target, {
+            pm.fire(type, attacker, target, {
                 damageMultiplier: multiplier,
                 ...config
             });

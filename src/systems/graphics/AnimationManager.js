@@ -35,6 +35,7 @@ import PooledIceExplosion from './effects/PooledIceExplosion.js';
 import PooledIceStormCloud from './effects/PooledIceStormCloud.js';
 import PooledStoneExplosion from './effects/PooledStoneExplosion.js';
 import PooledBloodRageEffect from './effects/PooledBloodRageEffect.js';
+import PooledMagentaDriveEffect from './effects/PooledMagentaDriveEffect.js';
 
 /**
  * 애니메이션 매니저 (Animation Manager)
@@ -88,6 +89,7 @@ class AnimationManager {
         poolingManager.registerPool('ice_storm_cloud_fx', () => new PooledIceStormCloud(this.scene), 5, true);
         poolingManager.registerPool('stone_explosion_fx', () => new PooledStoneExplosion(this.scene), 15, true);
         poolingManager.registerPool('blood_rage_fx', () => new PooledBloodRageEffect(this.scene), 5, true);
+        poolingManager.registerPool('magenta_drive_fx', () => new PooledMagentaDriveEffect(this.scene), 2, true);
 
         Logger.system("AnimationManager: Facade ready with Modular Animators.");
     }
@@ -127,6 +129,13 @@ class AnimationManager {
         const effect = poolingManager.get('blood_rage_fx');
         if (effect) {
             effect.show(x, y);
+        }
+    }
+
+    playMagentaDriveEffect(x, y, config) {
+        const effect = poolingManager.get('magenta_drive_fx');
+        if (effect) {
+            effect.show(x, y, config);
         }
     }
 

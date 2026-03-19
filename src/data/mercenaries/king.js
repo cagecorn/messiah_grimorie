@@ -1,4 +1,6 @@
 import { ENTITY_CLASSES, STAT_KEYS } from '../../core/EntityConstants.js';
+import BloodRage from '../../systems/combat/skills/BloodRage.js';
+import MagentaDrive from '../../systems/combat/skills/MagentaDrive.js';
 
 /**
  * 용병 데이터: 킹 (King)
@@ -9,8 +11,8 @@ export default {
     name: 'King',
     className: ENTITY_CLASSES.WARRIOR, // 본거지는 전사 클래스
     isSpecial: false,
-    skill: 'BloodRage',
-    ultimate: 'MagentaDrive', // 궁극기 (추후 구현 예정)
+    skill: BloodRage,
+    ultimate: MagentaDrive,
     level: 1,
     exp: 0,
     baseStats: {

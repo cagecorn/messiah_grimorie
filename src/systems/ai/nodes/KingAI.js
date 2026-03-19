@@ -1,5 +1,6 @@
 import MeleeAI from './MeleeAI.js';
 import BloodRageAI from './BloodRageAI.js';
+import MagentaDriveAI from './MagentaDriveAI.js';
 
 /**
  * 킹 AI (King AI)
@@ -14,7 +15,10 @@ class KingAI {
     static execute(entity, bb, delta) {
         if (!entity.active || !entity.logic.isAlive) return;
 
-        // 1. 타겟이 있는 전투 상태라면 블러드 레이지 발동 체크
+        // 1. 궁극기 체크
+        if (MagentaDriveAI.execute(entity)) return;
+
+        // 2. 타겟이 있는 전투 상태라면 블러드 레이지 발동 체크
         if (bb.get('target')) {
             BloodRageAI.execute(entity);
         }

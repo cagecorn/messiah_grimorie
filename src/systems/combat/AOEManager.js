@@ -49,7 +49,8 @@ class AOEManager {
             Logger.info("COMBAT", `[AOE_MISS] No targets found by ${source.logic.name} at (${Math.round(x)}, ${Math.round(y)}) with radius ${radius}.`);
         } else {
             targets.forEach(target => {
-                combatManager.processDamage(source, target, multiplier, type, isUltimate);
+                // [FIX] processDamage 시그니처 대응 (multiplier, type, projectileId, isUltimate)
+                combatManager.processDamage(source, target, multiplier, type, null, isUltimate);
                 if (onHit) onHit(target);
             });
             Logger.info("COMBAT", `[AOE_HIT] ${targets.length} targets hit by ${source.logic.name} at (${Math.round(x)}, ${Math.round(y)}) with radius ${radius}.`);

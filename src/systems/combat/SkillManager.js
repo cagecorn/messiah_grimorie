@@ -20,6 +20,7 @@ import goBabao from './skills/GoBabao.js';
 import holyAura from './skills/HolyAura.js';
 import proveYourExistence from './skills/ProveYourExistence.js';
 import summonBabao from './skills/SummonBabao.js';
+import BloodRage from './skills/BloodRage.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -263,6 +264,17 @@ class SkillManager {
             description: 'Clone heals nearby allies.',
             cooldown: 3000, // 분신은 좀 더 적극적
             logic: holyAura
+        });
+
+        // 킹 (King)
+        this.skills.set('king', {
+            id: 'BloodRage',
+            name: 'Blood Rage',
+            nameKey: 'merc_king_skill_name',
+            description: 'King enters a bloodthirsty rage, increasing ATK and AtkSpd.',
+            descriptionKey: 'merc_king_skill_desc',
+            cooldown: 15000, 
+            logic: BloodRage
         });
     }
 

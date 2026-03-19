@@ -110,6 +110,7 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('flying_icon', assetPathManager.getPath('images', 'flying_icon'));
         this.load.image('smite_effect', assetPathManager.getPath('images', 'smite_effect'));
         this.load.image('blood_rage_effect', assetPathManager.getPath('images', 'blood_rage_effect'));
+        this.load.image('magenta_drive_effect', assetPathManager.getPath('images', 'magenta_drive_effect'));
 
         // [신규] 실비 스프라이트 및 사운드 프리로드
         this.load.image('merc_silvi_sprite', assetPathManager.getMercenaryPath('silvi', 'sprite'));

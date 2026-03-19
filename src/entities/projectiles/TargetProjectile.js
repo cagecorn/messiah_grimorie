@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import Logger from '../../utils/Logger.js';
-import projectileManager from '../../systems/combat/ProjectileManager.js';
+// [MOVE] projectileManager import removed to break circular dependency
 import combatManager from '../../systems/CombatManager.js';
 import instanceIDManager from '../../utils/InstanceIDManager.js';
 import layerManager from '../../ui/LayerManager.js';
@@ -149,10 +149,14 @@ export default class TargetProjectile extends Phaser.GameObjects.Container {
      */
     hit() {
         if (this.target && this.target.logic && this.target.logic.isAlive) {
-            combatManager.processDamage(this.owner, this.target, {
-                multiplier: this.damageMultiplier,
-                projectileId: this.id
-            }, this.damageType);
+            // [FIX] processDamage 시그니처 변경 대응 (Object -> Individual args)
+            combatManager.processDamage(
+                this.owner, 
+                this.target, 
+                this.damageMultiplier, 
+                this.damageType, 
+                this.id
+            );
             this.onHit(this.target);
         }
         this.destroyProjectile();
@@ -188,6 +192,11 @@ export default class TargetProjectile extends Phaser.GameObjects.Container {
     }
 
     destroyProjectile() {
-        projectileManager.release(this);
+        // [FIX] Circular dependency: Use scene manager reference
+        if (this.scene && this.scene.projectileManager) {
+            this.scene.projectileManager.release(this);
+        } else {
+            import('../../systems/combat/ProjectileManager.js').then(m => m.default.release(this));
+        }
     }
 }

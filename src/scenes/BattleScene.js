@@ -188,17 +188,18 @@ export default class BattleScene extends Phaser.Scene {
 
     async initializeManagers() {
         try {
-            // 스폰 매니저
-            const spawnModule = await import('../systems/combat/SpawnManager.js');
-            this.spawnManager = spawnModule.default;
+            // [CORE] 상단 임포트된 매니저들 초기화
+            combatManager.init(this);
+            spawnManager.init(this);
+            this.spawnManager = spawnManager; // 기존 코드 호환성 유지
 
-        // [USER 요청] 스테이지 시작 시 ID 카운터 초기화 (ID 혼란 방지)
-        const instanceIDModule = await import('../utils/InstanceIDManager.js');
-        instanceIDModule.default.reset();
+            // [USER 요청] 스테이지 시작 시 ID 카운터 초기화 (ID 혼란 방지)
+            const instanceIDModule = await import('../utils/InstanceIDManager.js');
+            instanceIDModule.default.reset();
 
-        // 전열 이동 매니저
-        const moveModule = await import('../systems/combat/MovementManager.js');
-        this.movementManager = moveModule.default;
+            // 전열 이동 매니저
+            const moveModule = await import('../systems/combat/MovementManager.js');
+            this.movementManager = moveModule.default;
 
             // AI 매니저
             const aiModule = await import('../systems/ai/AIManager.js');
@@ -212,7 +213,7 @@ export default class BattleScene extends Phaser.Scene {
             Logger.info("BATTLE", "Combat managers loaded and initialized.");
 
             // 초기 유닛 스폰 실행
-            this.spawnInitialUnits();
+            await this.spawnInitialUnits();
 
         } catch (err) {
             Logger.error("BATTLE_INIT", `Failed to load managers: ${err.message}`);
@@ -241,25 +242,13 @@ export default class BattleScene extends Phaser.Scene {
         experienceManager.init();
         lootManager.init(this);
 
-        // [신규] 투사체 매니저 초기화 및 클래스 등록 (Router)
+        // [신규] 투사체 매니저 초기화 및 클래스 등록 (Router - Async init)
         const projectileModule = await import('../systems/combat/ProjectileManager.js');
-        const ArrowProjectile = (await import('../entities/projectiles/common/ArrowProjectile.js')).default;
-        const KnockbackShotProjectile = (await import('../entities/projectiles/skills/KnockbackShotProjectile.js')).default;
-
         this.projectileManager = projectileModule.default;
-        this.projectileManager.init(this);
+        await this.projectileManager.init(this);
 
-        // 투사체 라우팅 등록
-        this.projectileManager.registerProjectile('arrow', ArrowProjectile);
-        this.projectileManager.registerProjectile('knockback_shot', KnockbackShotProjectile);
-        
-        // [신규] 세이렌 투사체 등록
-        const AquaBurstProjectile = (await import('../entities/projectiles/common/AquaBurstProjectile.js')).default;
-        this.projectileManager.registerProjectile('aqua_burst', AquaBurstProjectile);
-
-        // [신규] 파이어 버스트 투사체 등록
-        const FireBurstProjectile = (await import('../entities/projectiles/skills/FireBurstProjectile.js')).default;
-        this.projectileManager.registerProjectile('fire_burst', FireBurstProjectile);
+        // [FIX] 투사체 라우팅은 프로젝트타일매니저의 init() 내부에서 동적 임포트로 통합 처리됨
+        // (BattleScene에서의 중복 수동 등록 제거)
 
         // [전투] 스폰 매니저를 통한 초기 배치
         this.spawnManager = spawnManager;
