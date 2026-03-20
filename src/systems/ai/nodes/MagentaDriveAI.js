@@ -6,7 +6,7 @@ import combatManager from '../../CombatManager.js';
  * 역할: [궁극기 게이지가 가득 차고 적들이 일정 수 이상 모여있을 때 발동]
  */
 export default class MagentaDriveAI {
-    static minTargets = 3; // 최소 타겟 수
+    static minTargets = 1; // 최소 타겟 수 (기존 3에서 1로 완화)
     static checkRange = 300; // 적군 밀집도 체크 범위
 
     /**

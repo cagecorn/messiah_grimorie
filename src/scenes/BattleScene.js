@@ -99,6 +99,7 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('ice_explosion_effect', 'assets/effect/ice_explosion_effect.png');
         this.load.image('ice_storm_cloud', 'assets/effect/ice_storm_cloud.png');
         this.load.image('ice_storm_projectile', 'assets/effect/ice_storm_projectile.png');
+        this.load.image('magenta_drive_effect', assetPathManager.getPath('images', 'magenta_drive_effect'));
 
         // [신규] 상태 이상 아이콘 프리로드 (키값을 텍스처 키로 사용)
         const statusIcons = ['knockback', 'airborne', 'stunned', 'burned', 'invincible'];

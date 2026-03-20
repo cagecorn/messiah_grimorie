@@ -55,21 +55,22 @@ class CharacterStatusManager {
 
         // 버프 및 데이터 수집
         if (buffs && buffs.activeBuffs) {
-            const seenBuffBaseIds = new Set();
+            const seenBuffIcons = new Set();
             buffs.activeBuffs.forEach(b => {
-                const baseId = b.id.split('_')[0]; // 'inspiration_atk' -> 'inspiration'
+                // [수정] 명시적 icon 우선 사용, 없으면 ID 앞부분 사용
+                const iconId = b.icon || b.id.split('_')[0]; 
                 
-                // 동일 계열 버프(예: 영감 ATK/MATK)는 아이콘 하나만 표시 (유저 요청: 중첩/중복 방지)
-                if (seenBuffBaseIds.has(baseId)) return;
-                seenBuffBaseIds.add(baseId);
+                // 동일 아이콘(예: 여러 개의 'shield')은 하나만 표시하여 HUD 복잡도 감소
+                if (seenBuffIcons.has(iconId)) return;
+                seenBuffIcons.add(iconId);
 
                 report.activeIcons.push({
-                    id: baseId,
+                    id: iconId,
                     fullId: b.id,
                     type: 'buff',
                     value: b.value,
                     valueType: b.type, // 'add' | 'mult'
-                    iconPath: iconManager.getStatusPath(baseId)
+                    iconPath: iconManager.getStatusPath(iconId)
                 });
             });
         }

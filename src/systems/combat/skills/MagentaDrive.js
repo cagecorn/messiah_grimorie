@@ -1,4 +1,5 @@
 import Logger from '../../../utils/Logger.js';
+import ultimateCutsceneManager from '../../../ui/UltimateCutsceneManager.js';
 // [MOVE] projectileManager import removed to break circular dependency
 
 /**
@@ -31,6 +32,8 @@ class MagentaDrive {
         });
 
         if (projectile) {
+            // [NEW] 궁극기 컷씬 출력
+            ultimateCutsceneManager.show('king', 'Magenta Drive');
             // 연출용 컷신이나 일시 정지 효과가 필요하면 여기서 처리 가능
         }
 
