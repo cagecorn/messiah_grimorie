@@ -61,7 +61,14 @@ export default class ElectricGrenadeProjectile extends NonTargetProjectile {
     onExplode() {
         if (this.isDestroyed) return;
 
-        // AOE 피해 적용
+        // AOE 피해 적용 및 감전 상태이상 부여
+        const shockDuration = 3000; // 3초 감전
+        const onHitCallback = (target) => {
+            if (target && target.logic && target.logic.status) {
+                target.logic.status.applyEffect('shocked', shockDuration);
+            }
+        };
+
         aoeManager.applyAOEDamagingEffect(
             this.owner,
             this.x,
@@ -70,7 +77,7 @@ export default class ElectricGrenadeProjectile extends NonTargetProjectile {
             this.damageMultiplier,
             this.damageType,
             this.attribute,
-            null,
+            onHitCallback,
             false // isUltimate
         );
 

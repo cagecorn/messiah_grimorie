@@ -5,6 +5,7 @@ import animationManager from './AnimationManager.js';
 import shadowManager from './ShadowManager.js';
 import phaserParticleManager from './PhaserParticleManager.js';
 import actionTextManager from './ActionTextManager.js';
+import pooledElectricShockEffect from './effects/PooledElectricShockEffect.js';
 
 /**
  * FX 매니저 (FX Manager)
@@ -126,6 +127,14 @@ class FXManager {
     showSleepEffect(target, duration) {
         if (!this.isInitialized || !target) return;
         phaserParticleManager.startSleepEffect(target.x, target.y - 60, duration);
+    }
+
+    /**
+     * 감전 상태 시각 효과
+     */
+    showShockEffect(target, duration) {
+        if (!this.isInitialized || !target) return;
+        pooledElectricShockEffect.spawn(target, duration);
     }
 
     /**

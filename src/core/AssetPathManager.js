@@ -53,6 +53,8 @@ class AssetPathManager {
             magenta_drive_effect: `${this.basePath}effect/magenta_drive_effect.png`,
             electric_grenade_projectile: `${this.basePath}effect/electric_grenade_projectile.png`,
             electric_explosion_effect: `${this.basePath}effect/electric_explosion_effect.png`,
+            electric_shock_effect: `${this.basePath}effect/electric_shock_effect.png`,
+            shock_icon: `${this.basePath}icon/electric_shock_icon.png`,
             
             // [신규] 자인 (Zayn) 에셋
             zayn_sprite: `${this.basePath}characters/party/zayn_sprite.png`,
@@ -67,6 +69,7 @@ class AssetPathManager {
             atk_up: `${this.basePath}icon/atk_up_icon.png`,
             atk_speed_up: `${this.basePath}icon/atk_speed_up_icon.png`,
             lifesteal: `${this.basePath}icon/lifesteal_icon.png`,
+            shock: `${this.basePath}icon/electric_shock_icon.png`,
             
             // [신규] 고블린 위자드 에셋
             goblin_wizard: `${this.basePath}characters/enemies/goblin_wizard_sprite.png`,

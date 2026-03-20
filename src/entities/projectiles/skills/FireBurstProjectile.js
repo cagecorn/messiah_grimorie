@@ -26,6 +26,7 @@ export default class FireBurstProjectile extends NonTargetProjectile {
         // [Standardized AOE]
         this.aoeRadius = config.aoeRadius || 150;
         this.aoeMultiplier = config.damageMultiplier || 1.0;
+        this.attribute = config.attribute || 'fire';
 
         this.setAlpha(1);
         this.setScale(1.2);

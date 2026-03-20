@@ -22,6 +22,7 @@ import lootManager from '../systems/combat/LootManager.js';
 import lootInteractionManager from '../systems/combat/LootInteractionManager.js';
 import dungeonRoundManager from '../systems/dungeons/DungeonRoundManager.js';
 import timeManager from '../core/TimeManager.js';
+import pooledElectricShockEffect from '../systems/graphics/effects/PooledElectricShockEffect.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -238,6 +239,7 @@ export default class BattleScene extends Phaser.Scene {
 
         soundManager.init(this);
         ultimateCutsceneManager.init();
+        pooledElectricShockEffect.init(this);
 
         // [신규] 보상 시스템 매니저 초기화 (이벤트 기반 작동 시작)
         experienceManager.init();
@@ -298,6 +300,7 @@ export default class BattleScene extends Phaser.Scene {
         // [그림자] 실시간 업데이트 (매니저가 내부 맵을 전수 조사하여 누락 없이 관리함)
         shadowManager.update();
         fxManager.update(time, delta); // [신규] FX 시스템 업데이트 (HP바 등)
+        pooledElectricShockEffect.update(delta);
 
         // [신규] 투사체 매니저 업데이트
         if (this.projectileManager) {

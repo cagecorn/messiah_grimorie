@@ -17,7 +17,8 @@ class StatusEffectManager {
             invincible: false,
             sleep: false,
             flying: false,
-            slow: false
+            slow: false,
+            shocked: false
         };
         this.timers = {};
     }
@@ -34,6 +35,10 @@ class StatusEffectManager {
             // [신규] 시각 효과 연동
             if (type === 'sleep' && this.owner.scene && this.owner.scene.fxManager) {
                 this.owner.scene.fxManager.showSleepEffect(this.owner, duration);
+            }
+            
+            if (type === 'shocked' && this.owner.scene && this.owner.scene.fxManager) {
+                this.owner.scene.fxManager.showShockEffect(this.owner, duration);
             }
 
             this.timers[type] = setTimeout(() => {

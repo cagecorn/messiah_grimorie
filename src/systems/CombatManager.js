@@ -174,7 +174,6 @@ class CombatManager {
 
         // config가 숫자(multiplier)일 수도 있고 객체({multiplier, projectileId})일 수도 있음
         let multiplier = 1.0;
-        let projectileId = null;
 
         if (typeof config === 'number') {
             multiplier = config;
@@ -262,10 +261,12 @@ class CombatManager {
                 }
             }
             
-            // 데미지 기록 (투사체 ID가 있으면 함께 기록)
+            // [신규] 속성별 컬러 텍스트 우선 적용
+            const textType = isCrit ? 'critical' : (attribute !== 'none' ? attribute : type);
+            
             damageCalculationManager.recordDamage(attacker, target, damage, type, projectileId);
             
-            fxManager.showDamageText(targetEntity.x, targetEntity.y, damage, isCrit ? 'crit' : type);
+            fxManager.showDamageText(targetEntity.x, targetEntity.y, damage, textType);
             fxManager.showImpactEffect(targetEntity, type);
 
             if (type === 'physical') {

@@ -81,6 +81,7 @@ class IconManager {
         if (lowerId.includes('gale')) return 'gale_icon';
         if (lowerId.includes('rapidfire') || lowerId.includes('rapid_fire')) return 'snapshot_icon';
         if (lowerId.includes('flying')) return 'flying_icon';
+        if (lowerId === 'shocked') return 'shock';
         
         return lowerId;
     }

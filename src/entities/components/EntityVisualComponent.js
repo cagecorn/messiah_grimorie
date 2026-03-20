@@ -110,6 +110,13 @@ export default class EntityVisualComponent {
                 this.animationManager.stopIdleBobbing(this.entity);
             }
         }
+
+        // [신규] 감전 상태시 부르르 떨리는 효과 (Trembling)
+        if (this.entity.status && this.entity.status.states.shocked && this.sprite) {
+            this.sprite.x = (Math.random() - 0.5) * 6; // 좌우 부르르
+        } else if (this.sprite && this.sprite.x !== 0) {
+            this.sprite.x = 0; // 복구
+        }
     }
 
     /**

@@ -45,6 +45,12 @@ export default class EntityCombatComponent {
     attack(target) {
         if (!target || !target.logic.isAlive || this.attackCooldown > 0) return;
         if (this.entity.status && this.entity.status.isUnableToAct()) return;
+        
+        // [신규] 감전 상태시 평타 불가
+        if (this.entity.status && this.entity.status.states.shocked) {
+            Logger.info("COMBAT", `${this.entity.logic.name} is SHOCKED and cannot attack!`);
+            return;
+        }
 
         // [신규] 공격 방향에 따른 플립 설정
         const diffX = target.x - this.entity.x;

@@ -31,7 +31,8 @@ class FireBurst {
         if (projectileManager.fire) {
             projectileManager.fire('fire_burst', owner, target, {
                 damageMultiplier: 2.0, // 아쿠아버스트보다 강력함
-                speed: 650
+                speed: 650,
+                attribute: 'fire'
             });
         }
     }
