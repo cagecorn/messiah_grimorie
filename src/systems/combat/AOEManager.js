@@ -14,11 +14,12 @@ class AOEManager {
      * @param {number} y 중심 Y
      * @param {number} radius 반경
      * @param {number} multiplier 계수
-     * @param {string} type 데미지 속성
+     * @param {string} type 데미지 종류 ('physical', 'magic')
+     * @param {string} attribute 데미지 속성 ('fire', 'ice', 'lightning', 'none')
      * @param {function} onHit 각 타겟 피격 시 콜백
      * @param {boolean} isUltimate 궁극기 여부
      */
-    applyAOEDamagingEffect(source, x, y, radius, multiplier, type, onHit, isUltimate = false) {
+    applyAOEDamagingEffect(source, x, y, radius, multiplier, type, attribute = 'none', onHit, isUltimate = false) {
         if (!source) return;
 
         // [Refactor] CombatManager의 통합 유닛 Set 사용
@@ -49,8 +50,8 @@ class AOEManager {
             Logger.info("COMBAT", `[AOE_MISS] No targets found by ${source.logic.name} at (${Math.round(x)}, ${Math.round(y)}) with radius ${radius}.`);
         } else {
             targets.forEach(target => {
-                // [FIX] processDamage 시그니처 대응 (multiplier, type, projectileId, isUltimate)
-                combatManager.processDamage(source, target, multiplier, type, null, isUltimate);
+                // [FIX] processDamage 시그니처 대응 (multiplier, type, attribute, projectileId, isUltimate)
+                combatManager.processDamage(source, target, multiplier, type, attribute, null, isUltimate);
                 if (onHit) onHit(target);
             });
             Logger.info("COMBAT", `[AOE_HIT] ${targets.length} targets hit by ${source.logic.name} at (${Math.round(x)}, ${Math.round(y)}) with radius ${radius}.`);
@@ -61,8 +62,8 @@ class AOEManager {
      * [LEGACY/WRAPPER] 구형 applyAOE 호출 대응
      */
     applyAOE(x, y, config) {
-        const { radius, multiplier, owner, damageType, onHit, isUltimate } = config;
-        this.applyAOEDamagingEffect(owner, x, y, radius, multiplier, damageType || 'magic', onHit, isUltimate);
+        const { radius, multiplier, owner, damageType, attribute, onHit, isUltimate } = config;
+        this.applyAOEDamagingEffect(owner, x, y, radius, multiplier, damageType || 'magic', attribute || 'none', onHit, isUltimate);
     }
 }
 

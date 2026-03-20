@@ -51,6 +51,8 @@ class AssetPathManager {
             smite_effect: `${this.basePath}effect/smite_effect.png`,
             blood_rage_effect: `${this.basePath}effect/blood_rage_effect.png`,
             magenta_drive_effect: `${this.basePath}effect/magenta_drive_effect.png`,
+            electric_grenade_projectile: `${this.basePath}effect/electric_grenade_projectile.png`,
+            electric_explosion_effect: `${this.basePath}effect/electric_explosion_effect.png`,
             
             // [신규] 자인 (Zayn) 에셋
             zayn_sprite: `${this.basePath}characters/party/zayn_sprite.png`,

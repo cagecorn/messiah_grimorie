@@ -65,6 +65,7 @@ class IceStormCloudAI {
 
         projectileManager.fire('ice_storm_projectile', entity, hitPos, {
             damageMultiplier: 0.5,
+            attribute: 'ice',
             speed: 600,
             scale: 0.6 + (Math.random() * 0.4)
         });

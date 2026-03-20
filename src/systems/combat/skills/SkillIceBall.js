@@ -26,6 +26,7 @@ class SkillIceBall {
         // 투사체 발사
         projectileManager.fire('ice_ball', owner, target, {
             damageMultiplier: this.mAtkMultiplier,
+            attribute: 'ice',
             speed: 850
         });
 

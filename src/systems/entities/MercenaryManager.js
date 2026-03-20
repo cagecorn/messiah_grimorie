@@ -18,6 +18,7 @@ import aina from '../../data/mercenaries/aina.js';
 import bao from '../../data/mercenaries/bao.js';
 import boon from '../../data/mercenaries/boon.js';
 import king from '../../data/mercenaries/king.js';
+import leona from '../../data/mercenaries/leona.js';
 
 /**
  * 용병 매니저 (Mercenary Manager)
@@ -27,7 +28,7 @@ class MercenaryManager {
     constructor() {
         // [ID 레지스트리] 핵심 데이터 정의
         this.registry = {
-            aren, ella, sera, merlin, lute, silvi, zayn, ria, joojoo, sein, aina, bao, boon, king
+            aren, ella, sera, merlin, lute, silvi, zayn, ria, joojoo, sein, aina, bao, boon, king, leona
         };
 
         Logger.system("MercenaryManager: Registry ready (Factory mode).");

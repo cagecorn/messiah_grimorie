@@ -3,6 +3,7 @@ import NonTargetProjectile from '../NonTargetProjectile.js';
 import combatManager from '../../../systems/CombatManager.js';
 import fxManager from '../../../systems/graphics/FXManager.js';
 import Logger from '../../../utils/Logger.js';
+import aoeManager from '../../../systems/combat/AOEManager.js';
 
 /**
  * 아쿠아 버스트 투사체 (AquaBurstProjectile)
@@ -65,6 +66,7 @@ export default class AquaBurstProjectile extends NonTargetProjectile {
             this.aoeRadius,
             this.aoeMultiplier,
             this.damageType,
+            'none',
             onHitCallback
         );
 

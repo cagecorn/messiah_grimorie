@@ -8,10 +8,10 @@ export default class PooledMagentaDriveEffect {
     constructor(scene) {
         this.scene = scene;
         this.active = false;
-        
+
         // 붉은 잔상 및 파티클용 컨테이너
         this.container = scene.add.container(0, 0);
-        
+
         // [NEW] 잔상 스프라이트 추가
         this.sprite = scene.add.sprite(0, 0, 'magenta_drive_effect');
         this.sprite.setAlpha(0.6);

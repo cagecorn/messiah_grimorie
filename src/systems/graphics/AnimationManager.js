@@ -36,6 +36,7 @@ import PooledIceStormCloud from './effects/PooledIceStormCloud.js';
 import PooledStoneExplosion from './effects/PooledStoneExplosion.js';
 import PooledBloodRageEffect from './effects/PooledBloodRageEffect.js';
 import PooledMagentaDriveEffect from './effects/PooledMagentaDriveEffect.js';
+import pooledElectricExplosionEffect from './effects/PooledElectricExplosionEffect.js';
 
 /**
  * 애니메이션 매니저 (Animation Manager)
@@ -66,6 +67,7 @@ class AnimationManager {
 
         auraEffects.init(scene);
         pooledSmiteEffect.init(scene);
+        pooledElectricExplosionEffect.init(scene);
         phaserParticleManager.init(scene);
 
         // [이펙트 풀 등록 통합 관리]
@@ -111,6 +113,7 @@ class AnimationManager {
     playAquaExplosion(x, y) { this.special.playAquaExplosion(x, y); }
     playFireExplosion(x, y) { this.special.playFireExplosion(x, y); }
     playIceExplosion(x, y) { this.special.playIceExplosion(x, y); }
+    playElectricExplosion(x, y) { pooledElectricExplosionEffect.spawn(x, y); }
     playStoneExplosion(x, y) {
         const effect = poolingManager.get('stone_explosion_fx');
         if (effect) {

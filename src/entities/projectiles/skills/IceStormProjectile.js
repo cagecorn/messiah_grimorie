@@ -13,6 +13,7 @@ export default class IceStormProjectile extends NonTargetProjectile {
         
         this.setBlendMode(Phaser.BlendModes.ADD);
         this.damageType = 'magic';
+        this.attribute = 'ice';
         this.collisionRadius = 30;
         
         // [ENHANCED] 지지면 충돌 시에도 데미지를 주기 위한 AOE 설정 (반경 확장: 45 -> 60)

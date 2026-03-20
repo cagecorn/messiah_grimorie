@@ -27,6 +27,7 @@ class Fireball {
             damageMultiplier: this.mAtkMultiplier,
             scale: 2.5,
             radius: 180,
+            attribute: 'fire',
             isUltimate: false
         });
 

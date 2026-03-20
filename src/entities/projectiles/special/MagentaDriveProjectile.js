@@ -11,7 +11,7 @@ export default class MagentaDriveProjectile extends Phaser.GameObjects.Container
     constructor(scene, x, y) {
         super(scene, x, y);
         scene.add.existing(this);
-        
+
         this.owner = null;
         this.active = false;
         this.speed = 8000; // [REFINE] 순간적인 이동을 위해 속도 대폭 상향 (기존 1200)
@@ -21,7 +21,7 @@ export default class MagentaDriveProjectile extends Phaser.GameObjects.Container
 
         // 사선/호 수정을 위한 컨테이너 셋업
         this.setSize(100, 40);
-        
+
         // [NEW] 킹이 탑승할 투사체 비주얼 추가
         this.projectileSprite = scene.add.sprite(0, 0, 'magenta_drive_effect');
         this.projectileSprite.setOrigin(0.5, 0.5);
@@ -44,7 +44,7 @@ export default class MagentaDriveProjectile extends Phaser.GameObjects.Container
         this.owner = owner;
         this.active = true;
         this.hitTargets.clear();
-        
+
         const safeConfig = config || {};
         this.damageMultiplier = safeConfig.multiplier || 3.0;
 
@@ -54,13 +54,13 @@ export default class MagentaDriveProjectile extends Phaser.GameObjects.Container
         const margin = 100; // 화면 밖 여유 공간
 
         this.direction = owner.flipX ? -1 : 1;
-        
+
         // 방향에 따라 화면 왼쪽 끝 또는 오른쪽 끝에서 시작
         const startX = (this.direction === 1) ? worldView.x - margin : worldView.right + margin;
-        
+
         // 방향에 맞춰 스프라이트 반전
         this.projectileSprite.setFlipX(this.direction === -1);
-        
+
         // 시전 시 킹을 투사체에 탑승시킴 (순간이동 연출)
         owner.setVisible(false);
         if (owner.body) owner.body.setEnable(false);
@@ -69,7 +69,7 @@ export default class MagentaDriveProjectile extends Phaser.GameObjects.Container
         // 시작 좌표로 즉시 이동
         this.setPosition(startX, owner.y);
         owner.setPosition(startX, owner.y);
-        
+
         // 이동 시작
         if (this.body) {
             this.body.setVelocityX(this.speed * this.direction);
@@ -104,7 +104,7 @@ export default class MagentaDriveProjectile extends Phaser.GameObjects.Container
         // 충돌 검사 (격자 시스템 활용)
         const range = 80;
         const targets = combatManager.getUnitsInRange(this.x, this.y, range);
-        
+
         targets.forEach(target => {
             if (target.active && target.team !== this.owner.team && !this.hitTargets.has(target.id)) {
                 this.hitTargets.add(target.id);

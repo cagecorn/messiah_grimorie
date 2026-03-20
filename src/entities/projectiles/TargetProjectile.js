@@ -19,6 +19,7 @@ export default class TargetProjectile extends Phaser.GameObjects.Container {
         this.speed = 500;
         this.id = "";
         this.damageType = 'physical';
+        this.attribute = 'none';
 
         // 발사 시점 추적용 (부드러운 보간을 위함)
         this.elapsedTime = 0;
@@ -62,6 +63,7 @@ export default class TargetProjectile extends Phaser.GameObjects.Container {
         this.damageMultiplier = config.damageMultiplier || 1.0;
         this.speed = config.speed || 500;
         this.damageType = config.damageType || this.damageType || 'physical';
+        this.attribute = config.attribute || this.attribute || 'none';
         
         this.id = instanceIDManager.generate(`proj_target_${owner.id}`);
 
@@ -155,6 +157,7 @@ export default class TargetProjectile extends Phaser.GameObjects.Container {
                 this.target, 
                 this.damageMultiplier, 
                 this.damageType, 
+                this.attribute,
                 this.id
             );
             this.onHit(this.target);

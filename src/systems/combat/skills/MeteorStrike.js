@@ -54,6 +54,7 @@ class MeteorStrike {
             damageMultiplier: this.mAtkMultiplier,
             scale: Phaser.Math.FloatBetween(1.2, 2.0), // 크기도 다양하게
             radius: 130,
+            attribute: 'fire',
             isUltimate: true,
             speed: Phaser.Math.Between(1300, 2200) // 속도 다양성 (격차 강조)
         });

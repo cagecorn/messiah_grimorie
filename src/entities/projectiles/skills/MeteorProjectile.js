@@ -117,6 +117,7 @@ export default class MeteorProjectile extends NonTargetProjectile {
             this.aoeRadius, 
             this.aoeMultiplier, 
             this.damageType,
+            'fire',
             null,
             this.isUltimate
         );

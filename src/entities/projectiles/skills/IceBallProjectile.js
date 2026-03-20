@@ -17,6 +17,7 @@ export default class IceBallProjectile extends NonTargetProjectile {
         this.setScale(0.8);
         this.ghostTimer = 0;
         this.damageType = 'magic';
+        this.attribute = 'ice';
         
         // [Standardized AOE]
         this.aoeRadius = 120;

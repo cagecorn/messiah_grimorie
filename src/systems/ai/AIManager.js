@@ -38,6 +38,7 @@ import AinaAI from './nodes/ainaAI.js';
 import BaoAI from './nodes/BaoAI.js';
 import BabaoAI from './nodes/BabaoAI.js';
 import KingAI from './nodes/KingAI.js';
+import LeonaAI from './nodes/LeonaAI.js';
 
 /**
  * AI 매니저 (AI Manager)
@@ -195,6 +196,8 @@ class AIManager {
                 node = BabaoAI;
             } else if (id === 'king') {
                 node = KingAI;
+            } else if (id === 'leona') {
+                node = LeonaAI;
             } else if (entity.logic.isTotem) {
                 node = StationaryAI;
             }

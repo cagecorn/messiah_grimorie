@@ -20,6 +20,7 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
         this.speed = 400;
         this.id = "";
         this.damageType = 'magic';
+        this.attribute = 'none';
         this.isPierce = false;
         this.hitTargets = new Set();
         this.collisionRadius = 40;
@@ -68,6 +69,7 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
         this.collisionRadius = config.collisionRadius || 40;
         this.aoeRadius = config.aoeRadius || this.aoeRadius || 0;
         this.aoeMultiplier = config.aoeMultiplier || this.aoeMultiplier || this.damageMultiplier;
+        this.attribute = config.attribute || this.attribute || 'none';
         this.isUltimate = config.isUltimate || false;
         this.config = config; // [FIX] 서브클래스에서 onImpact 등에 접근할 수 있도록 저장
         
@@ -184,6 +186,7 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
             target, 
             this.damageMultiplier, 
             this.damageType, 
+            this.attribute,
             this.id,
             this.isUltimate
         );
@@ -239,6 +242,7 @@ export default class NonTargetProjectile extends Phaser.GameObjects.Container {
                 this.aoeRadius,
                 this.aoeMultiplier,
                 this.damageType,
+                this.attribute,
                 null,
                 this.isUltimate
             );

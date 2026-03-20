@@ -4,6 +4,7 @@ import TimeManager from '../core/TimeManager.js';
 import measurementManager from '../core/MeasurementManager.js';
 import soundManager from './SoundManager.js';
 import damageCalculationManager from './combat/DamageCalculationManager.js';
+import attributeDamageManager from './combat/AttributeDamageManager.js';
 // [MOVE] projectileManager import removed to break circular dependency
 import fxManager from './graphics/FXManager.js';
 import summonManager from './entities/SummonManager.js';
@@ -168,7 +169,7 @@ class CombatManager {
     /**
      * 데미지 발생 라우팅
      */
-    processDamage(attackerEntity, targetEntity, config = {}, type = 'physical', isUltimate = false) {
+    processDamage(attackerEntity, targetEntity, config = {}, type = 'physical', attribute = 'none', projectileId = null, isUltimate = false) {
         if (!attackerEntity || !targetEntity) return;
 
         // config가 숫자(multiplier)일 수도 있고 객체({multiplier, projectileId})일 수도 있음
@@ -179,7 +180,12 @@ class CombatManager {
             multiplier = config;
         } else if (typeof config === 'object' && config !== null) {
             multiplier = config.multiplier !== undefined ? config.multiplier : 1.0;
-            projectileId = config.projectileId || null;
+            // 만약 projectileId가 6번째 인자로 안 들어오고 config 안에 있다면 사용
+            projectileId = projectileId || config.projectileId || null;
+            // 속성 정보도 config에 포함될 수 있음
+            attribute = attribute !== 'none' ? attribute : (config.attribute || 'none');
+            // 궁극기 여부도 config에 포함될 수 있음
+            isUltimate = isUltimate || config.isUltimate || false;
         }
 
         const attacker = attackerEntity.logic;
@@ -215,6 +221,9 @@ class CombatManager {
             damage = COMBAT.calcMagicEffect(attacker.getTotalMAtk(), multiplier);
         }
 
+        // --- [NEW] 속성 저항 계산 적용 ---
+        damage = attributeDamageManager.calculateDamage(attackerEntity, targetEntity, damage, attribute);
+
         // [FLYING] 비행 중인 유닛은 논타겟 투사체에 면역
         if (targetEntity.logic.status && targetEntity.logic.status.states && targetEntity.logic.status.states.flying) {
             if (projectileId && projectileId.includes('nontarget')) {
@@ -235,9 +244,9 @@ class CombatManager {
             // [DEBUG] 소환수(Siren) 또는 마법 데미지 전용 특화 로그 (사용자 요청: 필터링 용이성)
             const isSiren = attacker.name && attacker.name.toLowerCase().includes('siren');
             if (isUltimate) {
-                Logger.info("ULTIMATE_DMG", `[${attacker.name}] deals ${damage.toFixed(1)} ${type} damage to ${target.name} (Ultimate)`);
+                Logger.info("ULTIMATE_DMG", `[${attacker.name}] deals ${damage.toFixed(1)} ${type}(${attribute}) damage to ${target.name} (Ultimate)`);
             }
-            Logger.info("COMBAT_MANAGER", `Processing ${type} damage: ${attacker.name} (Atk:${attacker.getTotalAtk()}, MAtk:${attacker.getTotalMAtk()}) -> ${target.name} (${damage.toFixed(1)}) ${isCrit ? '[CRIT!]' : ''} ${projectileId ? `[Proj: ${projectileId}]` : ''}`);
+            Logger.info("COMBAT_MANAGER", `Processing ${type}(${attribute}) damage: ${attacker.name} (Atk:${attacker.getTotalAtk()}, MAtk:${attacker.getTotalMAtk()}) -> ${target.name} (${damage.toFixed(1)}) ${isCrit ? '[CRIT!]' : ''} ${projectileId ? `[Proj: ${projectileId}]` : ''}`);
             targetEntity.takeDamage(damage, attackerEntity);
             
             // [신규] 흡혈(Lifesteal) 로직 적용
