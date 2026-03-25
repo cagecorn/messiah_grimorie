@@ -13,6 +13,7 @@ import riaDB from './persistence/riaIndexDB.js';
 import joojooDB from './persistence/JoojooIndexDBManager.js';
 import seinDB from './persistence/SeinIndexDBManager.js';
 import ainaDB from './persistence/ainaIndexDB.js';
+import nanaDB from './persistence/NanaIndexDBManager.js';
 
 /**
  * 용병 수집 매니저 (Mercenary Collection Manager)
@@ -38,7 +39,8 @@ class MercenaryCollectionManager {
             ria: riaDB,
             joojoo: joojooDB,
             sein: seinDB,
-            aina: ainaDB
+            aina: ainaDB,
+            nana: nanaDB
         };
     }
 

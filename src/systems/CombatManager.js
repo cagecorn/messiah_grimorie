@@ -9,8 +9,7 @@ import attributeDamageManager from './combat/AttributeDamageManager.js';
 import fxManager from './graphics/FXManager.js';
 import summonManager from './entities/SummonManager.js';
 import totemManager from './entities/TotemManager.js';
-import fireBurst from './combat/skills/FireBurst.js';
-import massHeal from './combat/skills/MassHeal.js';
+// [MOVE] fireBurst and massHeal imports removed to break circular dependency
 
 /**
  * 공간 분할 격자 (Spatial Partitioning Grid)
@@ -304,9 +303,10 @@ class CombatManager {
             // [핵심] 토템 전용 평타 로직 (isAlly보다 우선순위 높임)
             const totemId = attackerEntity.logic.id;
             if (totemId.includes('fire_totem')) {
-                fireBurst.execute(attackerEntity);
+                // [FIX] 동적 임포트 혹은 useSkill 프록시 활용
+                import('./combat/skills/FireBurst.js').then(m => m.default.execute(attackerEntity));
             } else if (totemId.includes('healing_totem')) {
-                massHeal.execute(attackerEntity);
+                import('./combat/skills/MassHeal.js').then(m => m.default.execute(attackerEntity));
             } else {
                 // 정령 토템: 위자드 투사체 기본 발사
                 this.fireProjectile('wizard', attackerEntity, targetEntity, 1.0, { damageType: 'magic' });

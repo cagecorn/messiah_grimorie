@@ -21,6 +21,8 @@ import holyAura from './skills/HolyAura.js';
 import proveYourExistence from './skills/ProveYourExistence.js';
 import summonBabao from './skills/SummonBabao.js';
 import BloodRage from './skills/BloodRage.js';
+import electricGrenade from './skills/ElectricGrenade.js';
+import musicalMagicalCritical from './skills/MusicalMagicalCritical.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -266,7 +268,6 @@ class SkillManager {
             logic: holyAura
         });
 
-        // 킹 (King)
         this.skills.set('king', {
             id: 'BloodRage',
             name: 'Blood Rage',
@@ -275,6 +276,28 @@ class SkillManager {
             descriptionKey: 'merc_king_skill_desc',
             cooldown: 15000, 
             logic: BloodRage
+        });
+
+        // 레오나 (Leona)
+        this.skills.set('leona', {
+            id: 'ElectricGrenade',
+            name: 'Electric Grenade',
+            nameKey: 'skill_electric_grenade_name',
+            description: 'Tosses a grenade that deals area lightning damage and shocks enemies.',
+            descriptionKey: 'skill_electric_grenade_desc',
+            cooldown: 9000,
+            get logic() { return electricGrenade; }
+        });
+
+        // 나나 (Nana)
+        this.skills.set('nana', {
+            id: 'MusicalMagicalCritical',
+            name: 'Musical Magical Critical',
+            nameKey: 'skill_musical_magical_critical_name',
+            description: 'Deals AoE magic damage and buffs ally critical chance.',
+            descriptionKey: 'skill_musical_magical_critical_desc',
+            cooldown: 10000,
+            get logic() { return musicalMagicalCritical; }
         });
     }
 

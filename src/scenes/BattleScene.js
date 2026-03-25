@@ -23,6 +23,7 @@ import lootInteractionManager from '../systems/combat/LootInteractionManager.js'
 import dungeonRoundManager from '../systems/dungeons/DungeonRoundManager.js';
 import timeManager from '../core/TimeManager.js';
 import pooledElectricShockEffect from '../systems/graphics/effects/PooledElectricShockEffect.js';
+import pooledElectricExplosionEffect from '../systems/graphics/effects/PooledElectricExplosionEffect.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -101,9 +102,16 @@ export default class BattleScene extends Phaser.Scene {
         this.load.image('ice_storm_cloud', 'assets/effect/ice_storm_cloud.png');
         this.load.image('ice_storm_projectile', 'assets/effect/ice_storm_projectile.png');
         this.load.image('magenta_drive_effect', assetPathManager.getPath('images', 'magenta_drive_effect'));
+        
+        // [신규] 레오나 (Leona) 관련 자산 프리로드
+        this.load.image('electric_grenade_projectile', assetPathManager.getPath('images', 'electric_grenade_projectile'));
+        this.load.image('electric_explosion_effect', assetPathManager.getPath('images', 'electric_explosion_effect'));
+        this.load.image('electric_shock_effect', assetPathManager.getPath('images', 'electric_shock_effect'));
+        this.load.image('carpet_bombing_projectile', assetPathManager.getPath('images', 'carpet_bombing_projectile'));
+        this.load.image('missile_projectile', assetPathManager.getPath('images', 'missile_projectile'));
 
         // [신규] 상태 이상 아이콘 프리로드 (키값을 텍스처 키로 사용)
-        const statusIcons = ['knockback', 'airborne', 'stunned', 'burned', 'invincible'];
+        const statusIcons = ['knockback', 'airborne', 'stunned', 'burned', 'invincible', 'shock'];
         statusIcons.forEach(id => {
             const path = assetPathManager.getPath('images', id);
             if (path) this.load.image(id, path);
@@ -240,6 +248,7 @@ export default class BattleScene extends Phaser.Scene {
         soundManager.init(this);
         ultimateCutsceneManager.init();
         pooledElectricShockEffect.init(this);
+        pooledElectricExplosionEffect.init(this);
 
         // [신규] 보상 시스템 매니저 초기화 (이벤트 기반 작동 시작)
         experienceManager.init();

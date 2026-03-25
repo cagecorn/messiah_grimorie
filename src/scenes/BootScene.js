@@ -111,6 +111,14 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('smite_effect', assetPathManager.getPath('images', 'smite_effect'));
         this.load.image('blood_rage_effect', assetPathManager.getPath('images', 'blood_rage_effect'));
         this.load.image('magenta_drive_effect', assetPathManager.getPath('images', 'magenta_drive_effect'));
+        
+        // [신규] 레오나 (Leona) 관련 자산 프리로드
+        this.load.image('electric_grenade_projectile', assetPathManager.getPath('images', 'electric_grenade_projectile'));
+        this.load.image('electric_explosion_effect', assetPathManager.getPath('images', 'electric_explosion_effect'));
+        this.load.image('electric_shock_effect', assetPathManager.getPath('images', 'electric_shock_effect'));
+        this.load.image('shock', assetPathManager.getPath('images', 'shock'));
+        this.load.image('carpet_bombing_projectile', assetPathManager.getPath('images', 'carpet_bombing_projectile'));
+        this.load.image('missile_projectile', assetPathManager.getPath('images', 'missile_projectile'));
 
         // [신규] 실비 스프라이트 및 사운드 프리로드
         this.load.image('merc_silvi_sprite', assetPathManager.getMercenaryPath('silvi', 'sprite'));
@@ -122,6 +130,8 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('bao_sprite', assetPathManager.getPath('images', 'bao_sprite'));
         this.load.image('boon_sprite', assetPathManager.getPath('images', 'boon_sprite'));
         this.load.image('babao_sprite', assetPathManager.getPath('images', 'babao_sprite'));
+        this.load.image('nana_sprite', assetPathManager.getMercenaryPath('nana', 'sprite'));
+        this.load.image('nana_ultimate_sprite', 'assets/characters/party/nana_ultimate_sprite.png');
         this.load.audio('stone_skin_sfx', assetPathManager.getPath('audio', 'stone_skin_sfx'));
         this.load.audio('physical_hit_1', assetPathManager.getPath('audio', 'physical_hit_1'));
         this.load.audio('roll_sfx', assetPathManager.getPath('audio', 'roll_sfx'));

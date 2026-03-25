@@ -24,6 +24,8 @@ export default {
         'skill_fire_burst_desc': 'Fires a fire ball that explodes on impact.',
         'skill_ice_ball_name': 'Ice Ball',
         'skill_ice_ball_desc': 'Fires a ball of ice that deals magic damage and slows enemies.',
+        'skill_electric_grenade_name': 'Electric Grenade',
+        'skill_electric_grenade_desc': 'Tosses a grenade to the densest enemy area, dealing lightning damage and shocking enemies.',
         
         'skill_tornado_shot_desc': 'Fires a powerful shot that pierces through all enemies and slows them down.',
         'skill_sinking_shadow_name': 'Sinking Shadow',
@@ -53,6 +55,8 @@ export default {
         'ult_boon_desc': 'Summons a divine clone or strikes enemies with Holy Smite.',
         'ult_bao_name': 'Go! Babao!',
         'ult_bao_desc': 'Babao spins like a top, clearing the battlefield.',
+        'ult_carpet_bombing_name': 'Carpet Bombing',
+        'ult_carpet_bombing_desc': 'A plane traverses the sky, dropping multiple missiles to devastate enemies.',
         
         'status_title_stealth': 'Stealth',
         'status_desc_stealth': 'Hiding from enemies. Untargetable.',
@@ -97,6 +101,8 @@ export default {
         'skill_fire_burst_desc': '화염구를 발사하여 범위 피해를 입힙니다.',
         'skill_ice_ball_name': '아이스볼',
         'skill_ice_ball_desc': '적에게 마법 피해를 입히고 속도를 늦추는 얼음 구체를 발사합니다.',
+        'skill_electric_grenade_name': '전기 수류탄',
+        'skill_electric_grenade_desc': '적이 가장 많이 뭉쳐있는 지점으로 수류탄을 투척해 전격 피해를 주고 감전시킵니다.',
 
         'skill_tornado_shot_desc': '모든 적을 관통하며 이동 속도를 늦추는 강력한 화살을 발사합니다.',
         'skill_sinking_shadow_name': '씽킹 섀도우',
@@ -126,6 +132,8 @@ export default {
         'ult_boon_desc': '성스러운 분신을 소환하거나 적들을 강타합니다.',
         'ult_bao_name': '가라! 바바오!',
         'ult_bao_desc': '바바오가 팽이처럼 회전하며 전장을 휩씁니다.',
+        'ult_carpet_bombing_name': '융단폭격',
+        'ult_carpet_bombing_desc': '비행기가 하늘을 횡단하며 지상에 수많은 미사일을 투하해 초토화시킵니다.',
         
         'status_title_stealth': '은신',
         'status_desc_stealth': '적들로부터 몸을 숨깁니다. 타겟팅 대상에서 제외됩니다.',

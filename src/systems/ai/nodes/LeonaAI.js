@@ -1,5 +1,5 @@
 import RangedAI from './RangedAI.js';
-import ElectricGrenade from '../../combat/skills/ElectricGrenade.js';
+
 
 /**
  * 레오나 AI (Leona AI)
@@ -14,11 +14,11 @@ class LeonaAI {
     static execute(entity, bb, delta) {
         if (!entity.active || !entity.logic.isAlive) return;
 
-        // 1. 궁극기 체크 (현재 Placeholder)
-        // if (entity.isUltimateReady()) {
-        //     entity.useUltimate('leona_ult');
-        //     return;
-        // }
+        // 1. 궁극기 체크
+        if (entity.isUltimateReady()) {
+            entity.useUltimate(bb.get('target'));
+            return;
+        }
 
         // 2. 스킬 사용 체크 (전기 수류탄)
         // [주의] 스킬 컴포넌트의 canUseSkill 등을 통해 쿨타임 체크가 내부적으로 수행됨

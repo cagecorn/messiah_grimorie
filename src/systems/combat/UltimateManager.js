@@ -11,6 +11,8 @@ import iceStorm from './skills/IceStorm.js';
 import goBabao from './skills/GoBabao.js';
 import proveYourExistence from './skills/ProveYourExistence.js';
 import MagentaDrive from './skills/MagentaDrive.js';
+import carpetBombing from './skills/CarpetBombing.js';
+import giveMeBlood from './skills/GiveMeBlood.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -157,6 +159,30 @@ class UltimateManager {
             chargeMax: 100, 
             chargeSpeedBase: 1.0, 
             logic: MagentaDrive
+        });
+
+        // 레오나 (Leona)
+        this.ultimates.set('leona', {
+            id: 'CarpetBombing',
+            name: 'Carpet Bombing',
+            nameKey: 'ult_carpet_bombing_name',
+            description: 'A plane crosses the sky dropping missiles that deal massive AOE physical damage.',
+            descriptionKey: 'ult_carpet_bombing_desc',
+            chargeMax: 100,
+            chargeSpeedBase: 1.0,
+            get logic() { return carpetBombing; }
+        });
+
+        // 나나 (Nana)
+        this.ultimates.set('nana', {
+            id: 'GiveMeBlood',
+            name: 'Give Me Blood! Hahaha!',
+            nameKey: 'ult_nana_name',
+            description: 'Nana transforms into a Rogue and enters a madness state.',
+            descriptionKey: 'ult_nana_desc',
+            chargeMax: 100,
+            chargeSpeedBase: 1.0,
+            get logic() { return giveMeBlood; }
         });
 
         // 고블린(몬스터)은 궁극기 없음

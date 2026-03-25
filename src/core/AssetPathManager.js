@@ -55,6 +55,8 @@ class AssetPathManager {
             electric_explosion_effect: `${this.basePath}effect/electric_explosion_effect.png`,
             electric_shock_effect: `${this.basePath}effect/electric_shock_effect.png`,
             shock_icon: `${this.basePath}icon/electric_shock_icon.png`,
+            carpet_bombing_projectile: `${this.basePath}effect/carpet_bombing_projectile.png`,
+            missile_projectile: `${this.basePath}effect/missile_projectile.png`,
             
             // [신규] 자인 (Zayn) 에셋
             zayn_sprite: `${this.basePath}characters/party/zayn_sprite.png`,

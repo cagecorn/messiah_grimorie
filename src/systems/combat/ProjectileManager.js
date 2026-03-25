@@ -65,7 +65,9 @@ class ProjectileManager {
             MagentaDriveProjectile,
             ArrowProjectile,
             KnockbackShotProjectile,
-            ElectricGrenadeProjectile
+            ElectricGrenadeProjectile,
+            CarpetBombingProjectile,
+            CarpetBombingMissileProjectile
         ] = await Promise.all([
             import('../../entities/projectiles/skills/ThreadsOfFateProjectile.js').then(m => m.default),
             import('../../entities/projectiles/skills/LightProjectile.js').then(m => m.default),
@@ -90,7 +92,9 @@ class ProjectileManager {
             import('../../entities/projectiles/special/MagentaDriveProjectile.js').then(m => m.default),
             import('../../entities/projectiles/common/ArrowProjectile.js').then(m => m.default),
             import('../../entities/projectiles/skills/KnockbackShotProjectile.js').then(m => m.default),
-            import('../../entities/projectiles/skills/ElectricGrenadeProjectile.js').then(m => m.default)
+            import('../../entities/projectiles/skills/ElectricGrenadeProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/CarpetBombingProjectile.js').then(m => m.default),
+            import('../../entities/projectiles/skills/CarpetBombingMissileProjectile.js').then(m => m.default)
         ]);
 
         this.registerProjectile('threads_of_fate_projectile', ThreadsOfFateProjectile);
@@ -117,6 +121,8 @@ class ProjectileManager {
         this.registerProjectile('arrow', ArrowProjectile);
         this.registerProjectile('knockback_shot', KnockbackShotProjectile);
         this.registerProjectile('electric_grenade', ElectricGrenadeProjectile);
+        this.registerProjectile('carpet_bombing', CarpetBombingProjectile);
+        this.registerProjectile('carpet_bombing_missile', CarpetBombingMissileProjectile);
 
         Logger.system("ProjectileManager: Initialized for scene with dynamic routing.");
     }
