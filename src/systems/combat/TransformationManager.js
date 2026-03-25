@@ -40,7 +40,7 @@ class TransformationManager {
 
         // 3. 비주얼(스프라이트) 변경
         if (config.spriteKey) {
-            entity.visual.setTexture(config.spriteKey);
+            entity.visual.updateTexture(config.spriteKey);
             entity.spriteKey = config.spriteKey;
         }
 
@@ -76,7 +76,7 @@ class TransformationManager {
         entity.logic.class = original.class;
 
         // 2. 비주얼 복구
-        entity.visual.setTexture(original.spriteKey);
+        entity.visual.updateTexture(original.spriteKey);
         entity.spriteKey = original.spriteKey;
 
         // 3. 백업 데이터 삭제

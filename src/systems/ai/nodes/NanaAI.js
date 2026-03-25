@@ -21,10 +21,9 @@ class NanaAI {
         const currentClass = entity.logic.class.getClassName();
 
         if (currentClass === ENTITY_CLASSES.BARD) {
-            // 바드인 경우 스킬 사용 체크 (아군 버프 위주)
-            if (bb.get('target')) {
-                entity.useSkill('MusicalMagicalCritical');
-            }
+            // 바드인 경우 스킬 사용 (전용 AI가 타겟을 찾으므로 즉시 시도)
+            entity.useSkill('MusicalMagicalCritical');
+            
             // 바드 AI (도망다니며 아군 보조)
             BardAI.execute(entity, bb, delta);
         } else {

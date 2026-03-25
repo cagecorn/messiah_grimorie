@@ -305,13 +305,16 @@ export default class CombatEntity extends Phaser.GameObjects.Container {
         this.actions.update(delta);
         this.visual.updateIdleState(); // 아이들 바빙 체크
 
-        // [신규] 은신 잔상 효과 (GhostManager 연동)
-        if (this.active && this.isStealthed && this.body && (Math.abs(this.body.velocity.x) > 10 || Math.abs(this.body.velocity.y) > 10)) {
-            // 매 프레임 생기면 너무 과하므로 미세한 확률이나 타이머가 좋지만, 
-            // 여기서는 고스트 매니저의 최적화를 믿고 10프레임마다 하나씩 생성하도록 함 (간단하게 Math.random 활용)
-            if (Math.random() < 0.2) {
+        // [신규] 은신 잔상 및 나나 변신 잔상 효과 (GhostManager 연동)
+        const isMoving = this.body && (Math.abs(this.body.velocity.x) > 10 || Math.abs(this.body.velocity.y) > 10);
+        const isNanaRogue = this.logic.baseId === 'nana' && this.logic.class.getClassName() === 'rogue';
+        
+        if (this.active && isMoving && (this.isStealthed || isNanaRogue)) {
+            if (Math.random() < 0.3) { // 빈도 약간 상향
                 import('../systems/graphics/GhostManager.js').then(m => {
-                    m.default.spawnGhost(this, { lifeTime: 400, alpha: 0.3, tint: 0x6666ff });
+                    const tint = isNanaRogue ? 0xff0000 : 0x6666ff; // 나나는 빨간색, 은신은 파란색
+                    const alpha = isNanaRogue ? 0.5 : 0.3;
+                    m.default.spawnGhost(this, { lifeTime: 500, alpha: alpha, tint: tint });
                 });
             }
         }
