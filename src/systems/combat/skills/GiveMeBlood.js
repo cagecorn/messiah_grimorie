@@ -2,6 +2,12 @@ import Logger from '../../../utils/Logger.js';
 import ultimateCutsceneManager from '../../../ui/UltimateCutsceneManager.js';
 import transformationManager from '../TransformationManager.js';
 import { ENTITY_CLASSES } from '../../../core/EntityConstants.js';
+import BloodRageATK from '../effects/BloodRageATK.js';
+import BloodRageAtkSpd from '../effects/BloodRageAtkSpd.js';
+import BloodRageLifesteal from '../effects/BloodRageLifesteal.js';
+import CriticalUp from '../effects/CriticalUp.js';
+import MovementSpeedUp from '../effects/MovementSpeedUp.js';
+import StaminaRegenUp from '../effects/StaminaRegenUp.js';
 
 /**
  * 나나 궁극기: 피를 다오! 크하하하! (Give Me Blood!)
@@ -29,23 +35,15 @@ class GiveMeBlood {
             duration: this.duration
         });
 
-        // 3. 광기 버프 (공격력 및 공격속도 대폭 증가)
-        if (owner.logic.buffs) {
-            owner.logic.buffs.addBuff({
-                id: 'nana_madness',
-                key: 'atk',
-                value: 40, // 공격력 +40
-                type: 'add',
-                duration: this.duration
-            });
-            
-            owner.logic.buffs.addBuff({
-                id: 'nana_atk_speed',
-                key: 'atkSpd',
-                value: 0.5, // 공속 +0.5
-                type: 'add',
-                duration: this.duration
-            });
+        // 3. 광기 버프 (총 6종 버프 강화)
+        if (owner.logic.isAlive) {
+            const target = owner.logic;
+            BloodRageATK.apply(target, this.duration, 1.2);      // 공격력 +120% (강화)
+            BloodRageAtkSpd.apply(target, this.duration, 0.6);   // 공격속도 +60%
+            BloodRageLifesteal.apply(target, this.duration, 0.3); // 피해 흡혈 30%
+            CriticalUp.apply(owner, 0.4, this.duration);         // 치명타 확률 +40%
+            MovementSpeedUp.apply(owner, this.duration, 0.5);   // 이동속도 +50%
+            StaminaRegenUp.apply(owner, this.duration, 0.8);    // 스태미나 회복 +80%
         }
 
         // 4. 시각 효과 (붉은 아우라 등)

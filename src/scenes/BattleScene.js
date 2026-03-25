@@ -24,6 +24,7 @@ import dungeonRoundManager from '../systems/dungeons/DungeonRoundManager.js';
 import timeManager from '../core/TimeManager.js';
 import pooledElectricShockEffect from '../systems/graphics/effects/PooledElectricShockEffect.js';
 import pooledElectricExplosionEffect from '../systems/graphics/effects/PooledElectricExplosionEffect.js';
+import pooledMusicalMagicalCriticalEffect from '../systems/graphics/effects/PooledMusicalMagicalCriticalEffect.js';
 
 /**
  * 전투 씬 (Battle Scene)
@@ -131,7 +132,7 @@ export default class BattleScene extends Phaser.Scene {
         Logger.info("BATTLE_LOADER", "Preloading hitting sound effects and death sfx.");
 
         // [신규] 버프 아이콘 프리로드 (키값을 텍스처 키로 사용)
-        const buffIcons = ['shield_icon', 'inspiration_icon', 'sleep_icon', 'atk_up', 'atk_speed_up', 'lifesteal'];
+        const buffIcons = ['shield_icon', 'inspiration_icon', 'sleep_icon', 'atk_up', 'atk_speed_up', 'lifesteal', 'critical_up', 'movement_up', 'stamina_up'];
         buffIcons.forEach(key => {
             const path = assetPathManager.getPath('images', key);
             if (path) this.load.image(key, path);
@@ -249,6 +250,7 @@ export default class BattleScene extends Phaser.Scene {
         ultimateCutsceneManager.init();
         pooledElectricShockEffect.init(this);
         pooledElectricExplosionEffect.init(this);
+        pooledMusicalMagicalCriticalEffect.init(this);
 
         // [신규] 보상 시스템 매니저 초기화 (이벤트 기반 작동 시작)
         experienceManager.init();

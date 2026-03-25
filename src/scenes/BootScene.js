@@ -132,6 +132,10 @@ export default class BootScene extends Phaser.Scene {
         this.load.image('babao_sprite', assetPathManager.getPath('images', 'babao_sprite'));
         this.load.image('nana_sprite', assetPathManager.getMercenaryPath('nana', 'sprite'));
         this.load.image('nana_ultimate_sprite', 'assets/characters/party/nana_ultimate_sprite.png');
+        this.load.image('musical_magical_critical_effect', assetPathManager.getPath('images', 'musical_magical_critical_effect'));
+        this.load.image('critical_up', assetPathManager.getPath('images', 'critical_up'));
+        this.load.image('movement_up', assetPathManager.getPath('images', 'movement_up'));
+        this.load.image('stamina_up', assetPathManager.getPath('images', 'stamina_up'));
         this.load.audio('stone_skin_sfx', assetPathManager.getPath('audio', 'stone_skin_sfx'));
         this.load.audio('physical_hit_1', assetPathManager.getPath('audio', 'physical_hit_1'));
         this.load.audio('roll_sfx', assetPathManager.getPath('audio', 'roll_sfx'));

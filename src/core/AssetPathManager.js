@@ -57,6 +57,7 @@ class AssetPathManager {
             shock_icon: `${this.basePath}icon/electric_shock_icon.png`,
             carpet_bombing_projectile: `${this.basePath}effect/carpet_bombing_projectile.png`,
             missile_projectile: `${this.basePath}effect/missile_projectile.png`,
+            musical_magical_critical_effect: `${this.basePath}effect/musicalmagicalcritical_effect.png`,
             
             // [신규] 자인 (Zayn) 에셋
             zayn_sprite: `${this.basePath}characters/party/zayn_sprite.png`,
@@ -72,6 +73,9 @@ class AssetPathManager {
             atk_speed_up: `${this.basePath}icon/atk_speed_up_icon.png`,
             lifesteal: `${this.basePath}icon/lifesteal_icon.png`,
             shock: `${this.basePath}icon/electric_shock_icon.png`,
+            critical_up: `${this.basePath}icon/critical_up_icon.png`,
+            movement_up: `${this.basePath}icon/movement_up_icon.png`,
+            stamina_up: `${this.basePath}icon/stamina_up_icon.png`,
             
             // [신규] 고블린 위자드 에셋
             goblin_wizard: `${this.basePath}characters/enemies/goblin_wizard_sprite.png`,

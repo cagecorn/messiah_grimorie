@@ -22,7 +22,10 @@ class IconManager {
             'shield': 'shield_icon.png',
             'inspiration': 'inspiration_icon.png',
             'stoneskin': 'stone_skin_icon.png',
-            'flying': 'flying_icon.png'
+            'flying': 'flying_icon.png',
+            'critical_up': 'critical_up_icon.png',
+            'movement_up': 'movement_up_icon.png',
+            'stamina_up': 'stamina_up_icon.png'
         };
         
         this.defaultIcon = 'assets/icon/unknown.png';
@@ -82,6 +85,9 @@ class IconManager {
         if (lowerId.includes('rapidfire') || lowerId.includes('rapid_fire')) return 'snapshot_icon';
         if (lowerId.includes('flying')) return 'flying_icon';
         if (lowerId === 'shocked') return 'shock';
+        if (lowerId.includes('critical_up')) return 'critical_up';
+        if (lowerId.includes('movement_up')) return 'movement_up';
+        if (lowerId.includes('stamina_up')) return 'stamina_up';
         
         return lowerId;
     }
