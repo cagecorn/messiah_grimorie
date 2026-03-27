@@ -42,6 +42,7 @@ class DevCommandManager {
         console.log("%cdev.addKing()%c - 킹 즉시 지급 (킹 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.addLeona()%c - 레오나 즉시 지급 (레오나 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.addNana()%c - 나나 즉시 지급 (나나 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
+        console.log("%cdev.addNickle()%c - 니클 즉시 지급 (니클 한 마리 지급)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.clearData()%c - 모든 로컬 데이터 및 DB 초기화 (새로고침 필요)", "font-weight: bold;", "font-weight: normal;");
         console.log("%cdev.help()%c - 이 도움말 다시 보기", "font-weight: bold;", "font-weight: normal;");
         console.groupEnd();
@@ -130,6 +131,13 @@ class DevCommandManager {
      */
     addNana() {
         this.addMercenary('nana', 1);
+    }
+
+    /**
+     * 니클 즉시 지급 단축키
+     */
+    addNickle() {
+        this.addMercenary('nickle', 1);
     }
 
     /**

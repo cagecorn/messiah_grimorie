@@ -1,5 +1,5 @@
 import Logger from '../../../utils/Logger.js';
-import transformationManager from '../../TransformationManager.js';
+import transformationManager from '../TransformationManager.js';
 import BloodRageATK from '../effects/BloodRageATK.js';
 import BloodRageAtkSpd from '../effects/BloodRageAtkSpd.js';
 import MovementSpeedUp from '../effects/MovementSpeedUp.js';

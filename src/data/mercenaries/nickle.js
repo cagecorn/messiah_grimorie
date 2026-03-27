@@ -1,4 +1,6 @@
 import { ENTITY_CLASSES, STAT_KEYS } from '../../core/EntityConstants.js';
+import TacticalCommand from '../../systems/combat/skills/TacticalCommand.js';
+import BackInDays from '../../systems/combat/skills/BackInDays.js';
 
 /**
  * 용병 데이터: 니클 (Nickle)
@@ -9,8 +11,8 @@ export default {
     name: 'Nickle',
     className: ENTITY_CLASSES.ARCHER,
     isSpecial: false,
-    skill: 'TacticalCommand',
-    ultimate: 'BackInDays',
+    skill: TacticalCommand,
+    ultimate: BackInDays,
     level: 1,
     exp: 0,
     baseStats: {

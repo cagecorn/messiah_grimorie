@@ -23,6 +23,7 @@ import summonBabao from './skills/SummonBabao.js';
 import BloodRage from './skills/BloodRage.js';
 import electricGrenade from './skills/ElectricGrenade.js';
 import musicalMagicalCritical from './skills/MusicalMagicalCritical.js';
+import tacticalCommand from './skills/TacticalCommand.js';
 
 /**
  * 스킬 매니저 (Skill Manager)
@@ -298,6 +299,17 @@ class SkillManager {
             descriptionKey: 'skill_musical_magical_critical_desc',
             cooldown: 10000,
             get logic() { return musicalMagicalCritical; }
+        });
+
+        // 니클 (Nickle)
+        this.skills.set('nickle', {
+            id: 'TacticalCommand',
+            name: 'Tactical Command',
+            nameKey: 'skill_tactical_command_name',
+            description: 'Increases standard attack power of all allies by 50%.',
+            descriptionKey: 'skill_tactical_command_desc',
+            cooldown: 15000,
+            get logic() { return tacticalCommand; }
         });
     }
 

@@ -13,6 +13,7 @@ import proveYourExistence from './skills/ProveYourExistence.js';
 import MagentaDrive from './skills/MagentaDrive.js';
 import carpetBombing from './skills/CarpetBombing.js';
 import giveMeBlood from './skills/GiveMeBlood.js';
+import backInDays from './skills/BackInDays.js';
 
 /**
  * 궁극기 매니저 (Ultimate Manager)
@@ -183,6 +184,18 @@ class UltimateManager {
             chargeMax: 100,
             chargeSpeedBase: 1.0,
             get logic() { return giveMeBlood; }
+        });
+
+        // 니클 (Nickle)
+        this.ultimates.set('nickle', {
+            id: 'BackInDays',
+            name: 'Back In the Days',
+            nameKey: 'ult_back_in_days_name',
+            description: 'Transforms into peak form, gaining massive buffs.',
+            descriptionKey: 'ult_back_in_days_desc',
+            chargeMax: 100,
+            chargeSpeedBase: 1.0,
+            get logic() { return backInDays; }
         });
 
         // 고블린(몬스터)은 궁극기 없음
