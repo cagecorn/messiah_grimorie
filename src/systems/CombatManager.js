@@ -9,6 +9,7 @@ import attributeDamageManager from './combat/AttributeDamageManager.js';
 import fxManager from './graphics/FXManager.js';
 import summonManager from './entities/SummonManager.js';
 import totemManager from './entities/TotemManager.js';
+import standardAttackDetectionManager from './combat/managers/StandardAttackDetectionManager.js';
 // [MOVE] fireBurst and massHeal imports removed to break circular dependency
 
 /**
@@ -219,6 +220,15 @@ class CombatManager {
             damage = COMBAT.calcMagicEffect(attacker.getTotalMAtk(), multiplier);
         }
 
+        // --- [NEW] 전술지휘 (Tactical Command) 적용 ---
+        if (standardAttackDetectionManager.isStandardProjectile(projectileId)) {
+            const tacticalMult = standardAttackDetectionManager.getTacticalMultiplier(attackerEntity);
+            if (tacticalMult > 1.0) {
+                damage *= tacticalMult;
+                // Logger.debug("COMBAT", `Tactical Command applied! Damage x${tacticalMult}`);
+            }
+        }
+
         // --- [NEW] 속성 저항 계산 적용 ---
         damage = attributeDamageManager.calculateDamage(attackerEntity, targetEntity, damage, attribute);
 
@@ -360,7 +370,13 @@ class CombatManager {
         const healer = healerEntity.logic;
         const target = targetEntity.logic;
 
-        const healAmount = healer.getTotalMAtk() * multiplier;
+        let healAmount = healer.getTotalMAtk() * multiplier;
+
+        // --- [NEW] 전술지휘 (Tactical Command) 적용 ---
+        const tacticalMult = standardAttackDetectionManager.getTacticalMultiplier(healerEntity);
+        if (tacticalMult > 1.0) {
+            healAmount *= tacticalMult;
+        }
 
         if (targetEntity && targetEntity.heal) {
             Logger.info("COMBAT_MANAGER", `Processing HEAL: ${healer.name} -> ${target.name} (${healAmount.toFixed(1)})`);
@@ -385,8 +401,14 @@ class CombatManager {
         const bard = bardEntity.logic;
         const target = targetEntity.logic;
 
-        const buffValue = bard.getTotalMAtk() * multiplier;
+        let buffValue = bard.getTotalMAtk() * multiplier;
         const duration = 5000; // 5초 지속
+
+        // --- [NEW] 전술지휘 (Tactical Command) 적용 ---
+        const tacticalMult = standardAttackDetectionManager.getTacticalMultiplier(bardEntity);
+        if (tacticalMult > 1.0) {
+            buffValue *= tacticalMult;
+        }
 
         if (target.buffs) {
             Logger.info("COMBAT_MANAGER", `Processing INSPIRATION: ${bard.name} -> ${target.name} (+${buffValue.toFixed(1)})`);
